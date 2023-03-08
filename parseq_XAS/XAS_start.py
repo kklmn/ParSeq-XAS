@@ -22,7 +22,7 @@ def main(projectFile=None, withTestData=True, withGUI=True):
     if withGUI:
         for node in list(csi.nodes.values())[0:2]:
             # node.includeFilters = ['*.h5', '*.dat', '*.fio']
-            node.includeFilters = ['*.dat']
+            node.includeFilters = ['*.dat', '*.fio']
         from silx.gui import qt
         from parseq.gui.mainWindow import MainWindowParSeq
         app = qt.QApplication([])
