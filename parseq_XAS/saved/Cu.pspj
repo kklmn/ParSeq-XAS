@@ -1,0 +1,215 @@
+[Root]
+tree = ['Cu_lnt1', 'Cu_lnt2', 'Cu_rt1', 'Cu_rt2']
+groups = 0
+items = 4
+colorPolicy = loop1
+colorAutoUpdate = False
+
+[Cu_lnt1]
+madeOf = C:/ParSeq/parseq_XAS/data/Cu_lnt1.fio
+madeOf_relative = ../data/Cu_lnt1.fio
+dataFormat = {"lastSkipRowContains": "Col", "dataSource": ["0", "5", "6", ""], "conversionFactors": ["", "", "", ""], "metadata": ""}
+suffix = None
+originNodeName = currents Tr
+terminalNodeName = None
+transformNames = each
+colorTag = 2
+color = #1f77b4
+plotProps = {'currents Tr': {'i0': {'yaxis': 'left', 'linewidth': 2.3, 'linestyle': '-'}, 'itr': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'currents PFY': {'i0': {'yaxis': 'left', 'linewidth': 2.3, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'currents TEY': {'i0': {'yaxis': 'left', 'linewidth': 2.3, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'µd': {'mu': {'yaxis': 'left', 'linewidth': 1.6, 'linestyle': '-'}}, 'k-space': {'chi': {'yaxis': 'left', 'linewidth': 1.6, 'linestyle': '-'}}, 'r-space': {'ft': {'yaxis': 'left', 'linewidth': 1.6, 'linestyle': '-'}}}
+;transform params:
+e0Smooth = True
+e0SmoothN = 6
+e0Where = None
+e0Method = 2
+e0 = 8978.918360695128
+preedgeWhere = [0.03, 0.33]
+preedgeExps = [0, 1]
+postedgeWhere = [40, 400]
+postedgeExps = [0, 1]
+edgeJump = 1.906925484943062
+mu0PriorIncludeWhiteLine = False
+mu0PriorVScale = 0.98
+mu0PriorSmoothN = 3
+mu0method = 1
+mu0knots = 10
+mu0kpow = 2
+mu0smoothingFactor = 2000000.0
+rebinNeeded = True
+rebinRegions = {'deltas': (1.0, 0.2, 0.5, 0.025), 'splitters': (-15, 15, 2.5, 'inf')}
+nbinOriginal = [83, 111, 18, 635]
+nbinNew = [83, 95, 18, 613]
+needECalibration = True
+eCalibrationMethod = 0
+eRef = 8979.0
+eShift = -0.3940370884592994
+eShiftKind = 0
+useERefCurve = False
+kw = 2
+krange = [1.9728709917971665, 17.889033557279422]
+dk = 0.025
+datakmax = 17.86445557109304
+ftWindowKind = cosine-tapered
+ftWindowProp = [2.4862928984029904, 0.031150490984191127]
+rmax = 8.2
+forceFT0 = True
+
+[Cu_lnt2]
+madeOf = C:/ParSeq/parseq_XAS/data/Cu_lnt2.fio
+madeOf_relative = ../data/Cu_lnt2.fio
+dataFormat = {"lastSkipRowContains": "Col", "dataSource": ["0", "5", "6", ""], "conversionFactors": ["", "", "", ""], "metadata": ""}
+suffix = None
+originNodeName = currents Tr
+terminalNodeName = None
+transformNames = each
+colorTag = 2
+color = #ff7f0e
+plotProps = {'currents Tr': {'i0': {'yaxis': 'left', 'linewidth': 2.3, 'linestyle': '-'}, 'itr': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'currents PFY': {'i0': {'yaxis': 'left', 'linewidth': 2.3, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'currents TEY': {'i0': {'yaxis': 'left', 'linewidth': 2.3, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'µd': {'mu': {'yaxis': 'left', 'linewidth': 1.6, 'linestyle': '-'}}, 'k-space': {'chi': {'yaxis': 'left', 'linewidth': 1.6, 'linestyle': '-'}}, 'r-space': {'ft': {'yaxis': 'left', 'linewidth': 1.6, 'linestyle': '-'}}}
+;transform params:
+e0Smooth = True
+e0SmoothN = 6
+e0Where = None
+e0Method = 2
+e0 = 8979.000000000486
+preedgeWhere = [0.03, 0.33]
+preedgeExps = [0, 1]
+postedgeWhere = [40, 400]
+postedgeExps = [0, 1]
+edgeJump = 1.9078450890084344
+mu0PriorIncludeWhiteLine = False
+mu0PriorVScale = 0.98
+mu0PriorSmoothN = 3
+mu0method = 1
+mu0knots = 10
+mu0kpow = 2
+mu0smoothingFactor = 2000000.0
+rebinNeeded = True
+rebinRegions = {'deltas': (1.0, 0.2, 0.5, 0.025), 'splitters': (-15, 15, 2.5, 'inf')}
+nbinOriginal = [83, 111, 17, 636]
+nbinNew = [83, 111, 17, 615]
+needECalibration = True
+eCalibrationMethod = 0
+eRef = 8979.0
+eShift = -0.026200947302640998
+eShiftKind = 0
+useERefCurve = False
+kw = 2
+krange = [1.9728709917971665, 17.889033557279422]
+dk = 0.025
+datakmax = 17.86733910528762
+ftWindowKind = cosine-tapered
+ftWindowProp = [2.4862928984029904, 0.031150490984191127]
+rmax = 8.2
+forceFT0 = True
+
+[Cu_rt1]
+madeOf = C:/ParSeq/parseq_XAS/data/Cu_rt1.fio
+madeOf_relative = ../data/Cu_rt1.fio
+dataFormat = {"lastSkipRowContains": "Col", "dataSource": ["0", "5", "6", ""], "conversionFactors": ["", "", "", ""], "metadata": ""}
+suffix = None
+originNodeName = currents Tr
+terminalNodeName = None
+transformNames = each
+colorTag = 2
+color = #2ca02c
+plotProps = {'currents Tr': {'i0': {'yaxis': 'left', 'linewidth': 2.3, 'linestyle': '-'}, 'itr': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'currents PFY': {'i0': {'yaxis': 'left', 'linewidth': 2.3, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'currents TEY': {'i0': {'yaxis': 'left', 'linewidth': 2.3, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'µd': {'mu': {'yaxis': 'left', 'linewidth': 1.6, 'linestyle': '-'}}, 'k-space': {'chi': {'yaxis': 'left', 'linewidth': 1.6, 'linestyle': '-'}}, 'r-space': {'ft': {'yaxis': 'left', 'linewidth': 1.6, 'linestyle': '-'}}}
+;transform params:
+e0Smooth = True
+e0SmoothN = 6
+e0Where = None
+e0Method = 2
+e0 = 8978.999999991025
+preedgeWhere = [0.03, 0.33]
+preedgeExps = [0, 1]
+postedgeWhere = [40, 400]
+postedgeExps = [0, 1]
+edgeJump = 1.8663291356689404
+mu0PriorIncludeWhiteLine = False
+mu0PriorVScale = 0.98
+mu0PriorSmoothN = 3
+mu0method = 1
+mu0knots = 10
+mu0kpow = 2
+mu0smoothingFactor = 2000000.0
+rebinNeeded = True
+rebinRegions = {'deltas': (1.0, 0.2, 0.5, 0.025), 'splitters': (-15, 15, 2.5, 'inf')}
+nbinOriginal = [82, 110, 18, 637]
+nbinNew = [82, 110, 18, 614]
+needECalibration = True
+eCalibrationMethod = 0
+eRef = 8979.0
+eShift = 0.7096925935729814
+eShiftKind = 0
+useERefCurve = False
+kw = 2
+krange = [1.9728709917971665, 17.889033557279422]
+dk = 0.025
+datakmax = 17.87430754194887
+ftWindowKind = cosine-tapered
+ftWindowProp = [2.4862928984029904, 0.031150490984191127]
+rmax = 8.2
+forceFT0 = True
+
+[Cu_rt2]
+madeOf = C:/ParSeq/parseq_XAS/data/Cu_rt2.fio
+madeOf_relative = ../data/Cu_rt2.fio
+dataFormat = {"lastSkipRowContains": "Col", "dataSource": ["0", "5", "6", ""], "conversionFactors": ["", "", "", ""], "metadata": ""}
+suffix = None
+originNodeName = currents Tr
+terminalNodeName = None
+transformNames = each
+colorTag = 2
+color = #d62728
+plotProps = {'currents Tr': {'i0': {'yaxis': 'left', 'linewidth': 2.3, 'linestyle': '-'}, 'itr': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'currents PFY': {'i0': {'yaxis': 'left', 'linewidth': 2.3, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'currents TEY': {'i0': {'yaxis': 'left', 'linewidth': 2.3, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'µd': {'mu': {'yaxis': 'left', 'linewidth': 1.6, 'linestyle': '-'}}, 'k-space': {'chi': {'yaxis': 'left', 'linewidth': 1.6, 'linestyle': '-'}}, 'r-space': {'ft': {'yaxis': 'left', 'linewidth': 1.6, 'linestyle': '-'}}}
+;transform params:
+e0Smooth = True
+e0SmoothN = 6
+e0Where = None
+e0Method = 2
+e0 = 8978.992546793625
+preedgeWhere = [0.03, 0.33]
+preedgeExps = [0, 1]
+postedgeWhere = [40, 400]
+postedgeExps = [0, 1]
+edgeJump = 1.8672375047031764
+mu0PriorIncludeWhiteLine = False
+mu0PriorVScale = 0.98
+mu0PriorSmoothN = 3
+mu0method = 1
+mu0knots = 10
+mu0kpow = 2
+mu0smoothingFactor = 2000000.0
+rebinNeeded = True
+rebinRegions = {'deltas': (1.0, 0.2, 0.5, 0.025), 'splitters': (-15, 15, 2.5, 'inf')}
+nbinOriginal = [82, 111, 17, 637]
+nbinNew = [82, 105, 17, 615]
+needECalibration = True
+eCalibrationMethod = 0
+eRef = 8979.0
+eShift = 0.3914935214106663
+eShiftKind = 0
+useERefCurve = False
+kw = 2
+krange = [1.9728709917971665, 17.889033557279422]
+dk = 0.025
+datakmax = 17.87134916724695
+ftWindowKind = cosine-tapered
+ftWindowProp = [2.4862928984029904, 0.031150490984191127]
+rmax = 8.2
+forceFT0 = True
+
+[Docks]
+floating = [False, False, False, False, False, False]
+active = µd
+
+[Geometry]
+mainWindow = (253, 75, 1525, 894)
+currents Tr = ()
+currents PFY = ()
+currents TEY = ()
+µd = ()
+k-space = ()
+r-space = ()
+
+[Undo]
+grouping = True
+
