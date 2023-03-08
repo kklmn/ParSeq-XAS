@@ -9,11 +9,11 @@ transformations that connect these nodes and widgets that set options and
 parameters of the transformations.
 
 <p align="center">
-  <img src="parseq_XAS/doc/_images/XAS-foilss.gif" />
+  <img src="parseq_XAS/doc/_images/XAS-foils.gif" />
 </p>
 
 <p align="center">
-  <img src="parseq_XAS/doc/_images/about.gif" width=80% />
+  <img src="parseq_XAS/doc/_images/about.gif" width=300 />
 </p>
 
 Dependencies
