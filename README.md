@@ -9,7 +9,7 @@ transformations that connect these nodes and widgets that set options and
 parameters of the transformations.
 
 <p align="center">
-  <img src="parseq_XAS/doc/_images/XAS-foils.gif" />
+  <img src="parseq_XAS/doc/_images/XAS-foils.gif" width=100% />
 </p>
 
 <p align="center">
@@ -27,5 +27,6 @@ How to use
 
 Either install ParSeq and this pipeline application by their installers or put
 their folders `parseq` and `parseq_XAS` near by (i.e. in the same folder) and
-run `python XAS_start.py --help` to see the accepted options. Load a ready
-project from `saved` folder from the GUI or from the starting command line.
+run `python XAS_start.py --help` to see the accepted options. Run the pipeline
+as `python XAS_start.py`. Load a ready project from `saved` folder from the GUI
+or from the starting command line.
