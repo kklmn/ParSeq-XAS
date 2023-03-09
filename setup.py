@@ -1,6 +1,28 @@
 # -*- coding: utf-8 -*-
 from setuptools import setup
 
+import os.path as osp
+import codecs
+
+__dir__ = osp.abspath(osp.dirname(__file__))
+
+
+def read(pathnames):
+    with codecs.open(osp.join(__dir__, *pathnames), 'r') as fp:
+        return fp.read()
+
+
+def get_version():
+    inLines = read(('parseq_XAS', 'version.py')).splitlines()
+    for line in inLines:
+        if line.startswith('__versioninfo__'):
+            versioninfo = eval(line[line.find('=')+1:])
+            version = '.'.join(map(str, versioninfo))
+            return version
+    else:
+        raise RuntimeError("Unable to find version string.")
+
+
 long_description = u"""
 EXAFS analysis pipeline
 =======================
@@ -29,7 +51,7 @@ project from `saved` folder from the GUI or from the starting command line.
 
 setup(
     name='parseq_XAS',
-    version='0.8.0',
+    version=get_version(),
     description='A pipeline for data processing of XAS spectra',
     long_description=long_description,
     long_description_content_type='text/x-rst',
@@ -43,8 +65,9 @@ setup(
     zip_safe=False,  # True: build zipped egg, False: unzipped
     packages=['parseq_XAS'],
     package_data={
-        'parseq_XAS': ['data/*.*', 'doc/_images/*.*', 'saved/*.*']},
-    scripts=['XAS_start.py'],
+        'parseq_XAS': ['data/*.*', 'data/foils/*.*',
+                       'doc/_images/*.*', 'saved/*.*']},
+    scripts=['parseq_XAS/XAS_start.py'],
     install_requires=['numpy>=1.8.0', 'scipy>=1.10.0', 'matplotlib>=2.0.0',
                       'sphinx>=1.6.2', 'h5py', 'silx>=1.1.0', 'hdf5plugin'],
     classifiers=['Development Status :: 5 - Production/Stable',
