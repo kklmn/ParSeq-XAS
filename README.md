@@ -9,7 +9,7 @@ transformations that connect these nodes and widgets that set options and
 parameters of the transformations.
 
 <p align="center">
-  <img src="parseq_XAS/doc/_images/XAS-foils.gif" width=100% />
+  <img src="parseq_XAS/doc/_images/XAS-foils.gif" width=800 />
 </p>
 
 <p align="center">
