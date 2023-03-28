@@ -49,13 +49,27 @@ class NodeIE(cno.Node):  # total electron yield (fluorescence) signals
     arrays['eref'] = dict(role='optional', qLabel='Eref')
 
 
+class NodeIXES(cno.Node):
+    name = '2D XES'
+    arrays = OrderedDict()
+    arrays['eraw'] = dict(qLabel='E', qUnit='eV', role='y', plotLabel=r'$E$')
+    arrays['i0'] = dict(  # not plotted, therefore role='1D'
+        qLabel='I0', qUnit='A', role='1D')
+    arrays['xes2D'] = dict(
+        qLabel='XES2D', qUnit='counts', role='2D',
+        plotLabel=['tangential pixel', 'eraw'])
+    arrays['eref'] = dict(role='optional', qLabel='Eref')
+
+
 class NodeMu(cno.Node):
     name = u'µd'
     arrays = OrderedDict()
-    arrays['e'] = dict(qLabel='E', qUnit='eV', role='x', plotLabel=r'$E$')
+    arrays['e'] = dict(qLabel='E', qUnit='eV', role='x', plotLabel=r'$E$',
+                       raw='eraw')
     arrays['mu'] = dict(
-        qLabel=u'µd', role='yleft', plotLabel=r'$\mu d$',
+        qLabel=u'µd', role='yleft', plotLabel=r'$\mu d$', raw='muraw',
         plotParams=dict(linewidth=1.6, linestyle='-'))
+    arrays['eref'] = dict(role='optional', qLabel='Eref')
 
 
 class NodeChi(cno.Node):

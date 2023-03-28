@@ -15,7 +15,7 @@ except ImportError as e:
     raise(e)
 
 # from scipy.ndimage import uniform_filter1d
-from scipy.integrate import simps
+# from scipy.integrate import simps
 
 from parseq.core import transforms as ctr
 from parseq.utils import ft as uft
@@ -29,6 +29,90 @@ cpus = 'half'  # can be 'all' or 'half' or a number (int)
 
 class MakeTrMu(ctr.Transform):
     name = 'make tr mu'
+    nThreads = cpus
+    inArrays = ['i0', 'itr', 'eraw', 'eref']
+    outArrays = ['muraw']
+    defaultParams = {}
+
+    @classmethod
+    def run_main(cls, data):
+        posI0 = np.where(data.i0 > 0, data.i0, np.ones_like(data.i0))
+        posItr = np.where(data.itr > 0, data.itr, np.ones_like(data.itr))
+        data.muraw = np.log(posI0 / posItr)
+        return True
+
+
+class MakeFYMu(ctr.Transform):
+    name = 'make PFY mu'
+    nThreads = cpus
+    inArrays = ['i0', 'ify', 'eraw', 'eref']
+    outArrays = ['muraw']
+    defaultParams = {}
+
+    @classmethod
+    def run_main(cls, data):
+        posI0 = np.where(data.i0 > 0, data.i0, np.ones_like(data.i0))
+        posIfy = np.where(data.ify > 0, data.ify, np.ones_like(data.ify))
+        data.muraw = posIfy / posI0 * posI0.max()
+        return True
+
+
+class MakeTEYMu(ctr.Transform):
+    name = 'make TEY mu'
+    nThreads = cpus
+    inArrays = ['i0', 'iey', 'eraw', 'eref']
+    outArrays = ['muraw']
+    defaultParams = {}
+
+    @classmethod
+    def run_main(cls, data):
+        posI0 = np.where(data.i0 > 0, data.i0, np.ones_like(data.i0))
+        posIey = np.where(data.iey > 0, data.iey, np.ones_like(data.iey))
+        data.muraw = posIey / posI0 * posI0.max()
+        return True
+
+
+class MakeHERFD(ctr.Transform):
+    name = 'make HERFD'
+    nThreads = cpus
+    inArrays = ['i0', 'xes2D', 'eraw', 'eref']
+    outArrays = ['muraw']
+    defaultParams = {}
+
+    # defaultParams['roi'] = dict(
+    #     kind='BandROI', name='band', use=True,
+    #     begin=(300, 0), end=(300, 100), width=10)
+    defaultParams['roiHERFD'] = dict(
+        kind='HorizontalRangeROI', name='roi', use=True, vmin=300, vmax=400)
+
+    @classmethod
+    def run_main(cls, data):
+        posI0 = np.where(data.i0 > 0, data.i0, np.ones_like(data.i0))
+        dtparams = data.transformParams
+        roi = dtparams['roiHERFD']
+        if roi['use']:
+            if roi['kind'] == 'HorizontalRangeROI':
+                vmin = max(int(roi['vmin']), 0)
+                vmax = int(roi['vmax'])
+                posIXES = data.xes2D[:, vmin:vmax+1].sum(axis=1)
+            elif roi['kind'] == 'BandROI':
+                sh = data.xes2D.shape
+                xs = data.eraw
+                ys = np.arange(sh[0])[:, None]
+                m = uma.get_roi_mask(roi, xs, ys)
+                _, indx = np.nonzero(m)
+                posIXES = data.xes2D[m].sum(axis=1) if len(indx) > 0 else \
+                    data.xes2D.sum(axis=1)
+            else:
+                raise ValueError('Unknown roi kind for {0}'.format(data.alias))
+        else:
+            posIXES = data.xes2D.sum(axis=1)
+        data.muraw = posIXES / posI0 * posI0.max()
+        return True
+
+
+class MakeChi(ctr.Transform):
+    name = 'make chi'
     defaultParams = dict(
         e0Smooth=True, e0SmoothN=6, e0Where=[0, 0.7], e0Method=2,
         e0=None, preedgeWhere=[0.03, 0.33], preedgeExps=[-3, 0],
@@ -37,33 +121,35 @@ class MakeTrMu(ctr.Transform):
         mu0method=1,  # see names in mu0methods
         mu0knots=7, mu0kpow=2,  # for mu0method=0
         mu0smoothingFactor=2e6,  # for mu0method=1
-        rebinNeeded=True, rebinRegions=dict(deltas=(1., 0.2, 0.5, 0.025),
-                                            splitters=(-15, 15, 2.5, 'inf')),
-        nbinOriginal=None, nbinNew=None,
+        rebinNeeded=True, rebinRegions=dict(
+            deltas=(1., 0.2, 0.5, 0.025), splitters=(-15, 15, 2.5, 'inf')),
+        nbinOriginal=None, nbinNew=None, binDistrNew=None,
         needECalibration=False, eCalibrationMethod=1, eRef=8979.,
         eShift=0, eShiftKind=0,  # see names in eShiftKinds
         useERefCurve=False,
+        kw=2, krange=[2.0, None], dk=0.025, datakmax=15.
         )
     nThreads = cpus
-    inArrays = ['i0', 'itr', 'eraw', 'eref']
+    inArrays = ['muraw', 'eraw', 'eref']
     outArrays = ['e', 'mu', 'mu_der', 'erefrb', 'eref_der', 'e0', 'pre_edge',
-                 'post_edge', 'edge_step', 'norm', 'flat', 'mu0prior', 'mu0']
+                 'post_edge', 'edge_step', 'norm', 'flat', 'mu0prior', 'mu0',
+                 'k', 'chi', 'bft']
     mu0methods = ['through internal k-spaced knots', 'smoothing spline']
     eShiftKinds = ['angular shift', 'lattice shift', 'energy shift']
-
-    @classmethod
-    def get_mu(cls, data):
-        posI0 = np.where(data.i0 > 0, data.i0, np.ones_like(data.i0))
-        posItr = np.where(data.itr > 0, data.itr, np.ones_like(data.itr))
-        return np.log(posI0 / posItr)
 
     @classmethod
     def get_e0(cls, data):
         dtparams = data.transformParams
 
-        data.mu_der = np.gradient(data.mu, data.e)
+        ge = np.gradient(data.e)
+        good = ge > 0
+        gmu = np.gradient(data.mu)
+        data.mu_der = np.zeros_like(ge)
+        data.mu_der[good] = gmu[good] / ge[good]
         if data.eref is not None:
-            data.eref_der = np.gradient(data.erefrb, data.e)
+            gref = np.gradient(data.erefrb)
+            data.eref_der = np.zeros_like(ge)
+            data.eref_der[good] = gref[good] / ge[good]
         else:
             data.eref_der = None
 
@@ -164,6 +250,22 @@ class MakeTrMu(ctr.Transform):
         histNorm = np.histogram(data.e, bins)[0]
         good = histNorm > 0
 
+        try:
+            histNormPart = histNorm[:len(bins_pre)]
+            binDistrNew = [[histNormPart.min(), histNormPart.max()]]
+            pos = len(bins_pre)
+            histNormPart = histNorm[pos:pos+len(bins_edge)]
+            binDistrNew.append([histNormPart.min(), histNormPart.max()])
+            pos += len(bins_edge)
+            histNormPart = histNorm[pos:pos+len(bins_post)]
+            binDistrNew.append([histNormPart.min(), histNormPart.max()])
+            pos += len(bins_post)
+            histNormPart = histNorm[pos:]
+            binDistrNew.append([histNormPart.min(), histNormPart.max()])
+            dtparams['binDistrNew'] = binDistrNew
+        except ValueError:
+            dtparams['binDistrNew'] = None
+
         # histi0 = np.histogram(data.e, bins, weights=data.i0)[0]
         # i0 = histi0[good] / histNorm[good]
         # histitr = np.histogram(data.e, bins, weights=data.itr)[0]
@@ -225,7 +327,7 @@ class MakeTrMu(ctr.Transform):
         dtparams = data.transformParams
 
         data.e = np.array(data.eraw)
-        data.mu = cls.get_mu(data)
+        data.mu = np.array(data.muraw)
         if data.eref is not None:
             data.erefrb = np.array(data.eref)
         # in case the analysis fails:
@@ -251,6 +353,7 @@ class MakeTrMu(ctr.Transform):
 
         dtparams['nbinOriginal'] = None
         dtparams['nbinNew'] = None
+        dtparams['binDistrNew'] = None
         if dtparams['rebinNeeded']:
             cls.rebin(data, data.e0)
             data.e0 = cls.get_e0(data)
@@ -324,43 +427,7 @@ class MakeTrMu(ctr.Transform):
         else:
             raise ValueError(
                 "unknown value mu0method={0}".format(dtparams['mu0method']))
-        return True
 
-
-class MakeFYMu(MakeTrMu):
-    name = 'make PFY mu'
-    nThreads = cpus
-    inArrays = ['i0', 'ify', 'eraw', 'eref']
-
-    @classmethod
-    def get_mu(cls, data):
-        posI0 = np.where(data.i0 > 0, data.i0, np.ones_like(data.i0))
-        posIfy = np.where(data.ify > 0, data.ify, np.ones_like(data.ify))
-        return posIfy / posI0
-
-
-class MakeTEYMu(MakeTrMu):
-    name = 'make TEY mu'
-    nThreads = cpus
-    inArrays = ['i0', 'iey', 'eraw', 'eref']
-
-    @classmethod
-    def get_mu(cls, data):
-        posI0 = np.where(data.i0 > 0, data.i0, np.ones_like(data.i0))
-        posIey = np.where(data.iey > 0, data.iey, np.ones_like(data.iey))
-        return posIey / posI0
-
-
-class MakeChi(ctr.Transform):
-    name = 'make chi'
-    defaultParams = dict(kw=2, krange=[2.0, None], dk=0.025, datakmax=15.)
-    nThreads = cpus
-    inArrays = ['e', 'mu', 'mu0', 'e0', 'pre_edge']
-    outArrays = ['k', 'chi', 'bft']
-
-    @classmethod
-    def run_main(cls, data):
-        dtparams = data.transformParams
         # out = Group()
         # autobk(data.e, data.mu, group=out)
         # data.k = np.array(out.k)
@@ -423,7 +490,7 @@ class MakeFT(ctr.Transform):
         data.ftwindow = uft.make_ft_window(kind, data.k, kmin, kmax, w, vmin)
         chi = np.array(data.chi) * data.ftwindow
         if dtparams['forceFT0']:
-            chi -= simps(chi, data.k) / simps(np.ones_like(chi), data.k)
+            chi -= np.trapz(chi, data.k) / np.trapz(np.ones_like(chi), data.k)
 
         dk = dtparams['dk']
         # differs from VIPER by sqrt(2/pi) that is tranferred to BFT:
