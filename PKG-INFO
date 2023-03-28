@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: parseq_XAS
-Version: 0.8.1
+Version: 0.9.0
 Summary: A pipeline for data processing of XAS spectra
 Author: Konstantin Klementiev
 Author-email: konstantin.klementiev@gmail.com
