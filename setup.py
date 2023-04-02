@@ -65,7 +65,7 @@ setup(
     zip_safe=False,  # True: build zipped egg, False: unzipped
     packages=['parseq_XAS'],
     package_data={
-        'parseq_XAS': ['data/*.*', 'data/foils/*.*',
+        'parseq_XAS': ['data/*.*', 'data/foils/*.*', 'data/HERFD/*.*',
                        'doc/_images/*.*', 'saved/*.*']},
     scripts=['parseq_XAS/XAS_start.py'],
     install_requires=['numpy>=1.8.0', 'scipy>=1.10.0', 'matplotlib>=2.0.0',
