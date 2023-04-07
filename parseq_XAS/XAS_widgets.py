@@ -235,7 +235,7 @@ class MuWidget(PropWidget):
         layoutDM.addWidget(self.checkBoxDerivative)
         self.checkBoxDerivativeRef = qt.QCheckBox("use (Eref)' instead")
         self.registerPropWidget(self.checkBoxDerivativeRef, 'use Eref',
-                                'useERefCurve', transformNames='make chi')
+                                'useERefCurve')
         layoutDM.addWidget(self.checkBoxDerivativeRef)
         layoutDM.addStretch()
         layout.addLayout(layoutDM)
@@ -251,8 +251,7 @@ class MuWidget(PropWidget):
         smoothPanel.setFlat(True)
         smoothPanel.setTitle('n-point smoothing of derivative')
         smoothPanel.setCheckable(True)
-        self.registerPropWidget(smoothPanel, smoothPanel.title(), 'e0Smooth',
-                                transformNames='make chi')
+        self.registerPropWidget(smoothPanel, smoothPanel.title(), 'e0Smooth')
         layoutSm = qt.QHBoxLayout()
         layoutSm.setContentsMargins(10, 2,  2, 2)
         labeNSm = qt.QLabel('n =')
@@ -265,8 +264,7 @@ class MuWidget(PropWidget):
         layoutSm.addStretch()
         smoothPanel.setLayout(layoutSm)
         layoutE.addWidget(smoothPanel)
-        self.registerPropWidget((labeNSm, self.e0SmoothN), 'n', 'e0SmoothN',
-                                transformNames='make chi')
+        self.registerPropWidget((labeNSm, self.e0SmoothN), 'n', 'e0SmoothN')
 
         e0WherePanel = qt.QGroupBox(self)
         e0WherePanel.setFlat(False)
@@ -286,7 +284,7 @@ class MuWidget(PropWidget):
             "#da70d6", "{0[0]:.3f}, {0[1]:.3f}",
             xtr.MakeChi.defaultParams['e0Where'])
         self.registerPropWidget(self.e0RangeWidget, 'E0 search range',
-                                'e0Where', transformNames='make chi')
+                                'e0Where')
         layoutW.addWidget(self.e0RangeWidget)
 
         e0Where0 = qt.QRadioButton(
@@ -335,8 +333,7 @@ class MuWidget(PropWidget):
         layoutEref0.addWidget(self.comboEref)
         layoutCP.addLayout(layoutEref0)
         self.registerPropWidget(self.comboEref, 'reference energy', 'eRef',
-                                convertType=self.energy_selected,
-                                transformNames='make chi')
+                                convertType=self.energy_selected)
 
         layoutEref1 = qt.QHBoxLayout()
         layoutEref1.setContentsMargins(0, 0, 0, 0)
@@ -348,8 +345,7 @@ class MuWidget(PropWidget):
         eShiftBox.setSingleStep(0.001)
         eShiftBox.setDecimals(3)
         eShiftBox.setAccelerated(True)
-        self.registerPropWidget(eShiftBox, 'E0 shift', 'eShift',
-                                transformNames='make chi')
+        self.registerPropWidget(eShiftBox, 'E0 shift', 'eShift')
         self.registerStatusLabel(eShiftBox, 'eShift')
         layoutEref1.addWidget(eShiftBox)
         layoutEref1.addStretch()
@@ -361,8 +357,7 @@ class MuWidget(PropWidget):
         layoutEref2.addWidget(labelApply)
         eShiftKinds = qt.QComboBox()
         eShiftKinds.addItems(xtr.MakeChi.eShiftKinds)
-        self.registerPropWidget(eShiftKinds, 'eShift kind', 'eShiftKind',
-                                transformNames='make chi')
+        self.registerPropWidget(eShiftKinds, 'eShift kind', 'eShiftKind')
         layoutEref2.addWidget(eShiftKinds)
         layoutEref2.addStretch()
         layoutCP.addLayout(layoutEref2)
@@ -395,13 +390,13 @@ class MuWidget(PropWidget):
             "#008b8b", "{0[0]:.2f}, {0[1]:.2f}",
             xtr.MakeChi.defaultParams['preedgeWhere'])
         self.registerPropWidget(self.preedgeRangeWidget, 'pre-edge range',
-                                'preedgeWhere', transformNames='make chi')
+                                'preedgeWhere')
         layoutP.addWidget(self.preedgeRangeWidget)
 
         self.preedgeStateButtons = gco.StateButtons(
             self, 'exponents', (-4, -3, 0, 1), default=0)
         self.registerPropWidget(self.preedgeStateButtons, 'pre-edge exponents',
-                                'preedgeExps', transformNames='make chi')
+                                'preedgeExps')
         layoutP.addWidget(self.preedgeStateButtons)
 
         preedgePanel.setLayout(layoutP)
@@ -426,14 +421,13 @@ class MuWidget(PropWidget):
             'post-edge', "#8b8b00", "{0[0]:.1f}, {0[1]:.1f}",
             xtr.MakeChi.defaultParams['postedgeWhere'])
         self.registerPropWidget(self.postedgeRangeWidget, 'post-edge range',
-                                'postedgeWhere', transformNames='make chi')
+                                'postedgeWhere')
         layoutPo.addWidget(self.postedgeRangeWidget)
 
         self.postedgeStateButtons = gco.StateButtons(
             self, 'exponents', (-2, -1, 0, 1, 2), default=0)
         self.registerPropWidget(
-            self.postedgeStateButtons, 'post-edge exponents', 'postedgeExps',
-            transformNames='make chi')
+            self.postedgeStateButtons, 'post-edge exponents', 'postedgeExps')
         layoutPo.addWidget(self.postedgeStateButtons)
 
         layoutSt = qt.QHBoxLayout()
@@ -505,8 +499,7 @@ class MuWidget(PropWidget):
         layoutMPV.setContentsMargins(0, 0, 0, 0)
         whiteLine = qt.QCheckBox('white line')
         self.registerPropWidget(
-            whiteLine, whiteLine.text(), 'mu0PriorIncludeWhiteLine',
-            transformNames='make chi')
+            whiteLine, whiteLine.text(), 'mu0PriorIncludeWhiteLine')
         layoutMPV.addWidget(whiteLine)
         layoutMPV.addStretch()
         labelScale = qt.QLabel('×')
@@ -517,8 +510,7 @@ class MuWidget(PropWidget):
         scaleV.setSingleStep(0.01)
         scaleV.setDecimals(2)
         scaleV.setAccelerated(True)
-        self.registerPropWidget(scaleV, 'mu0 prior scaling', 'mu0PriorVScale',
-                                transformNames='make chi')
+        self.registerPropWidget(scaleV, 'mu0 prior scaling', 'mu0PriorVScale')
         layoutMPV.addWidget(scaleV)
         layoutMPV.addStretch()
         labelSmooth = qt.QLabel('smoothing')
@@ -526,8 +518,7 @@ class MuWidget(PropWidget):
         smoothV = qt.QSpinBox()
         smoothV.setMinimum(0)
         self.registerPropWidget(
-            smoothV, 'mu0 prior smoothing', 'mu0PriorSmoothN',
-            transformNames='make chi')
+            smoothV, 'mu0 prior smoothing', 'mu0PriorSmoothN')
         layoutMPV.addWidget(smoothV)
         layoutMP.addLayout(layoutMPV)
 
@@ -540,8 +531,7 @@ class MuWidget(PropWidget):
         layoutMPM.addWidget(labelMethod)
         methods = qt.QComboBox()
         methods.addItems(xtr.MakeChi.mu0methods)
-        self.registerPropWidget(methods, 'mu0 method', 'mu0method',
-                                transformNames='make chi')
+        self.registerPropWidget(methods, 'mu0 method', 'mu0method')
         layoutMPM.addWidget(methods)
         layoutMPM.addStretch()
         layoutM.addLayout(layoutMPM)
@@ -556,8 +546,7 @@ class MuWidget(PropWidget):
         self.knotsBox = qt.QSpinBox()
         self.knotsBox.setMinimum(3)
         self.knotsBox.setMaximum(30)
-        self.registerPropWidget(self.knotsBox, 'knots, w', 'mu0knots',
-                                transformNames='make chi')
+        self.registerPropWidget(self.knotsBox, 'knots, w', 'mu0knots')
         layoutMK.addWidget(nKnots)
         layoutMK.addWidget(self.knotsBox)
 
@@ -565,8 +554,7 @@ class MuWidget(PropWidget):
         self.mu0kpowBox = qt.QSpinBox()
         self.mu0kpowBox.setMinimum(0)
         self.mu0kpowBox.setMaximum(5)
-        self.registerPropWidget(self.mu0kpowBox, 'mu0kpow', 'mu0kpow',
-                                transformNames='make chi')
+        self.registerPropWidget(self.mu0kpowBox, 'mu0kpow', 'mu0kpow')
         layoutMK.addStretch()
         layoutMK.addWidget(labelMu0kw)
         layoutMK.addWidget(self.mu0kpowBox)
@@ -589,8 +577,7 @@ class MuWidget(PropWidget):
         sm.setMaximum(1e10)
         sm.setAccelerated(True)
         self.registerPropWidget(
-            sm, 'mu0 smoothing factor', 'mu0smoothingFactor',
-            transformNames='make chi')
+            sm, 'mu0 smoothing factor', 'mu0smoothingFactor')
         layoutMSM.addWidget(sm)
         layoutMSM.addStretch()
 
@@ -882,8 +869,7 @@ class ChiWidget(PropWidget):
         rebinPanel.setCheckable(True)
         rebinPanel.setStyleSheet(
             'QGroupBox[flat="false"] {font-weight: bold;}')
-        self.registerPropWidget(rebinPanel, rebinPanel.title(), 'rebinNeeded',
-                                transformNames='make chi')
+        self.registerPropWidget(rebinPanel, rebinPanel.title(), 'rebinNeeded')
         layoutRB = qt.QVBoxLayout()
         layoutRB.setContentsMargins(2, 2, 2, 2)
         self.regionsWidget = DataRebinWidget(self, self.defaultRegions)
@@ -893,7 +879,7 @@ class ChiWidget(PropWidget):
         self.regionsWidget.regionsChanged.connect(self.acceptRebinRegions)
         self.registerPropWidget(
             [self.regionsWidget.splittersView, self.regionsWidget.deltasView],
-            'rebinRegions', 'rebinRegions', transformNames='make chi')
+            'rebinRegions', 'rebinRegions')
         rebinPanel.setLayout(layoutRB)
         layout.addWidget(rebinPanel)
 
@@ -909,8 +895,7 @@ class ChiWidget(PropWidget):
             self, plot, ('k min', 'k max'), [0, 10, 0.1, 3],
             [0, None, 0.1, 3], 'k-range', '#ff5500', [1.5, None],
             addVisibleCB=True)
-        self.registerPropWidget(self.krange, 'k-range', 'krange',
-                                transformNames='make chi')
+        self.registerPropWidget(self.krange, 'k-range', 'krange')
         layoutK.addWidget(self.krange)
         self.krange.setRangeVisible(self.properties['k_range_visible'])
 
@@ -940,8 +925,7 @@ class ChiWidget(PropWidget):
         self.dkBox.setMaximum(0.1)
         self.dkBox.setSingleStep(0.005)
         self.dkBox.setDecimals(3)
-        self.registerPropWidget(self.dkBox, 'dk', 'dk', dataItems="all",
-                                transformNames='make chi')
+        self.registerPropWidget(self.dkBox, 'dk', 'dk', dataItems="all")
         layoutDK.addWidget(self.dkBox, 3, 1)
 
         krangePanel.setLayout(layoutK)
@@ -954,8 +938,7 @@ class ChiWidget(PropWidget):
         self.kw.setToolTip(u'×k^w, 0 ≤ w ≤ 3')
         self.kw.setMinimum(0)
         self.kw.setMaximum(3)
-        self.registerPropWidget((self.kw, labelkw), 'w in k^w', 'kw',
-                                dataItems="all", transformNames='make chi')
+        self.registerPropWidget((self.kw, labelkw), 'w in k^w', 'kw')
         layoutkw.addWidget(self.kw)
         labelkw2 = qt.QLabel('(applied to all)')
         layoutkw.addWidget(labelkw2)
@@ -1150,15 +1133,13 @@ class FTWidget(PropWidget):
         rmax.setSingleStep(0.01)
         rmax.setDecimals(2)
         rmax.setAccelerated(True)
-        self.registerPropWidget(rmax, 'r max', 'rmax',
-                                transformNames='make FT')
+        self.registerPropWidget(rmax, 'r max', 'rmax')
         layoutMR.addWidget(rmax)
         layoutMR.addStretch()
         layout.addLayout(layoutMR)
 
         forceFT0 = qt.QCheckBox('force FT(0)=0')
-        self.registerPropWidget(forceFT0, forceFT0.text(), 'forceFT0',
-                                transformNames='make FT')
+        self.registerPropWidget(forceFT0, forceFT0.text(), 'forceFT0')
         layout.addWidget(forceFT0)
 
         self.checkBoxShowNegative = qt.QCheckBox('show negative part')
