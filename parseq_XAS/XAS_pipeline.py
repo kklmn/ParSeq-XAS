@@ -1,14 +1,18 @@
 # -*- coding: utf-8 -*-
 __author__ = "Konstantin Klementiev"
-__date__ = "16 Feb 2023"
+__date__ = "17 May 2023"
 
-# import os
 import sys; sys.path.append('..')  # analysis:ignore
 from parseq.core import singletons as csi
 from parseq.core import spectra as csp
+
+from parseq.gui.fits.glcf import LCFWidget
+from parseq.gui.fits.gfunctionfit import FunctionFitWidget
+
 from . import XAS_nodes as xno
 from . import XAS_transforms as xtr
 from . import XAS_widgets as xwi
+from . import XAS_fits as xfi
 
 
 def make_pipeline(withGUI=False):
@@ -30,6 +34,10 @@ def make_pipeline(withGUI=False):
     xtr.MakeHERFD(nodeIXES, nodeMu)
     xtr.MakeChi(nodeMu, nodeChi)
     xtr.MakeFT(nodeChi, nodeFT)
+
+    # instantiate fits
+    xfi.LCF(nodeMu, LCFWidget if withGUI else None)
+    xfi.FunctionFit(nodeMu, FunctionFitWidget if withGUI else None)
 
     # initiate data tree
     csi.dataRootItem = csp.Spectrum('root')

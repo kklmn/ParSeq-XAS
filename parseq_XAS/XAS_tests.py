@@ -5,13 +5,14 @@ __date__ = "28 Jan 2022"
 import os.path as osp
 from os.path import dirname as up
 import sys; sys.path.append('..')  # analysis:ignore
+import numpy as np
 
 import parseq.core.singletons as csi
 
 dirname = up(osp.abspath(__file__))
 
 
-def load_test_data():
+def load_test_data_1():
     fNames = [[osp.join(dirname, 'data', 'Cu_lnt1.fio'), ['3', 'Col5', 6, '']],
               [osp.join(dirname, 'data', 'Cu_lnt2.fio'), [3, 5, 6, '']],
               [osp.join(dirname, 'data', 'Cu_rt1.fio'), [3, 5, 6, '']],
@@ -65,3 +66,30 @@ def load_test_data():
 
     csi.allLoadedItems[:] = []
     csi.allLoadedItems.extend(csi.dataRootItem.get_items())
+
+
+def load_test_data_2():
+    fpath = "data/cu-ref-mix.res"
+    # at index 13 is a second foil spectrum:
+    usecols = list(range(1, 13)) + list(range(14, 20))
+    with open(fpath, 'r') as f:
+        header = f.readline()
+    rawRefNames = header.split()
+
+    rootItem = csi.dataRootItem
+    rootItem.kwargs['runDownstream'] = True
+
+    for i in usecols:
+        # remove suffix after '_':
+        subNames = rawRefNames[i].split('_')
+        lsn = len(subNames)
+        refName = '_'.join(subNames[:-1]) if lsn > 1 else subNames[0]
+        dataFormat = dict(dataSource=[0, i], skiprows=1)
+        rootItem.insert_data(fpath, dataFormat=dataFormat, alias=refName,
+                             originNodeName=u'µd')
+    csi.allLoadedItems[:] = []
+    csi.allLoadedItems.extend(csi.dataRootItem.get_items())
+
+
+# load_test_data = load_test_data_1
+load_test_data = load_test_data_2

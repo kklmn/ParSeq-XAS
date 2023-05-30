@@ -114,7 +114,7 @@ class MakeHERFD(ctr.Transform):
 class MakeChi(ctr.Transform):
     name = 'make chi'
     defaultParams = dict(
-        e0Smooth=True, e0SmoothN=6, e0Where=[0, 0.7], e0Method=2,
+        e0Smooth=True, e0SmoothN=6, e0Where=[0.02, 0.7], e0Method=2,
         e0=None, preedgeWhere=[0.03, 0.33], preedgeExps=[-3, 0],
         postedgeWhere=[40, 400], postedgeExps=[-2, -1], edgeJump=0,
         mu0PriorIncludeWhiteLine=False, mu0PriorVScale=1., mu0PriorSmoothN=5,
@@ -158,8 +158,13 @@ class MakeChi(ctr.Transform):
             if ns:
                 data.mu_der[:] = uma.smooth_cumsum(data.mu_der, ns)
                 # data.mu_der[:] = uma.smooth_savgol(data.mu_der, ns)
+                data.mu_der[:ns+1] = 0.
+                data.mu_der[-ns:] = 0.
                 if data.eref is not None:
                     data.eref_der[:] = uma.smooth_cumsum(data.eref_der, ns)
+                    # data.eref_der[:] = uma.smooth_savgol(data.eref_der, ns)
+                    data.eref_der[:ns+1] = 0.
+                    data.eref_der[-ns:] = 0.
 
         de = data.e[-1] - data.e[0]
         try:
@@ -246,11 +251,11 @@ class MakeChi(ctr.Transform):
         if not np.all(np.diff(bins) > 0):
             raise ValueError("The array of bins in not monotonic!")
 
-        dtparams['nbinOriginal'] = np.histogram(data.e, bins0)[0]
-        histNorm = np.histogram(data.e, bins)[0]
-        good = histNorm > 0
-
         try:
+            dtparams['nbinOriginal'] = np.histogram(data.e, bins0)[0]
+            histNorm = np.histogram(data.e, bins)[0]
+            good = histNorm > 0
+
             histNormPart = histNorm[:len(bins_pre)]
             binDistrNew = [[histNormPart.min(), histNormPart.max()]]
             pos = len(bins_pre)
@@ -265,6 +270,8 @@ class MakeChi(ctr.Transform):
             dtparams['binDistrNew'] = binDistrNew
         except ValueError:
             dtparams['binDistrNew'] = None
+            good = None
+            histNorm = np.array([1.])
 
         # histi0 = np.histogram(data.e, bins, weights=data.i0)[0]
         # i0 = histi0[good] / histNorm[good]
@@ -282,7 +289,10 @@ class MakeChi(ctr.Transform):
         histe = np.histogram(data.e, bins, weights=data.e)[0]
         data.e = histe[good] / histNorm[good]
 
-        dtparams['nbinNew'] = np.histogram(data.e, bins0)[0]
+        try:
+            dtparams['nbinNew'] = np.histogram(data.e, bins0)[0]
+        except ValueError:
+            dtparams['nbinNew'] = None
 
     @classmethod
     def polyfit(cls, e, mu, exps, data):

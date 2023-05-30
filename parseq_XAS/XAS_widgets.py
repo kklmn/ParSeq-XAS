@@ -616,10 +616,10 @@ class MuWidget(PropWidget):
         try:
             pe = interp1d(data.e, data.pre_edge, assume_sorted=True)
             peMiddle = pe(eMiddle)
+            ylim = [yl-peMiddle if value else yl+peMiddle for yl in ylim]
+            plot.getYAxis().setLimits(*ylim)
         except (ValueError, TypeError):
-            return
-        ylim = [yl-peMiddle if value else yl+peMiddle for yl in ylim]
-        plot.getYAxis().setLimits(*ylim)
+            pass
         csi.model.needReplot.emit(False, True, 'subtractPreedgeSlot')
 
     def energy_selected(self, txt=None):
@@ -964,7 +964,8 @@ class ChiWidget(PropWidget):
         self.ftWindowKind.addItems(uft.ft_windows)
         self.registerPropWidget(self.ftWindowKind, 'FT window', 'ftWindowKind',
                                 dataItems="all", indexToValue=uft.ft_windows,
-                                transformNames='make FT')
+                                # transformNames='make FT'
+                                )
         self.ftWindowKind.currentIndexChanged.connect(self.updateFTwindow)
         layoutFT.addWidget(self.ftWindowKind)
 
@@ -974,7 +975,9 @@ class ChiWidget(PropWidget):
             self.ftWindowPlotParams['color'], [0.5, 0.1])
         self.registerPropWidget(
             self.ftWidthAndMin, 'FT window width and min', 'ftWindowProp',
-            dataItems="all", transformNames='make FT')
+            dataItems="all",
+            # transformNames='make FT'
+            )
         layoutFT.addWidget(self.ftWidthAndMin)
 
         ftPanel.setLayout(layoutFT)
