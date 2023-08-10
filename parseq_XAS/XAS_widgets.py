@@ -752,7 +752,7 @@ class MuWidget(PropWidget):
                 plot.remove(legend, kind='curve')
 
             legend = '{0}.e0'.format(data.alias)
-            if self.properties['show_E0']:
+            if self.properties['show_E0'] and hasattr(data, 'mu'):
                 de = data.mu - data.pre_edge if \
                     self.properties['subtract_preedge'] else data.mu
                 if self.properties['normalize']:

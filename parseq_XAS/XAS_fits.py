@@ -12,9 +12,8 @@ class LCF(fits.lcf.LCF):
     xVary = True
     dataAttrs = dict(x='e', y='flat', fit='fitLCF')
     allDataAttrs = dict(x='e', y='flat')
-    plotParams = dict(
-        fit=dict(linewidth=1.4, linestyle=':', symbol='.', symbolsize=2),
-        residue=dict(linewidth=1.0, linestyle='--'))
+    plotParams = dict(fit=dict(linewidth=1.4, linestyle=':'),
+                      residue=dict(linewidth=1.0, linestyle='--'))
     nThreads = 4
 
 
