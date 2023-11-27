@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 __author__ = "Konstantin Klementiev"
-__date__ = "7 Mar 2023"
+__date__ = "24 Nov 2023"
 # !!! SEE CODERULES.TXT !!!
 
 import os, sys; sys.path.append('..')  # analysis:ignore
@@ -22,19 +22,27 @@ def main(projectFile=None, withTestData=True, withGUI=True):
     if withGUI:
         for node in list(csi.nodes.values())[0:3]:
             # node.includeFilters = ['*.h5', '*.dat', '*.fio']
-            node.includeFilters = ['*.dat', '*.txt']
+            node.includeFilters = ['*.dat', '*.txt', '*.fio']
         from silx.gui import qt
         from parseq.gui.mainWindow import MainWindowParSeq
         qtArgs = ["--disable-gpu"]  # has to be set for morph-browser users
         app = qt.QApplication(qtArgs)
-        mainWindow = MainWindowParSeq()
+        mainWindow = MainWindowParSeq(tabPos=qt.QTabWidget.North)
         mainWindow.show()
         if projectFile or withTestData:
             csi.model.selectItems()
         app.exec_()
     else:
         import matplotlib.pyplot as plt
-        plt.suptitle(list(csi.nodes.values())[-1].name)
+
+        plt.figure()
+        plt.xlabel('k (Å$^{-1}$)')
+        plt.ylabel(u'χ·k² (Å$^{-2}$)')
+        for data in csi.dataRootItem.get_items():
+            plt.plot(data.k, data.chi, label=data.alias)
+        plt.legend(ncol=2)
+
+        plt.figure()
         plt.xlabel('r (Å)')
         plt.ylabel('|FT|')
         for data in csi.dataRootItem.get_items():
@@ -42,6 +50,7 @@ def main(projectFile=None, withTestData=True, withGUI=True):
         plt.gca().set_xlim(0, None)
         plt.gca().set_ylim(0, None)
         plt.legend()
+
         plt.show()
 
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 __author__ = "Konstantin Klementiev"
-__date__ = "6 Mar 2023"
+__date__ = "24 Nov 2023"
 
 import numpy as np
 
@@ -544,7 +544,7 @@ class MuWidget(PropWidget):
         layoutMK = qt.QHBoxLayout()
         nKnots = qt.QLabel('knots')
         self.knotsBox = qt.QSpinBox()
-        self.knotsBox.setMinimum(3)
+        self.knotsBox.setMinimum(1)
         self.knotsBox.setMaximum(30)
         self.registerPropWidget(self.knotsBox, 'knots, w', 'mu0knots')
         layoutMK.addWidget(nKnots)
@@ -752,7 +752,7 @@ class MuWidget(PropWidget):
                 plot.remove(legend, kind='curve')
 
             legend = '{0}.e0'.format(data.alias)
-            if self.properties['show_E0'] and hasattr(data, 'mu'):
+            if self.properties['show_E0']:
                 de = data.mu - data.pre_edge if \
                     self.properties['subtract_preedge'] else data.mu
                 if self.properties['normalize']:
@@ -840,7 +840,7 @@ class ChiWidget(PropWidget):
     name = u'rebin and make χ'
 
     properties = {'show_zero_grid_line': True, 'k_range_visible': True,
-                  'show_ft_window': True}
+                  'show_ft_window': True, 'show_bft': True}
 
     captions = 'pre-edge', 'edge', 'post-edge', 'EXAFS'
     deltas = (['dE', 1.0, 0.1, 10, 0.1],  # label, value, min, max, step
@@ -854,6 +854,7 @@ class ChiWidget(PropWidget):
     defaultRegions = captions, deltas, splitters
     ftWindowPlotParams = {'linewidth': 0.75, 'linestyle': '-',
                           'color': '#00000044'}
+    bftPlotParams = {'linewidth': 1.25, 'linestyle': '--'}
 
     cursorLabels = ['k', 'E', u'χ']
 
@@ -962,10 +963,9 @@ class ChiWidget(PropWidget):
 
         self.ftWindowKind = qt.QComboBox()
         self.ftWindowKind.addItems(uft.ft_windows)
-        self.registerPropWidget(self.ftWindowKind, 'FT window', 'ftWindowKind',
-                                dataItems="all", indexToValue=uft.ft_windows,
-                                # transformNames='make FT'
-                                )
+        self.registerPropWidget(
+            self.ftWindowKind, 'FT window', 'ftWindowKind',
+            dataItems="all", indexToValue=uft.ft_windows)
         self.ftWindowKind.currentIndexChanged.connect(self.updateFTwindow)
         layoutFT.addWidget(self.ftWindowKind)
 
@@ -975,13 +975,16 @@ class ChiWidget(PropWidget):
             self.ftWindowPlotParams['color'], [0.5, 0.1])
         self.registerPropWidget(
             self.ftWidthAndMin, 'FT window width and min', 'ftWindowProp',
-            dataItems="all",
-            # transformNames='make FT'
-            )
+            dataItems="all")
         layoutFT.addWidget(self.ftWidthAndMin)
 
         ftPanel.setLayout(layoutFT)
         layout.addWidget(ftPanel)
+
+        checkBoxShowBFT = qt.QCheckBox('show BFT (aka χ\u0303(k)) here')
+        checkBoxShowBFT.setChecked(self.properties['show_bft'])
+        checkBoxShowBFT.toggled.connect(partial(self.showSlot, 'show_bft'))
+        layout.addWidget(checkBoxShowBFT)
 
         layout.addStretch()
         self.setLayout(layout)
@@ -1006,6 +1009,9 @@ class ChiWidget(PropWidget):
         data = csi.selectedItems[0]
         dtparams = data.transformParams
         self.regionsWidget.setRegions(dict(dtparams['rebinRegions']))
+        if self.ftWidthAndMin.roi is not None:
+            ind = self.ftWindowKind.currentIndex()
+            self.ftWidthAndMin.roi.setVisible(ind > 1)
 
     def extraPlotActionAfterTransform(self, props):
         if 'kw' in props:
@@ -1056,14 +1062,17 @@ class ChiWidget(PropWidget):
             else:
                 plot.remove(legend, kind='curve')
 
-    #     for data in csi.allLoadedItems:
-    #         if not self.node.widget.shouldPlotItem(data):
-    #             continue
-    #         z = 1 if data in csi.selectedItems else 0
-    #         legend = '{0}.bft'.format(data.alias)
-    #         plot.addCurve(
-    #             data.k, data.bft,
-    #             color='red', z=z, legend=legend, resetzoom=False)
+        for data in csi.allLoadedItems:
+            legend = '{0}.bft'.format(data.alias)
+            showCurve = self.node.widget.shouldPlotItem(data) and \
+                self.properties['show_bft']
+            if showCurve:
+                z = 1 if data in csi.selectedItems else 0
+                plot.addCurve(
+                    data.bftk, data.bft, **self.bftPlotParams,
+                    color=data.color, z=z, legend=legend, resetzoom=False)
+            else:
+                plot.remove(legend, kind='curve')
         kw = dtparams['kw']
         if kw == 1:
             skw = u'·k (Å'+u"\u207B"+u'¹)'
@@ -1084,7 +1093,8 @@ class ChiWidget(PropWidget):
 
     def showSlot(self, prop, value):
         self.properties[prop] = value
-        self.ftWidthAndMin.roi.setVisible(value)
+        if prop == 'show_ft_window':
+            self.ftWidthAndMin.roi.setVisible(value)
         csi.model.needReplot.emit(False, True, 'showSlot')
 
     @classmethod
@@ -1116,14 +1126,18 @@ class FTWidget(PropWidget):
 
     name = 'make FT'
 
-    properties = {'show_negative': False, 'show_Re': False, 'show_Im': True}
+    properties = {'show_negative': False, 'show_Re': False, 'show_Im': True,
+                  'show_bft_window': True}
 
     extraLines = '-|ft|', 'ft.re', 'ft.im'
     ftrPlotParams = {'linewidth': 0.7, 'linestyle': '-.'}
     ftiPlotParams = {'linewidth': 0.7, 'linestyle': ':'}
+    bftWindowPlotParams = {'linewidth': 0.75, 'linestyle': '-',
+                           'color': '#00000044'}
 
     def __init__(self, parent=None, node=None):
         super().__init__(parent, node)
+        plot = self.node.widget.plot
         layout = qt.QVBoxLayout()
 
         layoutMR = qt.QHBoxLayout()
@@ -1160,6 +1174,50 @@ class FTWidget(PropWidget):
         self.checkBoxShowIm.toggled.connect(partial(self.showSlot, 'show_Im'))
         layout.addWidget(self.checkBoxShowIm)
 
+        ftPanel = qt.QGroupBox(self)
+        ftPanel.setFlat(False)
+        ftPanel.setTitle('BFT window')
+        ftPanel.setStyleSheet('QGroupBox[flat="false"] {font-weight: bold;}')
+
+        # layoutFT = qt.QVBoxLayout()
+        layoutFT = gco.QVBoxLayoutAbove()
+        layoutFT.setContentsMargins(2, 0, 2, 2)
+
+        checkBoxShowWindow = qt.QCheckBox('plot it', ftPanel)
+        checkBoxShowWindow.setChecked(self.properties['show_bft_window'])
+        checkBoxShowWindow.toggled.connect(
+            partial(self.showSlot, 'show_bft_window'))
+        layoutFT.addExtraWidget(checkBoxShowWindow)
+
+        self.bftWindowKind = qt.QComboBox()
+        self.bftWindowKind.addItems(uft.ft_windows[:-1])  # exclude Gaussian
+        self.registerPropWidget(
+            self.bftWindowKind, 'BFT window', 'bftWindowKind',
+            indexToValue=uft.ft_windows)
+        self.bftWindowKind.currentIndexChanged.connect(self.updateBFTwindow)
+        layoutFT.addWidget(self.bftWindowKind)
+
+        self.bftWindowRange = RangeWidgetSplit(
+            self, plot, ('r min', 'r max'), [0, 25, 0.1, 2],
+            [0, 25, 0.1, 2], 'BFT range', '#5500ff', [None, None])
+        self.registerPropWidget(
+            self.bftWindowRange, 'r-range', 'bftWindowRange')
+        layoutFT.addWidget(self.bftWindowRange)
+        self.bftWindowRange.setRangeVisible(self.properties['show_bft_window'])
+
+        layoutDK = self.bftWindowRange.layout()
+        self.wLabel = qt.QLabel('width')
+        layoutDK.addWidget(self.wLabel, 3, 0, qt.Qt.AlignRight)
+        self.wBox = qt.QDoubleSpinBox()
+        self.wBox.setMinimum(0.0)
+        self.wBox.setMaximum(10)
+        self.wBox.setSingleStep(0.01)
+        self.wBox.setDecimals(2)
+        self.registerPropWidget(self.wBox, 'width', 'bftWindowWidth')
+        layoutDK.addWidget(self.wBox, 3, 1)
+
+        ftPanel.setLayout(layoutFT)
+        layout.addWidget(ftPanel)
         layout.addStretch()
         self.setLayout(layout)
 
@@ -1175,10 +1233,32 @@ class FTWidget(PropWidget):
         self.properties[prop] = value
         csi.model.needReplot.emit(False, True, 'showSlot')
 
+    def updateBFTwindow(self, ind):
+        self.bftWindowRange.setVisible(ind > 0)
+        if self.bftWindowRange.roi is not None:
+            self.bftWindowRange.roi.setVisible(ind > 0)
+            self.wLabel.setVisible(ind > 1)
+            self.wBox.setVisible(ind > 1)
+
     def extraPlot(self):
         if len(csi.selectedItems) == 0:
             return
+        data = csi.selectedItems[0]
+        dtparams = data.transformParams
+
         plot = self.node.widget.plot
+        self.bftWindowRange.fromSpinBox(100)
+        if hasattr(data, 'bftwindow'):
+            legend = 'BFT window'
+            if self.properties['show_bft_window']:
+                ymax = plot.getYAxis().getLimits()[1] * \
+                    RangeWidgetFTWidthAndMin.plotFactor
+                plot.addCurve(
+                    data.r, data.bftwindow*ymax, yaxis='left',
+                    **self.bftWindowPlotParams, legend=legend, resetzoom=False)
+            else:
+                plot.remove(legend, kind='curve')
+
         for data in csi.allLoadedItems:
             if not self.node.widget.shouldPlotItem(data):
                 for extraLine in self.extraLines:

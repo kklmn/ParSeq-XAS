@@ -91,5 +91,5 @@ def load_test_data_2():
     csi.allLoadedItems.extend(csi.dataRootItem.get_items())
 
 
-# load_test_data = load_test_data_1
-load_test_data = load_test_data_2
+load_test_data = load_test_data_1
+# load_test_data = load_test_data_2

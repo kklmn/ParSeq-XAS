@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 __author__ = "Konstantin Klementiev"
-__date__ = "6 Mar 2023"
+__date__ = "24 Nov 2023"
 
 import sys; sys.path.append('..')  # analysis:ignore
 import numpy as np
@@ -12,7 +12,7 @@ try:
     from scipy.interpolate import make_smoothing_spline
 except ImportError as e:
     print('Need scipy >= 1.10.0')
-    raise(e)
+    raise e
 
 # from scipy.ndimage import uniform_filter1d
 # from scipy.integrate import simps
@@ -20,8 +20,7 @@ except ImportError as e:
 from parseq.core import transforms as ctr
 from parseq.utils import ft as uft
 from parseq.utils import math as uma
-
-eV2revA = 0.2624682843  # 2m_e(eV)/(^h(eVs)c(A/s))^2
+from parseq.utils.constants import eV2revA
 
 cpus = 'half'  # can be 'all' or 'half' or a number (int)
 # cpus = 1
@@ -189,6 +188,9 @@ class MakeChi(ctr.Transform):
             # f = CubicSpline(e, mu)
             # der = f.derivative()
             # der2 = f.derivative(2)
+            if not np.all(np.diff(e) > 0):
+                raise ValueError('unsorted energy array at E={0}'.format(
+                    e[1:][np.diff(e) <= 0]))
             der = CubicSpline(e, mu_der)
             der2 = der.derivative()
             xs = der2.roots()
@@ -402,35 +404,28 @@ class MakeChi(ctr.Transform):
 
         data.mu0 = np.array(data.mu0prior)
         kmin, kmax = dtparams['krange']
-        kmaxE = abs((data.e[-2] - data.e0)*eV2revA)**0.5
+        kmaxE = abs((data.e[-1] - data.e0)*eV2revA)**0.5
         kmax = min(kmax, kmaxE) if kmax else kmaxE
         funFit = data.mu - data.mu0prior
         w = np.ones_like(data.e)  # must be positive
+        wherePre = data.e < data.e0
+        w[wherePre] = 1e2
+        whereMax = data.e > data.e0 + kmax**2/eV2revA
         if dtparams['mu0method'] == 0:  # 'through internal k-spaced knots'
-            ke = (data.e - data.e0)*eV2revA
-            ke[ke > 0] = ke[ke > 0]**0.5  # usual k
-            ke[ke < 0] = -(-ke[ke < 0])**0.5  # negative k
-            # funFit[ke < kmin] = 0
-            # funFit[ke > kmax] = 0
-            nKnots = max(dtparams['mu0knots'], 3)
+            ke = np.sign(data.e-data.e0) * (abs(data.e-data.e0)*eV2revA)**0.5
+            nKnots = max(dtparams['mu0knots'], 1)
             knots = np.linspace(kmin, kmax, nKnots)
-
             kpow = dtparams['mu0kpow']
-            w[ke > kmin] = abs(ke[ke > kmin])**kpow
-            w[ke > kmax] = 1e-10
-            # w[(ke > 0)[0]] = 1e10
-
-            spl = LSQUnivariateSpline(ke, funFit, knots, w)
+            whereMin = data.e > data.e0 + kmin**2/eV2revA
+            w[whereMin] = ke[whereMin]**kpow
+            w[whereMax] = 1e-10
+            spl = LSQUnivariateSpline(ke+1e-6, funFit, knots, w)
             data.mu0 = spl(ke) + data.mu0prior
         elif dtparams['mu0method'] == 1:  # 'smoothing spline'
             s = dtparams['mu0smoothingFactor']
             if s == 0:
                 s = None
-            # w[(data.e > data.e0)[0]] = 1e10
-            # whereMin = data.e < (data.e0 + kmin**2/eV2revA)
-            whereMax = data.e > (data.e0 + kmax**2/eV2revA)
-            # funFit[whereMin] = 0
-            # funFit[whereMax] = 0
+            whereMax = data.e > data.e0 + kmax**2/eV2revA
             w[whereMax] = 1e-10
             spl = make_smoothing_spline(data.e, funFit, w, lam=s)
             data.mu0 = spl(data.e) + data.mu0prior
@@ -448,8 +443,8 @@ class MakeChi(ctr.Transform):
         dtparams['datakmax'] = kmaxE
         kmax = min(kmax, kmaxE) if kmax else kmaxE
         dk = dtparams['dk']
-        # data.k = np.arange(kmin, kmax+dk, dk)
-        data.k = np.arange(0, kmax+dk*0.5, dk)
+        data.k = np.arange(kmin, kmax + dk*0.5, dk)
+        # data.k = np.arange(0, kmax + dk*0.5, dk)
         wherek = data.e >= data.e0
         ke = ((data.e[wherek] - data.e0)*eV2revA)**0.5
         mu = data.mu[wherek]
@@ -461,6 +456,7 @@ class MakeChi(ctr.Transform):
         # data.chi[data.k > kmax] = 0
 
         data.chi *= data.k ** dtparams['kw']
+        data.bft = data.chi
 
         # # test with ft + bft
         # # differs from VIPER by sqrt(2/pi) that is tranferred to BFT:
@@ -473,7 +469,7 @@ class MakeChi(ctr.Transform):
 class MakeFT(ctr.Transform):
     name = 'make FT'
     defaultParams = dict(
-        ftWindowKind='cosine-tapered', ftWindowProp=[1.5, 0.05],
+        ftWindowKind='box', ftWindowProp=[1.5, 0.05],
         rmax=8.2, forceFT0=True)
     nThreads = cpus
     inArrays = ['k', 'chi']
@@ -495,8 +491,8 @@ class MakeFT(ctr.Transform):
         kind = dtparams['ftWindowKind']
         w, vmin = dtparams['ftWindowProp']
         kmin, kmax = dtparams['krange']
-        kmaxE = dtparams['datakmax']
-        kmax = min(kmax, kmaxE) if kmax else kmaxE
+        # kmaxE = dtparams['datakmax']
+        # kmax = min(kmax, kmaxE) if kmax else kmaxE
         data.ftwindow = uft.make_ft_window(kind, data.k, kmin, kmax, w, vmin)
         chi = np.array(data.chi) * data.ftwindow
         if dtparams['forceFT0']:
@@ -504,11 +500,48 @@ class MakeFT(ctr.Transform):
 
         dk = dtparams['dk']
         # differs from VIPER by sqrt(2/pi) that is tranferred to BFT:
-        ft = np.fft.rfft(chi, n=MakeFT.nfft) * dk/2
-        r = np.fft.rfftfreq(MakeFT.nfft, dk/np.pi)
+        ft = np.fft.rfft(chi, n=cls.nfft) * dk/2
+        r = np.fft.rfftfreq(cls.nfft, dk/np.pi)
+        # wherer = slice(None) if kind == 'none' else (r <= dtparams['rmax'])
         wherer = r <= dtparams['rmax']
         data.r = r[wherer]
         data.ft = np.abs(ft)[wherer]
         data.ftr = ft.real[wherer]
         data.fti = ft.imag[wherer]
+        return True
+
+
+class MakeBFT(ctr.Transform):
+    name = 'make BFT'
+    defaultParams = dict(
+        bftWindowKind='box', bftWindowRange=[0.5, 2.5],
+        bftWindowWidth=0.5)
+    nThreads = cpus
+    inArrays = ['k', 'r', 'ftr', 'fti', 'ftwindow']
+    outArrays = ['bft', 'bftk', 'bftwindow']
+
+    nfft = 8192
+
+    @classmethod
+    def run_main(cls, data):
+        dtparams = data.transformParams
+        kind = dtparams['bftWindowKind']
+        rmin, rmax = dtparams['bftWindowRange']
+        w = dtparams['bftWindowWidth']
+        data.bftwindow = uft.make_ft_window(kind, data.r, rmin, rmax, w)
+        dk = dtparams['dk']
+        bft = np.fft.irfft((data.ftr + 1j*data.fti)*data.bftwindow, n=cls.nfft)
+        ftwindow = np.array(data.ftwindow)
+        ftwindow[ftwindow <= 0] = 1.
+        bftr = bft.real[:len(data.k)] * 2 / (dk * ftwindow)
+        bftr -= np.trapz(bftr, data.k) / np.trapz(np.ones_like(bftr), data.k)
+
+        kmin, kmax = dtparams['krange']
+        if kmin is None:
+            kmin = 0
+        if kmax is None:
+            kmax = 1e20
+        wherek = (kmin <= data.k) & (data.k <= kmax)
+        data.bft = bftr[wherek]
+        data.bftk = np.array(data.k[wherek])
         return True
