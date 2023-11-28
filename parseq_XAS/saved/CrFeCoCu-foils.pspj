@@ -1,7 +1,7 @@
 [ParSeq Application]
 pipelineName = XAS
-appPath = c:\ParSeq\parseq_XAS_dev
-appVersion = 2023.6.0
+appPath = c:\ParSeq\parseq_XAS
+appVersion = 2023.11.0
 appSynopsis = A pipeline for data processing of XAS spectra
 
 [Root]
@@ -12,7 +12,7 @@ colorPolicy = loop1
 colorAutoUpdate = False
 
 [Cr-foil_EXAFS_23293]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/foils/Cr-foil_EXAFS_23293.dat
+madeOf = C:/ParSeq/parseq_XAS/data/foils/Cr-foil_EXAFS_23293.dat
 madeOf_relative = ../data/foils/Cr-foil_EXAFS_23293.dat
 dataFormat = {"comments": "#", "dataSource": ["Col1", "Col3+Col4", "Col5+Col6", ""], "conversionFactors": [None, "\u00b5A", "\u00b5A", None], "metadata": ""}
 suffix = None
@@ -65,7 +65,7 @@ bftWindowRange = [1.2105829231418574, 3.0052161742041]
 bftWindowWidth = 0.5
 
 [Cr-foil_EXAFS_23294]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/foils/Cr-foil_EXAFS_23294.dat
+madeOf = C:/ParSeq/parseq_XAS/data/foils/Cr-foil_EXAFS_23294.dat
 madeOf_relative = ../data/foils/Cr-foil_EXAFS_23294.dat
 dataFormat = {"comments": "#", "dataSource": ["Col1", "Col3+Col4", "Col5+Col6", ""], "conversionFactors": [None, "\u00b5A", "\u00b5A", None], "metadata": ""}
 suffix = None
@@ -118,7 +118,7 @@ bftWindowRange = [1.2105829231418574, 3.0052161742041]
 bftWindowWidth = 0.5
 
 [Cr-foil_EXAFS_23295]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/foils/Cr-foil_EXAFS_23295.dat
+madeOf = C:/ParSeq/parseq_XAS/data/foils/Cr-foil_EXAFS_23295.dat
 madeOf_relative = ../data/foils/Cr-foil_EXAFS_23295.dat
 dataFormat = {"comments": "#", "dataSource": ["Col1", "Col3+Col4", "Col5+Col6", ""], "conversionFactors": [None, "\u00b5A", "\u00b5A", None], "metadata": ""}
 suffix = None
@@ -171,7 +171,7 @@ bftWindowRange = [1.2105829231418574, 3.0052161742041]
 bftWindowWidth = 0.5
 
 [Fe-foil_EXAFS_23147]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/foils/Fe-foil_EXAFS_23147.dat
+madeOf = C:/ParSeq/parseq_XAS/data/foils/Fe-foil_EXAFS_23147.dat
 madeOf_relative = ../data/foils/Fe-foil_EXAFS_23147.dat
 dataFormat = {"comments": "#", "dataSource": ["Col1", "Col3+Col4", "Col5+Col6", ""], "conversionFactors": [None, "\u00b5A", "\u00b5A", None], "metadata": ""}
 suffix = None
@@ -224,7 +224,7 @@ bftWindowRange = [0.9611162330956127, 2.9576762205335765]
 bftWindowWidth = 0.5
 
 [Fe-foil_EXAFS_23148]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/foils/Fe-foil_EXAFS_23148.dat
+madeOf = C:/ParSeq/parseq_XAS/data/foils/Fe-foil_EXAFS_23148.dat
 madeOf_relative = ../data/foils/Fe-foil_EXAFS_23148.dat
 dataFormat = {"comments": "#", "dataSource": ["Col1", "Col3+Col4", "Col5+Col6", ""], "conversionFactors": [None, "\u00b5A", "\u00b5A", None], "metadata": ""}
 suffix = None
@@ -277,7 +277,7 @@ bftWindowRange = [0.9611162330956127, 2.9576762205335765]
 bftWindowWidth = 0.5
 
 [Fe-foil_EXAFS_23149]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/foils/Fe-foil_EXAFS_23149.dat
+madeOf = C:/ParSeq/parseq_XAS/data/foils/Fe-foil_EXAFS_23149.dat
 madeOf_relative = ../data/foils/Fe-foil_EXAFS_23149.dat
 dataFormat = {"comments": "#", "dataSource": ["Col1", "Col3+Col4", "Col5+Col6", ""], "conversionFactors": [None, "\u00b5A", "\u00b5A", None], "metadata": ""}
 suffix = None
@@ -330,7 +330,7 @@ bftWindowRange = [0.9611162330956127, 2.9576762205335765]
 bftWindowWidth = 0.5
 
 [Co-foil_EXAFS_23107]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/foils/Co-foil_EXAFS_23107.dat
+madeOf = C:/ParSeq/parseq_XAS/data/foils/Co-foil_EXAFS_23107.dat
 madeOf_relative = ../data/foils/Co-foil_EXAFS_23107.dat
 dataFormat = {"comments": "#", "dataSource": ["Col1", "Col3+Col4", "Col5+Col6", ""], "conversionFactors": [None, "\u00b5A", "\u00b5A", None], "metadata": "definition, start_time, end_time, entry_identifier, title"}
 suffix = None
@@ -383,7 +383,7 @@ bftWindowRange = [1.174927957888965, 2.866363932970127]
 bftWindowWidth = 0.5
 
 [Co-foil_EXAFS_23108]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/foils/Co-foil_EXAFS_23108.dat
+madeOf = C:/ParSeq/parseq_XAS/data/foils/Co-foil_EXAFS_23108.dat
 madeOf_relative = ../data/foils/Co-foil_EXAFS_23108.dat
 dataFormat = {"comments": "#", "dataSource": ["Col1", "Col3+Col4", "Col5+Col6", ""], "conversionFactors": [None, "\u00b5A", "\u00b5A", None], "metadata": "definition, start_time, end_time, entry_identifier, title"}
 suffix = None
@@ -436,7 +436,7 @@ bftWindowRange = [1.174927957888965, 2.866363932970127]
 bftWindowWidth = 0.5
 
 [Co-foil_EXAFS_23109]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/foils/Co-foil_EXAFS_23109.dat
+madeOf = C:/ParSeq/parseq_XAS/data/foils/Co-foil_EXAFS_23109.dat
 madeOf_relative = ../data/foils/Co-foil_EXAFS_23109.dat
 dataFormat = {"comments": "#", "dataSource": ["Col1", "Col3+Col4", "Col5+Col6", ""], "conversionFactors": [None, "\u00b5A", "\u00b5A", None], "metadata": "definition, start_time, end_time, entry_identifier, title"}
 suffix = None
@@ -489,7 +489,7 @@ bftWindowRange = [1.174927957888965, 2.866363932970127]
 bftWindowWidth = 0.5
 
 [Cu-foil_EXAFS_23068]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/foils/Cu-foil_EXAFS_23068.dat
+madeOf = C:/ParSeq/parseq_XAS/data/foils/Cu-foil_EXAFS_23068.dat
 madeOf_relative = ../data/foils/Cu-foil_EXAFS_23068.dat
 dataFormat = {"comments": "#", "dataSource": ["Col1", "Col3+Col4", "Col5+Col6", ""], "conversionFactors": [None, "\u00b5A", "\u00b5A", None], "metadata": ""}
 suffix = None
@@ -511,7 +511,7 @@ preedgeExps = [-3, 0]
 postedgeWhere = [40, 400]
 postedgeExps = [-2, -1]
 edgeJump = 1.868605170790028
-mu0PriorIncludeWhiteLine = True
+mu0PriorIncludeWhiteLine = False
 mu0PriorVScale = 1.0
 mu0PriorSmoothN = 1
 mu0method = 0
@@ -540,9 +540,17 @@ forceFT0 = True
 bftWindowKind = box
 bftWindowRange = [1.2818928536476422, 2.866363932970127]
 bftWindowWidth = 0.5
+;fit params:
+exafsfit_params = [{'r': {'value': 2.537748865854305, 'step': 0.01, 'lim': [1.27635, 5.1054], 'errorA': 0.005227431602379208, 'errorB': 0.010931339067657156}, 'n': {'value': 11.790323803983577, 'step': 0.1, 'lim': [6.0, 24.0], 'errorA': 0.7114593221753542, 'errorB': 1.6048112378842048}, 's': {'value': 0.008383486043880685, 'step': 0.001, 'lim': [0.0, 0.1], 'errorA': 0.000734320542141752, 'errorB': 0.001627912684774053}, 'e': {'value': 5.6347527646296935, 'step': 0.1, 'lim': [-15.0, 15.0], 'errorA': 0.5943022647367421, 'errorB': 1.2502241782159713}}, {'s0': {'value': 1.0, 'step': 0.01, 'tie': 'fixed', 'lim': [0.5, 1.0]}}]
+exafsfit_result = {'mesg': 'calculated for Cu-foil_EXAFS_23068\n`ftol` termination condition is satisfied.', 'ier': 2, 'info': {'nfev': 10}, 'nparam': 4, 'Nind': 16.126520626353773, 'R': 0.005430617144041773}
+exafsfit_aux = [['C:/ParSeq/parseq_XAS/data/foils/FEFF/Cu/feff0001.dat', 12.0, 'Cu-Cu', 2.5527, '8.20', 14, 1]]
+exafsfit_kRange = [2.860944817756058, 16.86554673182645]
+exafsfit_k_use = True
+exafsfit_rRange = [0.0, 8.191457407309324]
+exafsfit_r_use = False
 
 [Cu-foil_EXAFS_23069]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/foils/Cu-foil_EXAFS_23069.dat
+madeOf = C:/ParSeq/parseq_XAS/data/foils/Cu-foil_EXAFS_23069.dat
 madeOf_relative = ../data/foils/Cu-foil_EXAFS_23069.dat
 dataFormat = {"comments": "#", "dataSource": ["Col1", "Col3+Col4", "Col5+Col6", ""], "conversionFactors": [None, "\u00b5A", "\u00b5A", None], "metadata": ""}
 suffix = None
@@ -564,7 +572,7 @@ preedgeExps = [-3, 0]
 postedgeWhere = [40, 400]
 postedgeExps = [-2, -1]
 edgeJump = 1.868669288943699
-mu0PriorIncludeWhiteLine = True
+mu0PriorIncludeWhiteLine = False
 mu0PriorVScale = 1.0
 mu0PriorSmoothN = 1
 mu0method = 0
@@ -595,7 +603,7 @@ bftWindowRange = [1.2818928536476422, 2.866363932970127]
 bftWindowWidth = 0.5
 
 [Cu-foil_EXAFS_23070]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/foils/Cu-foil_EXAFS_23070.dat
+madeOf = C:/ParSeq/parseq_XAS/data/foils/Cu-foil_EXAFS_23070.dat
 madeOf_relative = ../data/foils/Cu-foil_EXAFS_23070.dat
 dataFormat = {"comments": "#", "dataSource": ["Col1", "Col3+Col4", "Col5+Col6", ""], "conversionFactors": [None, "\u00b5A", "\u00b5A", None], "metadata": ""}
 suffix = None
@@ -617,7 +625,7 @@ preedgeExps = [-3, 0]
 postedgeWhere = [40, 400]
 postedgeExps = [-2, -1]
 edgeJump = 1.8687399246440093
-mu0PriorIncludeWhiteLine = True
+mu0PriorIncludeWhiteLine = False
 mu0PriorVScale = 1.0
 mu0PriorSmoothN = 1
 mu0method = 0
@@ -649,7 +657,7 @@ bftWindowWidth = 0.5
 
 [Docks]
 floating = [False, False, False, False, False, False, False, False]
-active = µd
+active = currents Tr
 
 [Geometry]
 mainWindow = maximized
