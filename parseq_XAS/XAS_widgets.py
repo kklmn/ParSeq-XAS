@@ -211,10 +211,12 @@ class MuWidget(PropWidget):
         'show_derivative': False, 'show_E0': True,
         'show_mu0': True, 'show_mu0_prior': False, 'show_post': False}
 
-    extraLines = 'pre_edge', 'post_edge', 'mu0', 'mu0prior', 'e0', 'mu_der'
+    extraLines = ('pre_edge', 'post_edge', 'mu0', 'mu0eknots', 'mu0prior',
+                  'e0', 'mu_der')
     preEdgePlotParams = {'linewidth': 1.0, 'linestyle': '-.'}
     postEdgePlotParams = {'linewidth': 1.0, 'linestyle': '--'}
     mu0PlotParams = {'linewidth': 0.75, 'linestyle': '--'}
+    mu0knotsPlotParams = {'linestyle': ' ', 'symbol': 'o', 'symbolsize': 3}
     mu0priorPlotParams = {'linewidth': 0.75, 'linestyle': ':'}
     derPlotParams = {'linewidth': 1.0, 'linestyle': '-', 'yaxis': 'right'}
     e0PlotParams = {'linewidth': 0.5, 'linestyle': '-'}
@@ -710,7 +712,7 @@ class MuWidget(PropWidget):
                 plot.remove(legend, kind='curve')
 
             legend = '{0}.mu0'.format(data.alias)
-            if self.properties['show_mu0']:
+            if self.properties['show_mu0'] and hasattr(data, 'mu0'):
                 pe = data.mu0 - data.pre_edge if \
                     self.properties['subtract_preedge'] else \
                     np.array(data.mu0)
@@ -727,6 +729,41 @@ class MuWidget(PropWidget):
                 else:
                     curve.setData(data.e, pe)
                     curve.setZValue(z)
+            else:
+                plot.remove(legend, kind='curve')
+
+            legend = '{0}.mu0eknots'.format(data.alias)
+            if self.properties['show_mu0'] and hasattr(data, 'mu0eknots') and \
+                    (data.mu0eknots is not None):
+                pre = interp1d(data.e, data.pre_edge, assume_sorted=True)
+                post = interp1d(data.e, data.post_edge, assume_sorted=True)
+                knotsx, knotsy = data.mu0eknots
+                pe = knotsy - pre(knotsx) if \
+                    self.properties['subtract_preedge'] else \
+                    np.array(knotsy)
+                if self.properties['normalize']:
+                    if self.properties['flatten']:
+                        pe /= post(knotsx) - pre(knotsx)
+                    else:
+                        pe /= data.edge_step
+                curve = plot.getCurve(legend)
+                plotProps = dict(self.mu0knotsPlotParams)
+                symbolsize = plotProps.pop('symbolsize', 3)
+                if curve is None:
+                    plot.addCurve(
+                        knotsx, pe, **plotProps,
+                        color=data.color, z=z, legend=legend, resetzoom=False)
+                else:
+                    curve.setData(knotsx, pe)
+                    curve.setZValue(z)
+
+                symbol = plotProps.get('symbol', None)
+                if symbol is not None:
+                    curve = plot.getCurve(legend)
+                    if curve is not None:
+                        if self.node.widget.backend['backend'] == 'opengl':
+                            symbolsize *= 2
+                        curve.setSymbolSize(symbolsize)
             else:
                 plot.remove(legend, kind='curve')
 

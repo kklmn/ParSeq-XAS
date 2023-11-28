@@ -7,7 +7,7 @@ import numpy as np
 from numpy.polynomial import Polynomial as P
 
 # from scipy.interpolate import InterpolatedUnivariateSplineCubicSpline
-from scipy.interpolate import CubicSpline, LSQUnivariateSpline
+from scipy.interpolate import CubicSpline, LSQUnivariateSpline, interp1d
 try:
     from scipy.interpolate import make_smoothing_spline
 except ImportError as e:
@@ -132,7 +132,7 @@ class MakeChi(ctr.Transform):
     inArrays = ['muraw', 'eraw', 'eref']
     outArrays = ['e', 'mu', 'mu_der', 'erefrb', 'eref_der', 'e0', 'pre_edge',
                  'post_edge', 'edge_step', 'norm', 'flat', 'mu0prior', 'mu0',
-                 'k', 'chi', 'bft']
+                 'mu0eknots', 'k', 'chi', 'bft']
     mu0methods = ['through internal k-spaced knots', 'smoothing spline']
     eShiftKinds = ['angular shift', 'lattice shift', 'energy shift']
 
@@ -421,7 +421,11 @@ class MakeChi(ctr.Transform):
             w[whereMax] = 1e-10
             spl = LSQUnivariateSpline(ke+1e-6, funFit, knots, w)
             data.mu0 = spl(ke) + data.mu0prior
+            interpPrior = interp1d(ke+1e-6, data.mu0prior, assume_sorted=True)
+            eknots = data.e0 + knots**2/eV2revA
+            data.mu0eknots = eknots, spl(knots) + interpPrior(knots)
         elif dtparams['mu0method'] == 1:  # 'smoothing spline'
+            data.mu0eknots = None
             s = dtparams['mu0smoothingFactor']
             if s == 0:
                 s = None
