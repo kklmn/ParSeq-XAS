@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 __author__ = "Konstantin Klementiev"
-__date__ = "24 Nov 2023"
+__date__ = "28 Nov 2023"
 
 import sys; sys.path.append('..')  # analysis:ignore
 import numpy as np
@@ -530,9 +530,12 @@ class MakeBFT(ctr.Transform):
     def run_main(cls, data):
         dtparams = data.transformParams
         kind = dtparams['bftWindowKind']
-        rmin, rmax = dtparams['bftWindowRange']
-        w = dtparams['bftWindowWidth']
-        data.bftwindow = uft.make_ft_window(kind, data.r, rmin, rmax, w)
+        if dtparams['bftWindowRange'] is not None:
+            rmin, rmax = dtparams['bftWindowRange']
+            w = dtparams['bftWindowWidth']
+            data.bftwindow = uft.make_ft_window(kind, data.r, rmin, rmax, w)
+        else:
+            data.bftwindow = np.ones_like(data.r)
         dk = dtparams['dk']
         bft = np.fft.irfft((data.ftr + 1j*data.fti)*data.bftwindow, n=cls.nfft)
         ftwindow = np.array(data.ftwindow)

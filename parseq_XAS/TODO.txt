@@ -1,0 +1,5 @@
+- FY self-absorption
+- fit mu0 knots
+- line properties for extra lines
+- extract amplitude and phase from BFT
+- glitch marking and deglitching
