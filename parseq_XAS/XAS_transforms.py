@@ -3,11 +3,14 @@ __author__ = "Konstantin Klementiev"
 __date__ = "28 Nov 2023"
 
 import sys; sys.path.append('..')  # analysis:ignore
+from functools import partial
+
 import numpy as np
 from numpy.polynomial import Polynomial as P
 
-# from scipy.interpolate import InterpolatedUnivariateSplineCubicSpline
-from scipy.interpolate import CubicSpline, LSQUnivariateSpline, interp1d
+from scipy.optimize import curve_fit
+from scipy.interpolate import (CubicSpline, LSQUnivariateSpline, interp1d,
+                               BSpline)
 try:
     from scipy.interpolate import make_smoothing_spline
 except ImportError as e:
@@ -119,6 +122,7 @@ class MakeChi(ctr.Transform):
         mu0PriorIncludeWhiteLine=False, mu0PriorVScale=1., mu0PriorSmoothN=5,
         mu0method=1,  # see names in mu0methods
         mu0knots=7, mu0kpow=2,  # for mu0method=0
+        # ftMinimize=False, ftMinNKnots=4, ftMinRange=[0, 1],  # for method=0
         mu0smoothingFactor=2e6,  # for mu0method=1
         rebinNeeded=True, rebinRegions=dict(
             deltas=(1., 0.2, 0.5, 0.025), splitters=(-15, 15, 2.5, 'inf')),
@@ -132,7 +136,9 @@ class MakeChi(ctr.Transform):
     inArrays = ['muraw', 'eraw', 'eref']
     outArrays = ['e', 'mu', 'mu_der', 'erefrb', 'eref_der', 'e0', 'pre_edge',
                  'post_edge', 'edge_step', 'norm', 'flat', 'mu0prior', 'mu0',
-                 'mu0eknots', 'k', 'chi', 'bft']
+                 'mu0eknots', 'k', 'chi', 'bft',
+                 # 'mu0eknotsVaried',
+                 ]
     mu0methods = ['through internal k-spaced knots', 'smoothing spline']
     eShiftKinds = ['angular shift', 'lattice shift', 'energy shift']
 
@@ -406,6 +412,11 @@ class MakeChi(ctr.Transform):
         kmin, kmax = dtparams['krange']
         kmaxE = abs((data.e[-1] - data.e0)*eV2revA)**0.5
         kmax = min(kmax, kmaxE) if kmax else kmaxE
+        dtparams['datakmax'] = kmaxE
+        dk = dtparams['dk']
+        data.k = np.arange(kmin, kmax + dk*0.5, dk)
+        # data.k = np.arange(0, kmax + dk*0.5, dk)
+
         funFit = data.mu - data.mu0prior
         w = np.ones_like(data.e)  # must be positive
         wherePre = data.e < data.e0
@@ -413,19 +424,54 @@ class MakeChi(ctr.Transform):
         whereMax = data.e > data.e0 + kmax**2/eV2revA
         if dtparams['mu0method'] == 0:  # 'through internal k-spaced knots'
             ke = np.sign(data.e-data.e0) * (abs(data.e-data.e0)*eV2revA)**0.5
-            nKnots = max(dtparams['mu0knots'], 1)
-            knots = np.linspace(kmin, kmax, nKnots)
+            nKnots = max(dtparams['mu0knots'], 3)
+            # knots = np.linspace(kmin, kmax, nKnots)
+            knots = np.linspace(0, kmax, nKnots)
             kpow = dtparams['mu0kpow']
-            whereMin = data.e > data.e0 + kmin**2/eV2revA
+            # whereMin = data.e > data.e0 + kmin**2/eV2revA
+            whereMin = data.e > data.e0
             w[whereMin] = ke[whereMin]**kpow
             w[whereMax] = 1e-10
-            spl = LSQUnivariateSpline(ke+1e-6, funFit, knots, w)
-            data.mu0 = spl(ke) + data.mu0prior
+            spl = LSQUnivariateSpline(ke+1e-6, funFit, knots, w, ext=3)
+            # cspl = spl.get_coeffs()
             interpPrior = interp1d(ke+1e-6, data.mu0prior, assume_sorted=True)
             eknots = data.e0 + knots**2/eV2revA
             data.mu0eknots = eknots, spl(knots) + interpPrior(knots)
+
+            # # +2 end knots + 2×order(=3) boundary knots:
+            # knotsBSpl = np.array(4*[ke[0]] + list(knots) + 4*[ke[-1]])
+            # if dtparams['ftMinimize']:
+            #     ftMinNKnots = dtparams['ftMinNKnots']
+            #     variedCoeffs = cspl[2:ftMinNKnots+2]  # 2 first intervals fixed
+            #     ftMinRange = dtparams['ftMinRange']
+            #     r = np.fft.rfftfreq(MakeFT.nfft, dk/np.pi)
+            #     wherer = (ftMinRange[0] <= r) & (r <= ftMinRange[1])
+            #     # fitr = np.concatenate((r[wherer], r[wherer]))
+            #     fitr = r[wherer]
+            #     popt = curve_fit(partial(
+            #         cls.mu0_BSpline, knots=knotsBSpl, allCoeffs=cspl,
+            #         ke=ke, mu0prior=data.mu0prior, e=data.e, e0=data.e0,
+            #         mu=data.mu, pre_edge=data.pre_edge, k=data.k,
+            #         kw=dtparams['kw'], wherer=wherer),
+            #         fitr, np.zeros_like(fitr), p0=variedCoeffs)[0]
+            #     cspl[2:2+ftMinNKnots] = popt
+            #     splK = BSpline(knotsBSpl, cspl, 3)
+            #     data.mu0 = splK(ke) + data.mu0prior
+            #     knotsK = knots[1:-1][:ftMinNKnots]
+            #     knotsV = splK(knotsK) + interpPrior(knotsK)
+            #     knotsE = eknots[1:-1][:ftMinNKnots]
+            #     data.mu0eknotsVaried = (knotsE, knotsV)
+            # else:
+            #     if True:  # both ways work equally
+            #         data.mu0 = spl(ke) + data.mu0prior
+            #     else:
+            #         splK = BSpline(knotsBSpl, cspl, 3)
+            #         data.mu0 = splK(ke) + data.mu0prior
+            #     data.mu0eknotsVaried = None
+            data.mu0 = spl(ke) + data.mu0prior
         elif dtparams['mu0method'] == 1:  # 'smoothing spline'
             data.mu0eknots = None
+            # data.mu0eknotsVaried = None
             s = dtparams['mu0smoothingFactor']
             if s == 0:
                 s = None
@@ -437,30 +483,8 @@ class MakeChi(ctr.Transform):
             raise ValueError(
                 "unknown value mu0method={0}".format(dtparams['mu0method']))
 
-        # out = Group()
-        # autobk(data.e, data.mu, group=out)
-        # data.k = np.array(out.k)
-        # data.chi = np.array(out.chi)
-
-        kmin, kmax = dtparams['krange']
-        kmaxE = abs((data.e[-1] - data.e0)*eV2revA)**0.5
-        dtparams['datakmax'] = kmaxE
-        kmax = min(kmax, kmaxE) if kmax else kmaxE
-        dk = dtparams['dk']
-        data.k = np.arange(kmin, kmax + dk*0.5, dk)
-        # data.k = np.arange(0, kmax + dk*0.5, dk)
-        wherek = data.e >= data.e0
-        ke = ((data.e[wherek] - data.e0)*eV2revA)**0.5
-        mu = data.mu[wherek]
-        mu0 = data.mu0[wherek]
-        pre = data.pre_edge[wherek]
-        chie = (mu - mu0) / (mu0 - pre)
-        data.chi = np.interp(data.k, ke, chie)
-        # data.chi[data.k < kmin] = 0
-        # data.chi[data.k > kmax] = 0
-
-        data.chi *= data.k ** dtparams['kw']
-        data.bft = data.chi
+        data.chi = cls.get_chi(data.e, data.e0, data.mu, data.mu0,
+                               data.pre_edge, data.k, dtparams['kw'])
 
         # # test with ft + bft
         # # differs from VIPER by sqrt(2/pi) that is tranferred to BFT:
@@ -468,6 +492,30 @@ class MakeChi(ctr.Transform):
         # data.bft = np.fft.irfft(ft)[0:len(data.k)] / (dk/2)
 
         return True
+
+    @classmethod
+    def get_chi(cls, e, e0, mu, mu0, pre_edge, k, kw):
+        wherek = e >= e0
+        kexp = ((e[wherek] - e0)*eV2revA)**0.5
+        mu_ = mu[wherek]
+        mu0_ = mu0[wherek]
+        pre = pre_edge[wherek]
+        chie = (mu_ - mu0_) / (mu0_ - pre)
+        return np.interp(k, kexp, chie) * k**kw
+
+    @classmethod
+    def mu0_BSpline(cls, r, *vals, knots, allCoeffs, ke, mu0prior, e, e0, mu,
+                    pre_edge, k, kw, wherer):
+        c = list(allCoeffs)
+        c[2:2+len(vals)] = vals
+        splK = BSpline(knots, c, 3)
+        mu0 = splK(ke) + mu0prior
+        chi = cls.get_chi(e, e0, mu, mu0, pre_edge, k, kw) # * ftwindow
+        chi -= np.trapz(chi, k) / np.trapz(np.ones_like(chi), k)
+        dk = k[1] - k[0]
+        ft = np.fft.rfft(chi, n=MakeFT.nfft) * dk/2
+        # return np.concatenate((ft.real[wherer], ft.imag[wherer]))
+        return np.abs(ft[wherer])
 
 
 class MakeFT(ctr.Transform):

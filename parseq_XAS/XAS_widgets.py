@@ -11,7 +11,7 @@ from functools import partial
 import sys; sys.path.append('..')  # analysis:ignore
 from parseq.core import singletons as csi
 from parseq.gui.dataRebin import DataRebinWidget
-from parseq.gui.roi import RangeWidget, RangeWidgetSplit, RoiWidget
+from parseq.gui.roi import AutoRangeWidget, SplitRangeWidget, RoiWidget
 import parseq.gui.gcommons as gco
 
 # from parseq.core import commons as cco
@@ -22,7 +22,7 @@ from parseq.third_party import XAFSmass
 from . import XAS_transforms as xtr
 
 
-class RangeWidgetE0(RangeWidget):
+class RangeWidgetE0(AutoRangeWidget):
     'fractionMin, fractionMax of range [eMin, eMax]'
 
     def convert(self, direction, vmin, vmax):
@@ -45,7 +45,7 @@ class RangeWidgetE0(RangeWidget):
         return amin, amax
 
 
-class RangeWidgetPre(RangeWidget):
+class RangeWidgetPre(AutoRangeWidget):
     'fractionMin, fractionMax of range [eMin, E0]'
 
     def convert(self, direction, vmin, vmax):
@@ -68,7 +68,7 @@ class RangeWidgetPre(RangeWidget):
         return amin, amax
 
 
-class RangeWidgetPost(RangeWidget):
+class RangeWidgetPost(AutoRangeWidget):
     'min+E0, max+E0 (eV)', 'post-edge'
 
     def convert(self, direction, vmin, vmax):
@@ -88,7 +88,7 @@ class RangeWidgetPost(RangeWidget):
         return amin, amax
 
 
-class RangeWidgetFTWidthAndMin(RangeWidgetSplit):
+class RangeWidgetFTWidthAndMin(SplitRangeWidget):
     plotFactor = 0.98
 
     def convert(self, direction, vmin, vmax):
@@ -211,8 +211,8 @@ class MuWidget(PropWidget):
         'show_derivative': False, 'show_E0': True,
         'show_mu0': True, 'show_mu0_prior': False, 'show_post': False}
 
-    extraLines = ('pre_edge', 'post_edge', 'mu0', 'mu0eknots', 'mu0prior',
-                  'e0', 'mu_der')
+    extraLines = ('pre_edge', 'post_edge', 'mu0', 'mu0eknots',
+                  'mu0eknots.varied', 'mu0prior', 'e0', 'mu_der')
     preEdgePlotParams = {'linewidth': 1.0, 'linestyle': '-.'}
     postEdgePlotParams = {'linewidth': 1.0, 'linestyle': '--'}
     mu0PlotParams = {'linewidth': 0.75, 'linestyle': '--'}
@@ -546,8 +546,10 @@ class MuWidget(PropWidget):
         layoutMK = qt.QHBoxLayout()
         nKnots = qt.QLabel('knots')
         self.knotsBox = qt.QSpinBox()
-        self.knotsBox.setMinimum(1)
+        self.knotsBox.setMinimum(4)
         self.knotsBox.setMaximum(30)
+        self.knotsBox.setToolTip('max 30')
+        # self.knotsBox.valueChanged.connect(self.setKnotsSlot)
         self.registerPropWidget(self.knotsBox, 'knots, w', 'mu0knots')
         layoutMK.addWidget(nKnots)
         layoutMK.addWidget(self.knotsBox)
@@ -562,7 +564,30 @@ class MuWidget(PropWidget):
         layoutMK.addWidget(self.mu0kpowBox)
         layoutMK.addStretch()
         layoutMu0page0.addLayout(layoutMK)
-        layoutMu0page0.addStretch()
+
+        # self.ftMinimizeRangeWidget = SimpleRangeWidget(
+        #     self, 'FT, χ(r)', 'optimize µ\u2080 knots by minimizing low-r FT',
+        #     'minimize range [rMin, rMax] (Å)', 'min-FT-range',
+        #     "#da7070", "{0[0]:.2f}, {0[1]:.2f}", [0, 1])
+        # self.ftMinimizeRangeWidget.panel.setCheckable(True)
+        # self.registerPropWidget(self.ftMinimizeRangeWidget.panel,
+        #                         'minimize low-r FT', 'ftMinimize')
+        # self.registerPropWidget(self.ftMinimizeRangeWidget,
+        #                         'optimize knots', 'ftMinRange')
+        # self.ftMinNKnotsBox = qt.QSpinBox()
+        # self.ftMinNKnotsBox.setMinimum(1)
+        # self.ftMinNKnotsBox.setMaximum(30)
+        # self.registerPropWidget(
+        #     self.ftMinNKnotsBox, 'optimized knots', 'ftMinNKnots')
+        # ftMinNKnotsLabel1 = qt.QLabel('knots to vary')
+        # ftMinNKnotsLabel2 = qt.QLabel('FT range')
+        # lk = self.ftMinimizeRangeWidget.panel.layout()
+        # lk.insertWidget(0, ftMinNKnotsLabel1)
+        # lk.insertWidget(1, self.ftMinNKnotsBox)
+        # lk.insertStretch(2)
+        # lk.insertWidget(3, ftMinNKnotsLabel2)
+        # layoutMu0page0.addWidget(self.ftMinimizeRangeWidget)
+        # layoutMu0page0.addStretch()
 
         mu0page1 = qt.QWidget()
         layoutMu0page1 = qt.QVBoxLayout()
@@ -600,6 +625,13 @@ class MuWidget(PropWidget):
         layout.addStretch()
         self.setLayout(layout)
         self.wasNeverPlotted = True
+
+    # def setKnotsSlot(self, i):
+    #     for data in csi.selectedItems:
+    #         dtparams = data.transformParams
+    #         if dtparams['ftMinNKnots'] > i-2:
+    #             dtparams['ftMinNKnots'] = i-2
+    #     self.ftMinNKnotsBox.setMaximum(i-2)
 
     def subtractPreedgeSlot(self, value):
         if len(csi.selectedItems) == 0:
@@ -746,6 +778,7 @@ class MuWidget(PropWidget):
                         pe /= post(knotsx) - pre(knotsx)
                     else:
                         pe /= data.edge_step
+
                 curve = plot.getCurve(legend)
                 plotProps = dict(self.mu0knotsPlotParams)
                 symbolsize = plotProps.pop('symbolsize', 3)
@@ -766,6 +799,43 @@ class MuWidget(PropWidget):
                         curve.setSymbolSize(symbolsize)
             else:
                 plot.remove(legend, kind='curve')
+
+            # legend = '{0}.mu0eknots.varied'.format(data.alias)
+            # if self.properties['show_mu0'] and \
+            #     hasattr(data, 'mu0eknotsVaried') and \
+            #         (data.mu0eknotsVaried is not None):
+            #     pre = interp1d(data.e, data.pre_edge, assume_sorted=True)
+            #     post = interp1d(data.e, data.post_edge, assume_sorted=True)
+            #     knotsx, knotsy = data.mu0eknotsVaried
+            #     pe = knotsy - pre(knotsx) if \
+            #         self.properties['subtract_preedge'] else \
+            #         np.array(knotsy)
+            #     if self.properties['normalize']:
+            #         if self.properties['flatten']:
+            #             pe /= post(knotsx) - pre(knotsx)
+            #         else:
+            #             pe /= data.edge_step
+
+            #     curve = plot.getCurve(legend)
+            #     plotProps = dict(self.mu0knotsPlotParams)
+            #     symbolsize = plotProps.pop('symbolsize', 3) + 2
+            #     if curve is None:
+            #         plot.addCurve(
+            #             knotsx, pe, **plotProps,
+            #             color=data.color, z=z, legend=legend, resetzoom=False)
+            #     else:
+            #         curve.setData(knotsx, pe)
+            #         curve.setZValue(z)
+
+            #     symbol = plotProps.get('symbol', None)
+            #     if symbol is not None:
+            #         curve = plot.getCurve(legend)
+            #         if curve is not None:
+            #             if self.node.widget.backend['backend'] == 'opengl':
+            #                 symbolsize *= 2
+            #             curve.setSymbolSize(symbolsize)
+            # else:
+            #     plot.remove(legend, kind='curve')
 
             legend = '{0}.mu0prior'.format(data.alias)
             if self.properties['show_mu0_prior']:
@@ -929,7 +999,7 @@ class ChiWidget(PropWidget):
 
         layoutK = qt.QVBoxLayout()
         layoutK.setContentsMargins(2, 0, 2, 2)
-        self.krange = RangeWidgetSplit(
+        self.krange = SplitRangeWidget(
             self, plot, ('k min', 'k max'), [0, 10, 0.1, 3],
             [0, None, 0.1, 3], 'k-range', '#ff5500', [1.5, None],
             addVisibleCB=True)
@@ -1234,7 +1304,7 @@ class FTWidget(PropWidget):
         self.bftWindowKind.currentIndexChanged.connect(self.updateBFTwindow)
         layoutFT.addWidget(self.bftWindowKind)
 
-        self.bftWindowRange = RangeWidgetSplit(
+        self.bftWindowRange = SplitRangeWidget(
             self, plot, ('r min', 'r max'), [0, 25, 0.1, 2],
             [0, 25, 0.1, 2], 'BFT range', '#5500ff', [None, None])
         self.registerPropWidget(
