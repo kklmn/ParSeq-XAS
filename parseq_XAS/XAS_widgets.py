@@ -859,7 +859,7 @@ class MuWidget(PropWidget):
                 plot.remove(legend, kind='curve')
 
             legend = '{0}.e0'.format(data.alias)
-            if self.properties['show_E0']:
+            if self.properties['show_E0'] and hasattr(data, 'e0'):
                 de = data.mu - data.pre_edge if \
                     self.properties['subtract_preedge'] else data.mu
                 if self.properties['normalize']:
@@ -904,15 +904,18 @@ class MuWidget(PropWidget):
 
     def extraPlotTransform(self, dataItem, xName, x, yName, y):
         if yName == 'mu':
-            if self.properties['subtract_preedge']:
-                if self.properties['normalize']:
-                    if self.properties['flatten']:
-                        return x, dataItem.flat
+            try:
+                if self.properties['subtract_preedge']:
+                    if self.properties['normalize']:
+                        if self.properties['flatten']:
+                            return x, dataItem.flat
+                        else:
+                            return x, dataItem.norm
                     else:
-                        return x, dataItem.norm
+                        return x, y-dataItem.pre_edge
                 else:
-                    return x, y-dataItem.pre_edge
-            else:
+                    return x, y
+            except Exception:
                 return x, y
         else:
             return x, y

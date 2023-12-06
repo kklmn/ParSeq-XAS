@@ -3,14 +3,13 @@ __author__ = "Konstantin Klementiev"
 __date__ = "28 Nov 2023"
 
 import sys; sys.path.append('..')  # analysis:ignore
-from functools import partial
 
 import numpy as np
 from numpy.polynomial import Polynomial as P
 
-from scipy.optimize import curve_fit
-from scipy.interpolate import (CubicSpline, LSQUnivariateSpline, interp1d,
-                               BSpline)
+# from functools import partial
+# from scipy.optimize import curve_fit
+from scipy.interpolate import CubicSpline, LSQUnivariateSpline, interp1d
 try:
     from scipy.interpolate import make_smoothing_spline
 except ImportError as e:
@@ -288,14 +287,20 @@ class MakeChi(ctr.Transform):
         # data.mu = np.log(i0 / itr)
 
         histmu = np.histogram(data.e, bins, weights=data.mu)[0]
-        data.mu = histmu[good] / histNorm[good]
+        datamu = histmu[good] / histNorm[good]
 
         if data.eref is not None:
             histeref = np.histogram(data.e, bins, weights=data.eref)[0]
-            data.erefrb = histeref[good] / histNorm[good]
+            dataerefrb = histeref[good] / histNorm[good]
 
         histe = np.histogram(data.e, bins, weights=data.e)[0]
-        data.e = histe[good] / histNorm[good]
+        datae = histe[good] / histNorm[good]
+
+        #  change them simultaneously:
+        if data.eref is not None:
+            data.e, data.mu, data.erefrb = datae, datamu, dataerefrb
+        else:
+            data.e, data.mu = datae, datamu
 
         try:
             dtparams['nbinNew'] = np.histogram(data.e, bins0)[0]
@@ -438,11 +443,13 @@ class MakeChi(ctr.Transform):
             eknots = data.e0 + knots**2/eV2revA
             data.mu0eknots = eknots, spl(knots) + interpPrior(knots)
 
+            # !! curve_fit to minimize low-r FT is unstable !! removed
             # # +2 end knots + 2×order(=3) boundary knots:
             # knotsBSpl = np.array(4*[ke[0]] + list(knots) + 4*[ke[-1]])
             # if dtparams['ftMinimize']:
             #     ftMinNKnots = dtparams['ftMinNKnots']
-            #     variedCoeffs = cspl[2:ftMinNKnots+2]  # 2 first intervals fixed
+            #     # 2 first intervals are fixed:
+            #     variedCoeffs = cspl[2:ftMinNKnots+2]
             #     ftMinRange = dtparams['ftMinRange']
             #     r = np.fft.rfftfreq(MakeFT.nfft, dk/np.pi)
             #     wherer = (ftMinRange[0] <= r) & (r <= ftMinRange[1])
@@ -503,19 +510,19 @@ class MakeChi(ctr.Transform):
         chie = (mu_ - mu0_) / (mu0_ - pre)
         return np.interp(k, kexp, chie) * k**kw
 
-    @classmethod
-    def mu0_BSpline(cls, r, *vals, knots, allCoeffs, ke, mu0prior, e, e0, mu,
-                    pre_edge, k, kw, wherer):
-        c = list(allCoeffs)
-        c[2:2+len(vals)] = vals
-        splK = BSpline(knots, c, 3)
-        mu0 = splK(ke) + mu0prior
-        chi = cls.get_chi(e, e0, mu, mu0, pre_edge, k, kw) # * ftwindow
-        chi -= np.trapz(chi, k) / np.trapz(np.ones_like(chi), k)
-        dk = k[1] - k[0]
-        ft = np.fft.rfft(chi, n=MakeFT.nfft) * dk/2
-        # return np.concatenate((ft.real[wherer], ft.imag[wherer]))
-        return np.abs(ft[wherer])
+    # @classmethod
+    # def mu0_BSpline(cls, r, *vals, knots, allCoeffs, ke, mu0prior, e, e0, mu,
+    #                 pre_edge, k, kw, wherer):
+    #     c = list(allCoeffs)
+    #     c[2:2+len(vals)] = vals
+    #     splK = BSpline(knots, c, 3)
+    #     mu0 = splK(ke) + mu0prior
+    #     chi = cls.get_chi(e, e0, mu, mu0, pre_edge, k, kw) # * ftwindow
+    #     chi -= np.trapz(chi, k) / np.trapz(np.ones_like(chi), k)
+    #     dk = k[1] - k[0]
+    #     ft = np.fft.rfft(chi, n=MakeFT.nfft) * dk/2
+    #     # return np.concatenate((ft.real[wherer], ft.imag[wherer]))
+    #     return np.abs(ft[wherer])
 
 
 class MakeFT(ctr.Transform):
