@@ -1341,6 +1341,8 @@ class FTWidget(PropWidget):
 
     def showSlot(self, prop, value):
         self.properties[prop] = value
+        if self.bftWindowRange.roi is not None:
+            self.bftWindowRange.roi.setVisible(value)
         csi.model.needReplot.emit(False, True, 'showSlot')
 
     def updateBFTwindow(self, ind):
@@ -1366,8 +1368,12 @@ class FTWidget(PropWidget):
                 plot.addCurve(
                     data.r, data.bftwindow*ymax, yaxis='left',
                     **self.bftWindowPlotParams, legend=legend, resetzoom=False)
+                if self.bftWindowRange.roi is not None:
+                    self.bftWindowRange.roi.setVisible(True)
             else:
                 plot.remove(legend, kind='curve')
+                if self.bftWindowRange.roi is not None:
+                    self.bftWindowRange.roi.setVisible(False)
 
         for data in csi.allLoadedItems:
             if not self.node.widget.shouldPlotItem(data):
