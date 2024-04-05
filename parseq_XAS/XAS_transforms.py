@@ -25,7 +25,7 @@ from parseq.utils import math as uma
 from parseq.utils.constants import eV2revA
 
 cpus = 'half'  # can be 'all' or 'half' or a number (int)
-# cpus = 1
+# cpus = 4
 
 
 class MakeTrMu(ctr.Transform):
@@ -131,7 +131,8 @@ class MakeChi(ctr.Transform):
         useERefCurve=False,
         kw=2, krange=[2.0, None], dk=0.025, datakmax=15.
         )
-    nThreads = cpus
+    nThreads = cpus  # twice as fast than nProcesses
+    # nProcesses = cpus
     inArrays = ['muraw', 'eraw', 'eref']
     outArrays = ['e', 'mu', 'mu_der', 'erefrb', 'eref_der', 'e0', 'pre_edge',
                  'post_edge', 'edge_step', 'norm', 'flat', 'mu0prior', 'mu0',

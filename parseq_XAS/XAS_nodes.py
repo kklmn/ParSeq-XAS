@@ -4,7 +4,7 @@ __date__ = "21 Nov 2023"
 
 import sys; sys.path.append('..')  # analysis:ignore
 from collections import OrderedDict
-import hdf5plugin  # needed to prevent h5py's "OSError: Can't read data"
+# import hdf5plugin  # needed to prevent h5py's "OSError: Can't read data"
 
 from parseq.core import nodes as cno
 
@@ -23,7 +23,7 @@ class NodeIT(cno.Node):  # transmission signals
 
 
 class NodeIF(cno.Node):  # partial fluorescence signals
-    name = 'currents PFY'
+    name = 'counts PFY'
     arrays = OrderedDict()
     arrays['eraw'] = dict(qLabel='E', qUnit='eV', role='x', plotLabel=r'$E$')
     arrays['i0'] = dict(
@@ -36,7 +36,7 @@ class NodeIF(cno.Node):  # partial fluorescence signals
 
 
 class NodeIE(cno.Node):  # total electron yield (fluorescence) signals
-    name = 'currents TEY'
+    name = 'currents TEY/TFY'
     arrays = OrderedDict()
     arrays['eraw'] = dict(qLabel='E', qUnit='eV', role='x', plotLabel=r'$E$')
     arrays['i0'] = dict(

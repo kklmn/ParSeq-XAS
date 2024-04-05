@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 __author__ = "Konstantin Klementiev"
-__date__ = "24 Nov 2023"
+__date__ = "5 Apr 2024"
 # !!! SEE CODERULES.TXT !!!
 
-import os, sys; sys.path.append('..')  # analysis:ignore
 import argparse
+import sys; sys.path.append('..')  # analysis:ignore
 
 import parseq.core.singletons as csi
 import parseq.core.save_restore as csr
@@ -65,8 +65,13 @@ if __name__ == '__main__':
                         help="verbosity level for diagnostic purpose")
     parser.add_argument("-nG", "--noGUI", action="store_true",
                         help="start the data pipeline without GUI")
+    parser.add_argument("-b", "--plotBackend", metavar='backend_name',
+                        help="plot backend used by silx, either matplotlib"
+                        " (set by default) or opengl")
     args = parser.parse_args()
 
+    if args.plotBackend:
+        csi.plotBackend = args.plotBackend
     csi.DEBUG_LEVEL = args.verbosity
     main(projectFile=args.projectFile, withTestData=args.test,
          withGUI=not args.noGUI)
