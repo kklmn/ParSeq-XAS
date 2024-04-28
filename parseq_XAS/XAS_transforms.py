@@ -20,17 +20,18 @@ except ImportError as e:
 # from scipy.integrate import simps
 
 from parseq.core import transforms as ctr
+from parseq.core.logger import logger
 from parseq.utils import ft as uft
 from parseq.utils import math as uma
 from parseq.utils.constants import eV2revA
 
-cpus = 'half'  # can be 'all' or 'half' or a number (int)
-# cpus = 4
+# cpus = 'half'  # can be 'all' or 'half' or a number (int)
+cpus = 4
 
 
 class MakeTrMu(ctr.Transform):
     name = 'make tr mu'
-    nThreads = cpus
+    nThreads = 1
     inArrays = ['i0', 'itr', 'eraw', 'eref']
     outArrays = ['muraw']
     defaultParams = {}
@@ -45,7 +46,7 @@ class MakeTrMu(ctr.Transform):
 
 class MakeFYMu(ctr.Transform):
     name = 'make PFY mu'
-    nThreads = cpus
+    nThreads = 1
     inArrays = ['i0', 'ify', 'eraw', 'eref']
     outArrays = ['muraw']
     defaultParams = {}
@@ -60,7 +61,7 @@ class MakeFYMu(ctr.Transform):
 
 class MakeTEYMu(ctr.Transform):
     name = 'make TEY mu'
-    nThreads = cpus
+    nThreads = 1
     inArrays = ['i0', 'iey', 'eraw', 'eref']
     outArrays = ['muraw']
     defaultParams = {}
@@ -143,6 +144,7 @@ class MakeChi(ctr.Transform):
     eShiftKinds = ['angular shift', 'lattice shift', 'energy shift']
 
     @classmethod
+    @logger(minLevel=20, attrs=[(0, 'name')])
     def get_e0(cls, data):
         dtparams = data.transformParams
 
@@ -220,6 +222,7 @@ class MakeChi(ctr.Transform):
         return e0
 
     @classmethod
+    @logger(minLevel=20, attrs=[(0, 'name')])
     def rebin(cls, data, e0):
         dtparams = data.transformParams
 
@@ -309,6 +312,7 @@ class MakeChi(ctr.Transform):
             dtparams['nbinNew'] = None
 
     @classmethod
+    @logger(minLevel=20, attrs=[(0, 'name')])
     def polyfit(cls, e, mu, exps, data):
         minPow = min(exps)
         deg = [d-minPow for d in exps]
@@ -318,6 +322,7 @@ class MakeChi(ctr.Transform):
         return rese, rese0
 
     @classmethod
+    @logger(minLevel=20, attrs=[(0, 'name')])
     def get_pre(cls, data):
         dtparams = data.transformParams
         defpr = cls.defaultParams['preedgeWhere']
@@ -332,6 +337,7 @@ class MakeChi(ctr.Transform):
         return cls.polyfit(e, mu, dtparams['preedgeExps'], data)
 
     @classmethod
+    @logger(minLevel=20, attrs=[(0, 'name')])
     def get_post(cls, data):
         dtparams = data.transformParams
         defpo = cls.defaultParams['postedgeWhere']
@@ -502,6 +508,7 @@ class MakeChi(ctr.Transform):
         return True
 
     @classmethod
+    @logger(minLevel=20, attrs=[(0, 'name')])
     def get_chi(cls, e, e0, mu, mu0, pre_edge, k, kw):
         wherek = e >= e0
         kexp = ((e[wherek] - e0)*eV2revA)**0.5

@@ -73,7 +73,7 @@ class NodeMu(cno.Node):
 
 
 class NodeChi(cno.Node):
-    name = 'χ(k)'
+    name = u'χ(k)'
     arrays = OrderedDict()
     arrays['k'] = dict(
         qUnit=u'Å\u207B\u00B9', role='x', plotLabel=r'$k$',
