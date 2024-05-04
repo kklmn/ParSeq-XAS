@@ -25,8 +25,8 @@ from parseq.utils import ft as uft
 from parseq.utils import math as uma
 from parseq.utils.constants import eV2revA
 
-# cpus = 'half'  # can be 'all' or 'half' or a number (int)
-cpus = 4
+cpus = 'half'  # can be 'all' or 'half' or a number (int)
+# cpus = 4
 
 
 class MakeTrMu(ctr.Transform):

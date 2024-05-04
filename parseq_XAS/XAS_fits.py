@@ -25,7 +25,8 @@ class FunctionFit(fits.functionfit.FunctionFit):
     dataAttrs = dict(x='e', y='flat', fit='fitFunc')
     plotParams = dict(fit=dict(linewidth=1., linestyle=':'),
                       residue=dict(linewidth=0.8, linestyle='--'))
-    nThreads = 2
+    # nThreads = 2
+    nProcesses = 2
 
 
 class EXAFSFit(fits.exafsfit.EXAFSFit):
