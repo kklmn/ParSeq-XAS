@@ -7,8 +7,8 @@ import argparse
 import sys; sys.path.append('..')  # analysis:ignore
 
 import parseq.core.singletons as csi
-import parseq.core.save_restore as csr
 import parseq_XAS as myapp
+import parseq.core.save_restore as csr  # after myapp import
 
 
 def main(projectFile=None, withTestData=True, withGUI=True):

@@ -7,8 +7,6 @@ import os.path as osp
 
 import sys; sys.path.append('..')  # analysis:ignore
 from parseq.core import singletons as csi
-from .XAS_pipeline import make_pipeline
-from .XAS_tests import load_test_data
 
 from .version import __versioninfo__, __version__, __date__
 
@@ -26,3 +24,6 @@ csi.appDescription = __doc__
 csi.appAuthor = __author__
 csi.appLicense = __license__
 csi.appVersion = __version__
+
+from .XAS_pipeline import make_pipeline
+from .XAS_tests import load_test_data
