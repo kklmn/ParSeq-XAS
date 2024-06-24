@@ -151,8 +151,41 @@ class HERFDWidget(PropWidget):
     def __init__(self, parent=None, node=None):
         super().__init__(parent, node)
         plot = self.node.widget.plot
-
         layout = qt.QVBoxLayout()
+
+        cutoffPanel = qt.QGroupBox(self)
+        cutoffPanel.setFlat(False)
+        cutoffPanel.setTitle('pixel value cutoff')
+        cutoffPanel.setCheckable(True)
+        self.registerPropWidget(cutoffPanel, cutoffPanel.title(),
+                                'cutoffNeeded')
+        layoutC = qt.QVBoxLayout()
+
+        layoutL = qt.QHBoxLayout()
+        cutoffLabel = qt.QLabel('cutoff')
+        layoutL.addWidget(cutoffLabel)
+        cutoff = qt.QSpinBox()
+        cutoff.setToolTip(u'0 ≤ cutoff ≤ 1e8')
+        cutoff.setMinimum(0)
+        cutoff.setMaximum(int(1e8))
+        cutoff.setSingleStep(100)
+        self.registerPropWidget([cutoff, cutoffLabel], cutoffLabel.text(),
+                                'cutoff')
+        layoutL.addWidget(cutoff)
+        layoutC.addLayout(layoutL)
+
+        layoutP = qt.QHBoxLayout()
+        maxLabel = qt.QLabel('max pixel')
+        layoutP.addWidget(maxLabel)
+        maxValue = qt.QLabel()
+        self.registerStatusLabel(maxValue, 'cutoffMaxBelow')
+        layoutP.addWidget(maxValue)
+        layoutC.addLayout(layoutP)
+
+        cutoffPanel.setLayout(layoutC)
+        self.registerPropGroup(
+            cutoffPanel, [cutoff, cutoffPanel], 'cutoff properties')
+        layout.addWidget(cutoffPanel)
 
         roiPanel = qt.QGroupBox(self)
         roiPanel.setFlat(False)

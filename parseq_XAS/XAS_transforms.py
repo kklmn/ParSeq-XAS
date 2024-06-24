@@ -79,7 +79,9 @@ class MakeHERFD(ctr.Transform):
     nThreads = cpus
     inArrays = ['i0', 'xes2D', 'eraw', 'eref']
     outArrays = ['muraw']
-    defaultParams = {}
+    defaultParams = dict(
+        cutoffNeeded=True, cutoff=2000, cutoffMaxBelow=0,
+        )
 
     # defaultParams['roi'] = dict(
     #     kind='BandROI', name='band', use=True,
@@ -91,24 +93,31 @@ class MakeHERFD(ctr.Transform):
     def run_main(cls, data):
         posI0 = np.where(data.i0 > 0, data.i0, np.ones_like(data.i0))
         dtparams = data.transformParams
+
+        xes2Dwork = np.array(data.xes2D)
+        if dtparams['cutoffNeeded']:
+            cutoff = dtparams['cutoff']
+            xes2Dwork[xes2Dwork > cutoff] = 0
+            dtparams['cutoffMaxBelow'] = xes2Dwork.max()
+
         roi = dtparams['roiHERFD']
         if roi['use']:
             if roi['kind'] == 'HorizontalRangeROI':
                 vmin = max(int(roi['vmin']), 0)
                 vmax = int(roi['vmax'])
-                posIXES = data.xes2D[:, vmin:vmax+1].sum(axis=1)
+                posIXES = xes2Dwork[:, vmin:vmax+1].sum(axis=1)
             elif roi['kind'] == 'BandROI':
-                sh = data.xes2D.shape
+                sh = xes2Dwork.shape
                 xs = data.eraw
                 ys = np.arange(sh[0])[:, None]
                 m = uma.get_roi_mask(roi, xs, ys)
                 _, indx = np.nonzero(m)
-                posIXES = data.xes2D[m].sum(axis=1) if len(indx) > 0 else \
-                    data.xes2D.sum(axis=1)
+                posIXES = xes2Dwork[m].sum(axis=1) if len(indx) > 0 else \
+                    xes2Dwork.sum(axis=1)
             else:
                 raise ValueError('Unknown roi kind for {0}'.format(data.alias))
         else:
-            posIXES = data.xes2D.sum(axis=1)
+            posIXES = xes2Dwork.sum(axis=1)
         data.muraw = posIXES / posI0 * posI0.max()
         return True
 
