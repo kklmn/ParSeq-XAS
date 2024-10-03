@@ -535,7 +535,7 @@ class MakeChi(ctr.Transform):
     #     splK = BSpline(knots, c, 3)
     #     mu0 = splK(ke) + mu0prior
     #     chi = cls.get_chi(e, e0, mu, mu0, pre_edge, k, kw) # * ftwindow
-    #     chi -= np.trapz(chi, k) / np.trapz(np.ones_like(chi), k)
+    #     chi -= np.trapezoid(chi, x=k) / np.trapezoid(np.ones_like(chi), x=k)
     #     dk = k[1] - k[0]
     #     ft = np.fft.rfft(chi, n=MakeFT.nfft) * dk/2
     #     # return np.concatenate((ft.real[wherer], ft.imag[wherer]))
@@ -572,7 +572,8 @@ class MakeFT(ctr.Transform):
         data.ftwindow = uft.make_ft_window(kind, data.k, kmin, kmax, w, vmin)
         chi = np.array(data.chi) * data.ftwindow
         if dtparams['forceFT0']:
-            chi -= np.trapz(chi, data.k) / np.trapz(np.ones_like(chi), data.k)
+            chi -= np.trapezoid(chi, x=data.k) / np.trapezoid(
+                np.ones_like(chi), x=data.k)
 
         dk = dtparams['dk']
         # differs from VIPER by sqrt(2/pi) that is tranferred to BFT:
@@ -613,7 +614,8 @@ class MakeBFT(ctr.Transform):
         ftwindow = np.array(data.ftwindow)
         ftwindow[ftwindow <= 0] = 1.
         bftr = bft.real[:len(data.k)] * 2 / (dk * ftwindow)
-        bftr -= np.trapz(bftr, data.k) / np.trapz(np.ones_like(bftr), data.k)
+        bftr -= np.trapezoid(bftr, x=data.k) / np.trapezoid(
+            np.ones_like(bftr), x=data.k)
 
         kmin, kmax = dtparams['krange']
         if kmin is None:

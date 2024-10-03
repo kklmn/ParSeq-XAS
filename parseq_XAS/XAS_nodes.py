@@ -100,5 +100,5 @@ class NodeBFT(cno.Node):
         qUnit=u'Å\u207B\u00B9', role='x', plotLabel=r'$k$',
         plotUnit=r'Å$^{-1}$')
     arrays['bft'] = dict(
-        qLabel=u'χ\u0303', role='yleft',
+        qLabel=u'χ\u0303\u00A0', role='yleft',
         plotParams=dict(linewidth=1.5, linestyle='-'))
