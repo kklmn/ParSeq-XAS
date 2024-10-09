@@ -5,6 +5,8 @@ __date__ = "28 Nov 2023"
 import sys; sys.path.append('..')  # analysis:ignore
 
 import numpy as np
+if not hasattr(np, 'trapezoid'):
+    np.trapezoid = np.trapz
 from numpy.polynomial import Polynomial as P
 
 # from functools import partial
