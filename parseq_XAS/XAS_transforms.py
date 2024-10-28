@@ -135,7 +135,7 @@ class MakeChi(ctr.Transform):
         mu0knots=7, mu0kpow=2,  # for mu0method=0
         # ftMinimize=False, ftMinNKnots=4, ftMinRange=[0, 1],  # for method=0
         mu0smoothingFactor=2e6,  # for mu0method=1
-        rebinNeeded=True, rebinRegions=dict(
+        rebinNeeded=False, rebinRegions=dict(
             deltas=(1., 0.2, 0.5, 0.025), splitters=(-15, 15, 2.5, 'inf')),
         nbinOriginal=None, nbinNew=None, binDistrNew=None,
         needECalibration=False, eCalibrationMethod=1, eRef=8979.,
@@ -277,39 +277,45 @@ class MakeChi(ctr.Transform):
             dtparams['nbinOriginal'] = np.histogram(data.e, bins0)[0]
             histNorm = np.histogram(data.e, bins)[0]
             good = histNorm > 0
+            binDistrNew = []
 
             histNormPart = histNorm[:len(bins_pre)]
-            binDistrNew = [[histNormPart.min(), histNormPart.max()]]
+            if len(histNormPart):
+                binDistrNew.append([histNormPart.min(), histNormPart.max()])
             pos = len(bins_pre)
             histNormPart = histNorm[pos:pos+len(bins_edge)]
-            binDistrNew.append([histNormPart.min(), histNormPart.max()])
+            if len(histNormPart):
+                binDistrNew.append([histNormPart.min(), histNormPart.max()])
             pos += len(bins_edge)
             histNormPart = histNorm[pos:pos+len(bins_post)]
-            binDistrNew.append([histNormPart.min(), histNormPart.max()])
+            if len(histNormPart):
+                binDistrNew.append([histNormPart.min(), histNormPart.max()])
             pos += len(bins_post)
             histNormPart = histNorm[pos:]
-            binDistrNew.append([histNormPart.min(), histNormPart.max()])
+            if len(histNormPart):
+                binDistrNew.append([histNormPart.min(), histNormPart.max()])
             dtparams['binDistrNew'] = binDistrNew
+            histNormSliced = histNorm[good]
         except ValueError:
             dtparams['binDistrNew'] = None
             good = None
-            histNorm = np.array([1.])
+            histNormSliced = 1.
 
         # histi0 = np.histogram(data.e, bins, weights=data.i0)[0]
-        # i0 = histi0[good] / histNorm[good]
+        # i0 = histi0[good] / histNormSliced
         # histitr = np.histogram(data.e, bins, weights=data.itr)[0]
-        # itr = histitr[good] / histNorm[good]
+        # itr = histitr[good] / histNormSliced
         # data.mu = np.log(i0 / itr)
 
         histmu = np.histogram(data.e, bins, weights=data.mu)[0]
-        datamu = histmu[good] / histNorm[good]
+        datamu = histmu[good] / histNormSliced
 
         if data.eref is not None:
             histeref = np.histogram(data.e, bins, weights=data.eref)[0]
-            dataerefrb = histeref[good] / histNorm[good]
+            dataerefrb = histeref[good] / histNormSliced
 
         histe = np.histogram(data.e, bins, weights=data.e)[0]
-        datae = histe[good] / histNorm[good]
+        datae = histe[good] / histNormSliced
 
         #  change them simultaneously:
         if data.eref is not None:
@@ -455,7 +461,14 @@ class MakeChi(ctr.Transform):
             whereMin = data.e > data.e0
             w[whereMin] = ke[whereMin]**kpow
             w[whereMax] = 1e-10
-            spl = LSQUnivariateSpline(ke+1e-6, funFit, knots, w, ext=3)
+            try:
+                spl = LSQUnivariateSpline(ke+1e-6, funFit, knots, w, ext=3)
+            except ValueError:
+                argsort = ke.argsort()
+                ke = ke[argsort]
+                funFit = funFit[argsort]
+                spl = LSQUnivariateSpline(ke+1e-6, funFit, knots, w, ext=3)
+
             # cspl = spl.get_coeffs()
             interpPrior = interp1d(ke+1e-6, data.mu0prior, assume_sorted=True)
             eknots = data.e0 + knots**2/eV2revA
@@ -502,7 +515,13 @@ class MakeChi(ctr.Transform):
                 s = None
             whereMax = data.e > data.e0 + kmax**2/eV2revA
             w[whereMax] = 1e-10
-            spl = make_smoothing_spline(data.e, funFit, w, lam=s)
+            try:
+                spl = make_smoothing_spline(data.e, funFit, w, lam=s)
+            except ValueError:
+                argsort = data.e.argsort()
+                data.e = data.e[argsort]
+                funFit = funFit[argsort]
+                spl = make_smoothing_spline(data.e, funFit, w, lam=s)
             data.mu0 = spl(data.e) + data.mu0prior
         else:
             raise ValueError(
