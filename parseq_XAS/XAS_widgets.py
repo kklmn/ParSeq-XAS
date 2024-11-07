@@ -1381,7 +1381,8 @@ class FTWidget(PropWidget):
     def updateBFTwindow(self, ind):
         self.bftWindowRange.setVisible(ind > 0)
         if self.bftWindowRange.roi is not None:
-            self.bftWindowRange.roi.setVisible(ind > 0)
+            self.bftWindowRange.roi.setVisible(
+                ind > 0 and self.properties['show_bft_window'])
             self.wLabel.setVisible(ind > 1)
             self.wBox.setVisible(ind > 1)
 
@@ -1393,20 +1394,19 @@ class FTWidget(PropWidget):
 
         plot = self.node.widget.plot
         self.bftWindowRange.fromSpinBox(100)
-        if hasattr(data, 'bftwindow'):
-            legend = 'BFT window'
-            if self.properties['show_bft_window']:
-                ymax = plot.getYAxis().getLimits()[1] * \
-                    RangeWidgetFTWidthAndMin.plotFactor
-                plot.addCurve(
-                    data.r, data.bftwindow*ymax, yaxis='left',
-                    **self.bftWindowPlotParams, legend=legend, resetzoom=False)
-                if self.bftWindowRange.roi is not None:
-                    self.bftWindowRange.roi.setVisible(True)
-            else:
-                plot.remove(legend, kind='curve')
-                if self.bftWindowRange.roi is not None:
-                    self.bftWindowRange.roi.setVisible(False)
+        legend = 'BFT window'
+        if hasattr(data, 'bftwindow') and self.properties['show_bft_window']:
+            ymax = plot.getYAxis().getLimits()[1] * \
+                RangeWidgetFTWidthAndMin.plotFactor
+            plot.addCurve(
+                data.r, data.bftwindow*ymax, yaxis='left',
+                **self.bftWindowPlotParams, legend=legend, resetzoom=False)
+            if self.bftWindowRange.roi is not None:
+                self.bftWindowRange.roi.setVisible(True)
+        else:
+            plot.remove(legend, kind='curve')
+            if self.bftWindowRange.roi is not None:
+                self.bftWindowRange.roi.setVisible(False)
 
         for data in csi.allLoadedItems:
             if not self.node.widget.shouldPlotItem(data):
