@@ -415,6 +415,8 @@ class MuWidget(PropWidget):
         layoutP.setContentsMargins(10, 2, 2, 2)
 
         checkBoxShowPreEdge = qt.QCheckBox('show subtracted', preedgePanel)
+        checkBoxShowPreEdge.setToolTip(
+            'when not subtracted,\nedge normalization is off')
         checkBoxShowPreEdge.setChecked(self.properties['subtract_preedge'])
         checkBoxShowPreEdge.toggled.connect(self.subtractPreedgeSlot)
         layoutP.addExtraWidget(checkBoxShowPreEdge)
@@ -674,6 +676,8 @@ class MuWidget(PropWidget):
         if not value:
             self.properties['normalize'] = False
             self.checkBoxNormalize.setChecked(False)
+            self.checkBoxNormalize.setToolTip(
+                'disabled because preedge is not subtracted')
 
         plot = self.node.widget.plot
         elim = plot.getXAxis().getLimits()
@@ -1154,7 +1158,8 @@ class ChiWidget(PropWidget):
         self.regionsWidget.setRegions(dict(dtparams['rebinRegions']))
         if self.ftWidthAndMin.roi is not None:
             ind = self.ftWindowKind.currentIndex()
-            self.ftWidthAndMin.roi.setVisible(ind > 1)
+            self.ftWidthAndMin.roi.setVisible(
+                ind > 1 and self.properties['show_ft_window'])
 
     def extraPlotActionAfterTransform(self, props):
         if 'kw' in props:
@@ -1232,7 +1237,8 @@ class ChiWidget(PropWidget):
     def updateFTwindow(self, ind):
         self.ftWidthAndMin.setVisible(ind > 1)
         if self.ftWidthAndMin.roi is not None:
-            self.ftWidthAndMin.roi.setVisible(ind > 1)
+            self.ftWidthAndMin.roi.setVisible(
+                ind > 1 and self.properties['show_ft_window'])
 
     def showSlot(self, prop, value):
         self.properties[prop] = value

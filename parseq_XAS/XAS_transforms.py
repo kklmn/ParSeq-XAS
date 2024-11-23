@@ -415,12 +415,21 @@ class MakeChi(ctr.Transform):
         data.norm = (data.mu-data.pre_edge) / data.edge_step
         data.flat = (data.mu-data.pre_edge) / (data.post_edge-data.pre_edge)
 
-        icorner = np.argwhere(data.mu > data.post_edge).flatten()[0]
+        # make mu0prior:
+
+        data.mu0prior = np.array(data.mu)
+        # icorner = np.argwhere(data.mu > data.post_edge).flatten()[0]
+        ie0 = np.argwhere(data.e > data.e0).flatten()[0]
+        # build a linear rise at the edge:
+        ledge = (data.e - data.e[ie0-2]) / (data.e[ie0+2] - data.e[ie0-2]) *\
+            (data.mu[ie0+2] - data.mu[ie0-2]) + data.mu[ie0-2]
+        icorner = np.argwhere(ledge > data.post_edge).flatten()[0]
         if dtparams['mu0PriorIncludeWhiteLine']:
             icornerW = np.argwhere(
                 data.mu[icorner:] < data.post_edge[icorner:]).flatten()[0]
             icorner += icornerW
-        data.mu0prior = np.array(data.mu)
+        else:
+            data.mu0prior[ie0:icorner] = ledge[ie0:icorner]
         data.mu0prior[icorner:] = data.post_edge[icorner:]
         if dtparams['mu0PriorVScale'] != 1:
             data.mu0prior = \
