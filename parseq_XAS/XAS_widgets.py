@@ -213,7 +213,7 @@ class HERFDWidget(PropWidget):
         self.updateProp('roiHERFD', curRoi)
         for data in csi.selectedItems:
             data.transformParams['roiHERFD']['use'] = True
-        # nextWidget = csi.nodes[u'µd'].widget.transformWidget
+        # nextWidget = csi.nodes[u'µd'].widget.transformWidgets[0]
         # nextWidget.setUIFromData()
 
     def extraSetUIFromData(self):
@@ -973,6 +973,188 @@ class MuWidget(PropWidget):
             return y
 
 
+class MuSelfAbsorptionCorrection(PropWidget):
+    u"""
+    Help page under construction
+
+    .. image:: _images/mickey-rtfm.gif
+        :width: 309
+
+    test link: `MAX IV Laboratory <https://www.maxiv.lu.se/>`_
+
+    """
+
+    name = u'self-absorption correction'
+    LOCATION = 'correction'
+    tables = ("Henke", "Brennan&Cowan", "Chantler (NIST)",
+              "Chantler total (NIST)")
+    tablesF = ("Henke", "BrCo", "Chantler", "Chantler total")
+
+    def __init__(self, parent=None, node=None):
+        super().__init__(parent, node)
+        layout = qt.QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+
+        sacPanel = qt.QGroupBox(self)
+        sacPanel.setFlat(False)
+        sacPanel.setTitle('self-absorption correction')
+        sacPanel.setCheckable(True)
+        sacPanel.setStyleSheet(
+            'QGroupBox[flat="false"] {font-weight: bold;}')
+        self.registerPropWidget(
+            sacPanel, sacPanel.title(), 'selfAbsorptionCorrectionNeeded')
+        layoutSA = qt.QVBoxLayout()
+        layoutSA.setContentsMargins(2, 2, 2, 2)
+
+        layoutC = qt.QHBoxLayout()
+        layoutC.setContentsMargins(0, 0, 0, 0)
+        labelCompound1 = qt.QLabel('compound')
+        layoutC.addWidget(labelCompound1)
+        labelCompound2 = qt.QLabel(
+            '<i>e.g.</i> Cu(NO3)2 <i>or</i> Pd%1.5C')
+        labelCompound2.setTextInteractionFlags(
+            qt.Qt.TextInteractionFlags(qt.Qt.TextSelectableByMouse))
+        layoutC.addWidget(labelCompound2)
+        layoutSA.addLayout(layoutC)
+
+        compoundEdit = qt.QLineEdit()
+        self.registerPropWidget(
+            compoundEdit, 'self-absorption correction chemical formula',
+            'selfAbsorptionCorrectionDict.corrChemFormula')
+        layoutSA.addWidget(compoundEdit)
+
+        layoutM = qt.QHBoxLayout()
+        layoutM.setContentsMargins(0, 0, 0, 0)
+        compoundMassLabel = qt.QLabel("M (g/mol) =")
+        layoutM.addWidget(compoundMassLabel)
+        compoundMass = qt.QLabel("")
+        self.registerStatusLabel(
+            compoundMass, 'selfAbsorptionCorrectionDict.corrChemFormulaM',
+            textFormat='.3f', ignoreErrors=True)
+        layoutM.addWidget(compoundMass)
+        layoutM.addStretch()
+        layoutSA.addLayout(layoutM)
+
+        layoutT = qt.QHBoxLayout()
+        layoutT.setContentsMargins(0, 0, 0, 0)
+        tableLabel = qt.QLabel("f data table")
+        layoutT.addWidget(tableLabel)
+        tableCB = qt.QComboBox()
+        tableCB.addItems(self.tables)
+        self.registerPropWidget(
+            tableCB, 'self-absorption correction data tabulation',
+            'selfAbsorptionCorrectionDict.corrDataTable',
+            compareWith=self.tablesF)
+        layoutT.addWidget(tableCB)
+        layoutSA.addLayout(layoutT)
+
+        layoutCE = qt.QHBoxLayout()
+        layoutCE.setContentsMargins(0, 0, 0, 0)
+        calibELabel = qt.QLabel("calibration energy")
+        calibELabel.setToolTip('somewhere above the edge')
+        layoutCE.addWidget(calibELabel)
+        calibEEdit = qt.QLineEdit()
+        calibEEdit.setToolTip('somewhere above the edge')
+        layoutCE.addWidget(calibEEdit)
+        self.registerPropWidget(
+            calibEEdit, 'self-absorption correction calibration energy',
+            'selfAbsorptionCorrectionDict.corrCalibEnergy', textFormat='.1f',
+            convertType=float)
+        layoutSA.addLayout(layoutCE)
+
+        self.jumpLabel = qt.QLabel("")
+        self.registerStatusLabel(
+            self.jumpLabel, 'selfAbsorptionCorrectionDict.corrJumpStr',
+            ignoreErrors=True)
+        layoutSA.addWidget(self.jumpLabel)
+
+        layoutFE = qt.QHBoxLayout()
+        layoutFE.setContentsMargins(0, 0, 0, 0)
+        fluoELabel = qt.QLabel("fluorescence energy")
+        layoutFE.addWidget(fluoELabel)
+        fluoEEdit = qt.QLineEdit()
+        layoutFE.addWidget(fluoEEdit)
+        self.registerPropWidget(
+            fluoEEdit, 'self-absorption correction fluorescence energy',
+            'selfAbsorptionCorrectionDict.corrFluoEnergy', textFormat='.1f',
+            convertType=float)
+        layoutSA.addLayout(layoutFE)
+
+        layoutA = qt.QHBoxLayout()
+        layoutA.setContentsMargins(0, 0, 0, 0)
+        phiLabel = qt.QLabel("φ(°)")
+        layoutA.addWidget(phiLabel)
+        phiEdit = qt.QLineEdit()
+        phiEdit.setMinimumWidth(30)
+        layoutA.addWidget(phiEdit)
+        self.registerPropWidget(
+            phiEdit, 'self-absorption correction phi angle',
+            'selfAbsorptionCorrectionDict.corrPhiDeg', textFormat='.1f',
+            convertType=float)
+        thetaLabel = qt.QLabel("θ(°)")
+        layoutA.addWidget(thetaLabel)
+        thetaEdit = qt.QLineEdit()
+        thetaEdit.setMinimumWidth(30)
+        layoutA.addWidget(thetaEdit)
+        self.registerPropWidget(
+            thetaEdit, 'self-absorption correction theta angle',
+            'selfAbsorptionCorrectionDict.corrThetaDeg', textFormat='.1f',
+            convertType=float)
+        tauLabel = qt.QLabel("τ(°)")
+        layoutA.addWidget(tauLabel)
+        tauEdit = qt.QLineEdit()
+        tauEdit.setMinimumWidth(30)
+        layoutA.addWidget(tauEdit)
+        self.registerPropWidget(
+            tauEdit, 'self-absorption correction tau angle',
+            'selfAbsorptionCorrectionDict.corrTauDeg', textFormat='.1f',
+            convertType=float)
+        layoutSA.addLayout(layoutA)
+
+        kindWidget = gco.StateButtonsExclusive(
+            self, 'formula', ('thick', 'thin (general)'))
+        self.registerPropWidget(
+            kindWidget, 'self-absorption correction formula',
+            'selfAbsorptionCorrectionDict.corrFormula')
+        kindWidget.statesActive.connect(self.enableThickness)
+
+        layoutSA.addWidget(kindWidget)
+
+        layoutTh = qt.QHBoxLayout()
+        layoutTh.setContentsMargins(0, 0, 0, 0)
+        self.thicknessLabel = qt.QLabel("thickness (edge jump)")
+        layoutTh.addWidget(self.thicknessLabel)
+        self.thicknessEdit = qt.QLineEdit()
+        layoutTh.addWidget(self.thicknessEdit)
+        self.registerPropWidget(
+            self.thicknessEdit, 'self-absorption correction thickness',
+            'selfAbsorptionCorrectionDict.corrThickness', textFormat='.2f',
+            convertType=float)
+        layoutSA.addLayout(layoutTh)
+
+        sacPanel.setLayout(layoutSA)
+        layout.addWidget(sacPanel)
+
+        self.setLayout(layout)
+
+    def extraSetUIFromData(self):
+        if len(csi.selectedItems) == 0:
+            return
+        data = csi.selectedItems[0]
+        dtparams = data.transformParams
+        ckind = dtparams['selfAbsorptionCorrectionDict']['corrFormula']
+        for w in [self.thicknessLabel, self.thicknessEdit]:
+            w.setEnabled(ckind != 'thick')
+        # if ckind == 'thick':
+        #     self.thicknessEdit.setText('')
+        saNeeded = dtparams['selfAbsorptionCorrectionNeeded']
+        self.jumpLabel.setEnabled(saNeeded)
+
+    def enableThickness(self, active):
+        for w in [self.thicknessLabel, self.thicknessEdit]:
+            w.setEnabled(active != 'thick')
+
+
 class ChiWidget(PropWidget):
     u"""
     Help page under construction
@@ -1112,7 +1294,7 @@ class ChiWidget(PropWidget):
         self.ftWindowKind.addItems(uft.ft_windows)
         self.registerPropWidget(
             self.ftWindowKind, 'FT window', 'ftWindowKind',
-            dataItems="all", indexToValue=uft.ft_windows)
+            dataItems="all", compareWith=uft.ft_windows)
         self.ftWindowKind.currentIndexChanged.connect(self.updateFTwindow)
         layoutFT.addWidget(self.ftWindowKind)
 
@@ -1169,7 +1351,7 @@ class ChiWidget(PropWidget):
             nextNodeInd = list(csi.nodes.keys()).index(self.node.name) + 1
             nextNodeName = list(csi.nodes.keys())[nextNodeInd]
             nextNode = csi.nodes[nextNodeName]
-            w = nextNode.widget.transformWidget
+            w = nextNode.widget.transformWidgets[0]
             plot = nextNode.widget.plot
             plot.resetZoom()
             w.showNegativeSlot(w.properties['show_negative'])
@@ -1342,7 +1524,7 @@ class FTWidget(PropWidget):
         self.bftWindowKind.addItems(uft.ft_windows[:-1])  # exclude Gaussian
         self.registerPropWidget(
             self.bftWindowKind, 'BFT window', 'bftWindowKind',
-            indexToValue=uft.ft_windows)
+            compareWith=uft.ft_windows)
         self.bftWindowKind.currentIndexChanged.connect(self.updateBFTwindow)
         layoutFT.addWidget(self.bftWindowKind)
 

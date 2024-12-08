@@ -10,7 +10,7 @@ if not hasattr(np, 'trapezoid'):
 from numpy.polynomial import Polynomial as P
 
 # from functools import partial
-# from scipy.optimize import curve_fit
+from scipy import optimize
 from scipy.interpolate import CubicSpline, LSQUnivariateSpline, interp1d
 try:
     from scipy.interpolate import make_smoothing_spline
@@ -26,6 +26,8 @@ from parseq.core.logger import logger
 from parseq.utils import ft as uft
 from parseq.utils import math as uma
 from parseq.utils.constants import eV2revA
+
+from parseq.third_party import XAFSmass
 
 cpus = 'half'  # can be 'all' or 'half' or a number (int)
 # cpus = 4
@@ -135,7 +137,14 @@ class MakeChi(ctr.Transform):
         mu0knots=7, mu0kpow=2,  # for mu0method=0
         # ftMinimize=False, ftMinNKnots=4, ftMinRange=[0, 1],  # for method=0
         mu0smoothingFactor=2e6,  # for mu0method=1
-        rebinNeeded=False, rebinRegions=dict(
+        selfAbsorptionCorrectionNeeded=False,
+        selfAbsorptionCorrectionDict=dict(
+            corrChemFormula='Fe2O3', corrDataTable='Chantler',
+            corrCalibEnergy=7150.4, corrFluoEnergy=6404,
+            corrPhiDeg=45., corrThetaDeg=45., corrTauDeg=0.,
+            corrFormula='thick', corrThickness=1.),
+        rebinNeeded=False,
+        rebinRegions=dict(
             deltas=(1., 0.2, 0.5, 0.025), splitters=(-15, 15, 2.5, 'inf')),
         nbinOriginal=None, nbinNew=None, binDistrNew=None,
         needECalibration=False, eCalibrationMethod=1, eRef=8979.,
@@ -143,6 +152,9 @@ class MakeChi(ctr.Transform):
         useERefCurve=False,
         kw=2, krange=[2.0, None], dk=0.025, datakmax=15.
         )
+    dontSaveParamsWhenUnused = {  # paramName: paramSwitch
+        'rebinRegions': 'rebinNeeded',
+        'selfAbsorptionCorrectionDict': 'selfAbsorptionCorrectionNeeded'}
     nThreads = cpus  # twice as fast than nProcesses
     # nProcesses = cpus
     inArrays = ['muraw', 'eraw', 'eref']
@@ -153,6 +165,9 @@ class MakeChi(ctr.Transform):
                  ]
     mu0methods = ['through internal k-spaced knots', 'smoothing spline']
     eShiftKinds = ['angular shift', 'lattice shift', 'energy shift']
+
+    RED_TXT = '<span style="font-weight:600;color:#aa0000;">{0}</span>'
+    GREEN_TXT = '<span style="color:#00aa00;">{0}</span>'
 
     @classmethod
     @logger(minLevel=20, attrs=[(0, 'name')])
@@ -405,9 +420,16 @@ class MakeChi(ctr.Transform):
             cls.rebin(data, data.e0)
             data.e0 = cls.get_e0(data)
 
+        data.pre_edge, pre_e0 = cls.get_pre(data)
+
+        res = cls.calc_self_abs(data)
+        if res is not None:
+            data.mu = res
+            data.e0 = cls.get_e0(data)
+            data.pre_edge, pre_e0 = cls.get_pre(data)
+
         dtparams['e0'] = data.e0
 
-        data.pre_edge, pre_e0 = cls.get_pre(data)
         data.post_edge, post_e0 = cls.get_post(data)
 
         data.edge_step = post_e0  # - pre_e0
@@ -545,6 +567,104 @@ class MakeChi(ctr.Transform):
         # data.bft = np.fft.irfft(ft)[0:len(data.k)] / (dk/2)
 
         return True
+
+    @classmethod
+    @logger(minLevel=20, attrs=[(0, 'name')])
+    def calc_self_abs(cls, data):
+
+        def fToSolve(mux):
+            locExpPow = (mux+bknd)*d/corrSinPhi + sumSigma2f*d/corrSinTheta
+            expFact = 1 if locExpPow.min() > 1e3 else 1 - np.exp(-locExpPow)
+            return If*(mux+mubf) - corrC*mux*expFact
+
+        dtparams = data.transformParams
+        if not dtparams['selfAbsorptionCorrectionNeeded']:
+            return
+
+        saDict = dtparams['selfAbsorptionCorrectionDict']
+        corrChemFormula = saDict['corrChemFormula']
+        corrTable = saDict['corrDataTable']
+        corrCalibE = saDict['corrCalibEnergy']
+        corrFluoE = saDict['corrFluoEnergy']
+        corrPhiDeg = saDict['corrPhiDeg']
+        corrThetaDeg = saDict['corrThetaDeg']
+        corrTauDeg = saDict['corrTauDeg']
+        corrFormula = saDict['corrFormula']
+
+        res = XAFSmass.parse_compound(corrChemFormula)
+        if not isinstance(res, tuple):
+            raise ValueError(
+                "Wrong chemical formula for {0}!".format(data.alias))
+        parsed, mass = res
+        saDict['corrChemFormulaM'] = mass
+        res = XAFSmass.calculate_element_dict(parsed, corrFluoE, corrTable)
+        if isinstance(res, tuple):
+            elemDictf, sumSigma2f = res[0:2]
+        else:
+            return
+        res = XAFSmass.calculate_element_dict(parsed, corrCalibE, corrTable)
+        if isinstance(res, tuple):
+            elemDictc, sumSigma2c = res[0:2]
+        else:
+            return
+        bknd = XAFSmass.calculate_absorption_background(elemDictc, data.e)
+
+        jump, jumpElement = 0, None
+        for elem, elemContr in elemDictc.items():
+            if elemContr[2] > jump:
+                jump = elemContr[2] * elemContr[3]  # (Δσ)*formula_coeff
+                jumpElement = elem
+        if jump == 0:
+            saDict['corrJumpStr'] = cls.RED_TXT.format('no edge found')
+            raise ValueError("No absorption edge for {0}!".format(data.alias))
+        else:
+            ss = "Δσ[{0}] (cm²/mol) = {1:.3g}".format(jumpElement, jump)
+            for r in (("e-0", "e-"), ("e+0", "e+")):
+                ss = ss.replace(*r)
+            saDict['corrJumpStr'] = cls.GREEN_TXT.format(ss)
+
+        corrSinPhi = np.sin(np.radians(corrPhiDeg))
+        corrSinTheta = np.sin(np.radians(corrThetaDeg))*np.cos(
+            np.radians(corrTauDeg))
+        if corrSinTheta < 1e-20:
+            if corrSinPhi < 1e-20:
+                corrG = 1
+            else:
+                # 'Specify non-zero escape angle'
+                return
+        else:
+            corrG = corrSinPhi / corrSinTheta
+        if (corrSinTheta < 1e-20) or (corrSinPhi < 1e-20):
+            corrFormula = 'thick'
+            # SendDlgItemMessage(Parent^.HWindow,id_CorrRBThick,bm_SetCheck,1,0)
+
+        If = data.mu - data.pre_edge
+        ICalib = np.interp(corrCalibE, data.e, If)
+        mubf = bknd + sumSigma2f*corrG
+        if corrFormula == 'thick':
+            corrC = ICalib * (sumSigma2c + sumSigma2f*corrG) / jump
+            muX = mubf*If / (corrC - If)
+        else:
+            # corrThicknessWhich = saDict['corrThicknessWhich']
+            corrThickness = saDict['corrThickness']
+            # if corrThicknessWhich == 0:
+            #     d = corrThickness*corrSinPhi / sumSigma2c
+            # elif corrThicknessWhich == 1:
+            #     d = corrThickness*corrSinPhi / jump
+            # else:
+            #     raise ValueError("Unknown definition of sample thickeness")
+            d = corrThickness*corrSinPhi / jump
+            calibExpPow = sumSigma2c*d/corrSinPhi + sumSigma2f*d/corrSinTheta
+            expFact = 1 - np.exp(-calibExpPow)
+            corrC = ICalib * (sumSigma2c + sumSigma2f*corrG) / jump / expFact
+
+            guess = 2 * mubf
+            root = optimize.root(fToSolve, guess, method='krylov')
+            if root.success:
+                muX = root.x
+            else:
+                raise ValueError(root.message)
+        return muX/jump*ICalib + data.pre_edge  # normalize it back to If
 
     @classmethod
     @logger(minLevel=20, attrs=[(0, 'name')])

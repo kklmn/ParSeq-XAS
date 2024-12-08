@@ -24,7 +24,8 @@ def make_pipeline(withGUI=False):
     nodeIF = xno.NodeIF()
     nodeIE = xno.NodeIE()
     nodeIXES = xno.NodeIXES(xwi.HERFDWidget if withGUI else None)
-    nodeMu = xno.NodeMu(xwi.MuWidget if withGUI else None)
+    nodeMu = xno.NodeMu(
+        [xwi.MuWidget, xwi.MuSelfAbsorptionCorrection] if withGUI else None)
     nodeChi = xno.NodeChi(xwi.ChiWidget if withGUI else None)
     nodeFT = xno.NodeFT(xwi.FTWidget if withGUI else None)
     nodeBFT = xno.NodeBFT()

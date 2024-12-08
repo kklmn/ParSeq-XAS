@@ -1,7 +1,7 @@
 [ParSeq Application]
 pipelineName = XAS
 appPath = c:\ParSeq\parseq_XAS
-appVersion = 2023.11.0
+appVersion = 2024.11.0
 appSynopsis = A pipeline for data processing of XAS spectra
 
 [Root]
@@ -12,7 +12,7 @@ colorPolicy = loop1
 colorAutoUpdate = False
 
 [Cr-foil_EXAFS_23293]
-madeOf = c:/ParSeq/parseq_XAS/data/foils/Cr-foil_EXAFS_23293.dat
+madeOf = C:/ParSeq/parseq_XAS/data/foils/Cr-foil_EXAFS_23293.dat
 madeOf_relative = ../data/foils/Cr-foil_EXAFS_23293.dat
 dataFormat = {"comments": "#", "dataSource": ["Col1", "Col3+Col4", "Col5+Col6", ""], "conversionFactors": [None, "\u00b5A", "\u00b5A", None], "metadata": ""}
 suffix = None
@@ -21,8 +21,11 @@ terminalNodeName = None
 transformNames = each
 colorTag = 2
 color = #1f77b4
-plotProps = {'currents Tr': {'i0': {'yaxis': 'left', 'linewidth': 0.7999999999999999, 'linestyle': '-', 'symbol': 'None'}, 'itr': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-', 'symbol': 'None'}}, 'currents PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'currents TEY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, '2D XES': {}, 'µd': {'mu': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'χ(k)': {'chi': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'FT, χ(r)': {'ft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'BFT, χ̃(k)': {'bft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'k-space': {'chi': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'r-space': {'ft': {'yaxis': 'left', 'linewidth': 1.1999999999999997, 'linestyle': '-', 'symbol': 'None'}}}
+plotProps = {'currents Tr': {'i0': {'yaxis': 'left', 'linewidth': 0.7999999999999999, 'linestyle': '-', 'symbol': 'None'}, 'itr': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-', 'symbol': 'None'}}, 'counts PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.5, 'linestyle': '-'}}, 'currents TEY/TFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.5, 'linestyle': '-'}}, '2D XES': {}, 'µd': {'mu': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'χ(k)': {'chi': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'FT, χ(r)': {'ft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'BFT, χ̃(k)': {'bft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'currents PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'currents TEY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'k-space': {'chi': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'r-space': {'ft': {'yaxis': 'left', 'linewidth': 1.1999999999999997, 'linestyle': '-', 'symbol': 'None'}}}
 ;transform params:
+cutoffNeeded = True
+cutoff = 2000
+cutoffMaxBelow = 0
 roiHERFD = {'kind': 'HorizontalRangeROI', 'name': 'roi', 'use': True, 'vmin': 300, 'vmax': 400}
 e0Smooth = True
 e0SmoothN = 6
@@ -65,7 +68,7 @@ bftWindowRange = [1.2105829231418574, 3.0052161742041]
 bftWindowWidth = 0.5
 
 [Cr-foil_EXAFS_23294]
-madeOf = c:/ParSeq/parseq_XAS/data/foils/Cr-foil_EXAFS_23294.dat
+madeOf = C:/ParSeq/parseq_XAS/data/foils/Cr-foil_EXAFS_23294.dat
 madeOf_relative = ../data/foils/Cr-foil_EXAFS_23294.dat
 dataFormat = {"comments": "#", "dataSource": ["Col1", "Col3+Col4", "Col5+Col6", ""], "conversionFactors": [None, "\u00b5A", "\u00b5A", None], "metadata": ""}
 suffix = None
@@ -74,8 +77,11 @@ terminalNodeName = None
 transformNames = each
 colorTag = 2
 color = #ff7f0e
-plotProps = {'currents Tr': {'i0': {'yaxis': 'left', 'linewidth': 0.7999999999999999, 'linestyle': '-', 'symbol': 'None'}, 'itr': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-', 'symbol': 'None'}}, 'currents PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'currents TEY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, '2D XES': {}, 'µd': {'mu': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'χ(k)': {'chi': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'FT, χ(r)': {'ft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'BFT, χ̃(k)': {'bft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'k-space': {'chi': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'r-space': {'ft': {'yaxis': 'left', 'linewidth': 1.1999999999999997, 'linestyle': '-', 'symbol': 'None'}}}
+plotProps = {'currents Tr': {'i0': {'yaxis': 'left', 'linewidth': 0.7999999999999999, 'linestyle': '-', 'symbol': 'None'}, 'itr': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-', 'symbol': 'None'}}, 'counts PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.5, 'linestyle': '-'}}, 'currents TEY/TFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.5, 'linestyle': '-'}}, '2D XES': {}, 'µd': {'mu': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'χ(k)': {'chi': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'FT, χ(r)': {'ft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'BFT, χ̃(k)': {'bft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'currents PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'currents TEY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'k-space': {'chi': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'r-space': {'ft': {'yaxis': 'left', 'linewidth': 1.1999999999999997, 'linestyle': '-', 'symbol': 'None'}}}
 ;transform params:
+cutoffNeeded = True
+cutoff = 2000
+cutoffMaxBelow = 0
 roiHERFD = {'kind': 'HorizontalRangeROI', 'name': 'roi', 'use': True, 'vmin': 300, 'vmax': 400}
 e0Smooth = True
 e0SmoothN = 6
@@ -118,7 +124,7 @@ bftWindowRange = [1.2105829231418574, 3.0052161742041]
 bftWindowWidth = 0.5
 
 [Cr-foil_EXAFS_23295]
-madeOf = c:/ParSeq/parseq_XAS/data/foils/Cr-foil_EXAFS_23295.dat
+madeOf = C:/ParSeq/parseq_XAS/data/foils/Cr-foil_EXAFS_23295.dat
 madeOf_relative = ../data/foils/Cr-foil_EXAFS_23295.dat
 dataFormat = {"comments": "#", "dataSource": ["Col1", "Col3+Col4", "Col5+Col6", ""], "conversionFactors": [None, "\u00b5A", "\u00b5A", None], "metadata": ""}
 suffix = None
@@ -127,8 +133,11 @@ terminalNodeName = None
 transformNames = each
 colorTag = 2
 color = #2ca02c
-plotProps = {'currents Tr': {'i0': {'yaxis': 'left', 'linewidth': 0.7999999999999999, 'linestyle': '-', 'symbol': 'None'}, 'itr': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-', 'symbol': 'None'}}, 'currents PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'currents TEY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, '2D XES': {}, 'µd': {'mu': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'χ(k)': {'chi': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'FT, χ(r)': {'ft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'BFT, χ̃(k)': {'bft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'k-space': {'chi': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'r-space': {'ft': {'yaxis': 'left', 'linewidth': 1.1999999999999997, 'linestyle': '-', 'symbol': 'None'}}}
+plotProps = {'currents Tr': {'i0': {'yaxis': 'left', 'linewidth': 0.7999999999999999, 'linestyle': '-', 'symbol': 'None'}, 'itr': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-', 'symbol': 'None'}}, 'counts PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.5, 'linestyle': '-'}}, 'currents TEY/TFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.5, 'linestyle': '-'}}, '2D XES': {}, 'µd': {'mu': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'χ(k)': {'chi': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'FT, χ(r)': {'ft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'BFT, χ̃(k)': {'bft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'currents PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'currents TEY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'k-space': {'chi': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'r-space': {'ft': {'yaxis': 'left', 'linewidth': 1.1999999999999997, 'linestyle': '-', 'symbol': 'None'}}}
 ;transform params:
+cutoffNeeded = True
+cutoff = 2000
+cutoffMaxBelow = 0
 roiHERFD = {'kind': 'HorizontalRangeROI', 'name': 'roi', 'use': True, 'vmin': 300, 'vmax': 400}
 e0Smooth = True
 e0SmoothN = 6
@@ -171,7 +180,7 @@ bftWindowRange = [1.2105829231418574, 3.0052161742041]
 bftWindowWidth = 0.5
 
 [Fe-foil_EXAFS_23147]
-madeOf = c:/ParSeq/parseq_XAS/data/foils/Fe-foil_EXAFS_23147.dat
+madeOf = C:/ParSeq/parseq_XAS/data/foils/Fe-foil_EXAFS_23147.dat
 madeOf_relative = ../data/foils/Fe-foil_EXAFS_23147.dat
 dataFormat = {"comments": "#", "dataSource": ["Col1", "Col3+Col4", "Col5+Col6", ""], "conversionFactors": [None, "\u00b5A", "\u00b5A", None], "metadata": ""}
 suffix = None
@@ -180,8 +189,11 @@ terminalNodeName = None
 transformNames = each
 colorTag = 2
 color = #d62728
-plotProps = {'currents Tr': {'i0': {'yaxis': 'left', 'linewidth': 0.7999999999999999, 'linestyle': '-', 'symbol': 'None'}, 'itr': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-', 'symbol': 'None'}}, 'currents PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'currents TEY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, '2D XES': {}, 'µd': {'mu': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'χ(k)': {'chi': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'FT, χ(r)': {'ft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'BFT, χ̃(k)': {'bft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'k-space': {'chi': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'r-space': {'ft': {'yaxis': 'left', 'linewidth': 1.1999999999999997, 'linestyle': '-', 'symbol': 'None'}}}
+plotProps = {'currents Tr': {'i0': {'yaxis': 'left', 'linewidth': 0.7999999999999999, 'linestyle': '-', 'symbol': 'None'}, 'itr': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-', 'symbol': 'None'}}, 'counts PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.5, 'linestyle': '-'}}, 'currents TEY/TFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.5, 'linestyle': '-'}}, '2D XES': {}, 'µd': {'mu': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'χ(k)': {'chi': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'FT, χ(r)': {'ft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'BFT, χ̃(k)': {'bft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'currents PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'currents TEY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'k-space': {'chi': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'r-space': {'ft': {'yaxis': 'left', 'linewidth': 1.1999999999999997, 'linestyle': '-', 'symbol': 'None'}}}
 ;transform params:
+cutoffNeeded = True
+cutoff = 2000
+cutoffMaxBelow = 0
 roiHERFD = {'kind': 'HorizontalRangeROI', 'name': 'roi', 'use': True, 'vmin': 300, 'vmax': 400}
 e0Smooth = True
 e0SmoothN = 6
@@ -224,7 +236,7 @@ bftWindowRange = [0.9611162330956127, 2.9576762205335765]
 bftWindowWidth = 0.5
 
 [Fe-foil_EXAFS_23148]
-madeOf = c:/ParSeq/parseq_XAS/data/foils/Fe-foil_EXAFS_23148.dat
+madeOf = C:/ParSeq/parseq_XAS/data/foils/Fe-foil_EXAFS_23148.dat
 madeOf_relative = ../data/foils/Fe-foil_EXAFS_23148.dat
 dataFormat = {"comments": "#", "dataSource": ["Col1", "Col3+Col4", "Col5+Col6", ""], "conversionFactors": [None, "\u00b5A", "\u00b5A", None], "metadata": ""}
 suffix = None
@@ -233,8 +245,11 @@ terminalNodeName = None
 transformNames = each
 colorTag = 2
 color = #9467bd
-plotProps = {'currents Tr': {'i0': {'yaxis': 'left', 'linewidth': 0.7999999999999999, 'linestyle': '-', 'symbol': 'None'}, 'itr': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-', 'symbol': 'None'}}, 'currents PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'currents TEY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, '2D XES': {}, 'µd': {'mu': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'χ(k)': {'chi': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'FT, χ(r)': {'ft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'BFT, χ̃(k)': {'bft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'k-space': {'chi': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'r-space': {'ft': {'yaxis': 'left', 'linewidth': 1.1999999999999997, 'linestyle': '-', 'symbol': 'None'}}}
+plotProps = {'currents Tr': {'i0': {'yaxis': 'left', 'linewidth': 0.7999999999999999, 'linestyle': '-', 'symbol': 'None'}, 'itr': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-', 'symbol': 'None'}}, 'counts PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.5, 'linestyle': '-'}}, 'currents TEY/TFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.5, 'linestyle': '-'}}, '2D XES': {}, 'µd': {'mu': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'χ(k)': {'chi': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'FT, χ(r)': {'ft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'BFT, χ̃(k)': {'bft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'currents PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'currents TEY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'k-space': {'chi': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'r-space': {'ft': {'yaxis': 'left', 'linewidth': 1.1999999999999997, 'linestyle': '-', 'symbol': 'None'}}}
 ;transform params:
+cutoffNeeded = True
+cutoff = 2000
+cutoffMaxBelow = 0
 roiHERFD = {'kind': 'HorizontalRangeROI', 'name': 'roi', 'use': True, 'vmin': 300, 'vmax': 400}
 e0Smooth = True
 e0SmoothN = 6
@@ -277,7 +292,7 @@ bftWindowRange = [0.9611162330956127, 2.9576762205335765]
 bftWindowWidth = 0.5
 
 [Fe-foil_EXAFS_23149]
-madeOf = c:/ParSeq/parseq_XAS/data/foils/Fe-foil_EXAFS_23149.dat
+madeOf = C:/ParSeq/parseq_XAS/data/foils/Fe-foil_EXAFS_23149.dat
 madeOf_relative = ../data/foils/Fe-foil_EXAFS_23149.dat
 dataFormat = {"comments": "#", "dataSource": ["Col1", "Col3+Col4", "Col5+Col6", ""], "conversionFactors": [None, "\u00b5A", "\u00b5A", None], "metadata": ""}
 suffix = None
@@ -286,8 +301,11 @@ terminalNodeName = None
 transformNames = each
 colorTag = 2
 color = #8c564b
-plotProps = {'currents Tr': {'i0': {'yaxis': 'left', 'linewidth': 0.7999999999999999, 'linestyle': '-', 'symbol': 'None'}, 'itr': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-', 'symbol': 'None'}}, 'currents PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'currents TEY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, '2D XES': {}, 'µd': {'mu': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'χ(k)': {'chi': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'FT, χ(r)': {'ft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'BFT, χ̃(k)': {'bft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'k-space': {'chi': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'r-space': {'ft': {'yaxis': 'left', 'linewidth': 1.1999999999999997, 'linestyle': '-', 'symbol': 'None'}}}
+plotProps = {'currents Tr': {'i0': {'yaxis': 'left', 'linewidth': 0.7999999999999999, 'linestyle': '-', 'symbol': 'None'}, 'itr': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-', 'symbol': 'None'}}, 'counts PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.5, 'linestyle': '-'}}, 'currents TEY/TFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.5, 'linestyle': '-'}}, '2D XES': {}, 'µd': {'mu': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'χ(k)': {'chi': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'FT, χ(r)': {'ft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'BFT, χ̃(k)': {'bft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'currents PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'currents TEY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'k-space': {'chi': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'r-space': {'ft': {'yaxis': 'left', 'linewidth': 1.1999999999999997, 'linestyle': '-', 'symbol': 'None'}}}
 ;transform params:
+cutoffNeeded = True
+cutoff = 2000
+cutoffMaxBelow = 0
 roiHERFD = {'kind': 'HorizontalRangeROI', 'name': 'roi', 'use': True, 'vmin': 300, 'vmax': 400}
 e0Smooth = True
 e0SmoothN = 6
@@ -330,7 +348,7 @@ bftWindowRange = [0.9611162330956127, 2.9576762205335765]
 bftWindowWidth = 0.5
 
 [Co-foil_EXAFS_23107]
-madeOf = c:/ParSeq/parseq_XAS/data/foils/Co-foil_EXAFS_23107.dat
+madeOf = C:/ParSeq/parseq_XAS/data/foils/Co-foil_EXAFS_23107.dat
 madeOf_relative = ../data/foils/Co-foil_EXAFS_23107.dat
 dataFormat = {"comments": "#", "dataSource": ["Col1", "Col3+Col4", "Col5+Col6", ""], "conversionFactors": [None, "\u00b5A", "\u00b5A", None], "metadata": "definition, start_time, end_time, entry_identifier, title"}
 suffix = None
@@ -339,8 +357,11 @@ terminalNodeName = None
 transformNames = each
 colorTag = 2
 color = #e377c2
-plotProps = {'currents Tr': {'i0': {'yaxis': 'left', 'linewidth': 0.7999999999999999, 'linestyle': '-', 'symbol': 'None'}, 'itr': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-', 'symbol': 'None'}}, 'currents PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'currents TEY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, '2D XES': {}, 'µd': {'mu': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'χ(k)': {'chi': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'FT, χ(r)': {'ft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'BFT, χ̃(k)': {'bft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'k-space': {'chi': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'r-space': {'ft': {'yaxis': 'left', 'linewidth': 1.1999999999999997, 'linestyle': '-', 'symbol': 'None'}}}
+plotProps = {'currents Tr': {'i0': {'yaxis': 'left', 'linewidth': 0.7999999999999999, 'linestyle': '-', 'symbol': 'None'}, 'itr': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-', 'symbol': 'None'}}, 'counts PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.5, 'linestyle': '-'}}, 'currents TEY/TFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.5, 'linestyle': '-'}}, '2D XES': {}, 'µd': {'mu': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'χ(k)': {'chi': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'FT, χ(r)': {'ft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'BFT, χ̃(k)': {'bft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'currents PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'currents TEY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'k-space': {'chi': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'r-space': {'ft': {'yaxis': 'left', 'linewidth': 1.1999999999999997, 'linestyle': '-', 'symbol': 'None'}}}
 ;transform params:
+cutoffNeeded = True
+cutoff = 2000
+cutoffMaxBelow = 0
 roiHERFD = {'kind': 'HorizontalRangeROI', 'name': 'roi', 'use': True, 'vmin': 300, 'vmax': 400}
 e0Smooth = True
 e0SmoothN = 6
@@ -383,7 +404,7 @@ bftWindowRange = [1.174927957888965, 2.866363932970127]
 bftWindowWidth = 0.5
 
 [Co-foil_EXAFS_23108]
-madeOf = c:/ParSeq/parseq_XAS/data/foils/Co-foil_EXAFS_23108.dat
+madeOf = C:/ParSeq/parseq_XAS/data/foils/Co-foil_EXAFS_23108.dat
 madeOf_relative = ../data/foils/Co-foil_EXAFS_23108.dat
 dataFormat = {"comments": "#", "dataSource": ["Col1", "Col3+Col4", "Col5+Col6", ""], "conversionFactors": [None, "\u00b5A", "\u00b5A", None], "metadata": "definition, start_time, end_time, entry_identifier, title"}
 suffix = None
@@ -392,8 +413,11 @@ terminalNodeName = None
 transformNames = each
 colorTag = 2
 color = #7f7f7f
-plotProps = {'currents Tr': {'i0': {'yaxis': 'left', 'linewidth': 0.7999999999999999, 'linestyle': '-', 'symbol': 'None'}, 'itr': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-', 'symbol': 'None'}}, 'currents PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'currents TEY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, '2D XES': {}, 'µd': {'mu': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'χ(k)': {'chi': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'FT, χ(r)': {'ft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'BFT, χ̃(k)': {'bft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'k-space': {'chi': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'r-space': {'ft': {'yaxis': 'left', 'linewidth': 1.1999999999999997, 'linestyle': '-', 'symbol': 'None'}}}
+plotProps = {'currents Tr': {'i0': {'yaxis': 'left', 'linewidth': 0.7999999999999999, 'linestyle': '-', 'symbol': 'None'}, 'itr': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-', 'symbol': 'None'}}, 'counts PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.5, 'linestyle': '-'}}, 'currents TEY/TFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.5, 'linestyle': '-'}}, '2D XES': {}, 'µd': {'mu': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'χ(k)': {'chi': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'FT, χ(r)': {'ft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'BFT, χ̃(k)': {'bft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'currents PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'currents TEY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'k-space': {'chi': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'r-space': {'ft': {'yaxis': 'left', 'linewidth': 1.1999999999999997, 'linestyle': '-', 'symbol': 'None'}}}
 ;transform params:
+cutoffNeeded = True
+cutoff = 2000
+cutoffMaxBelow = 0
 roiHERFD = {'kind': 'HorizontalRangeROI', 'name': 'roi', 'use': True, 'vmin': 300, 'vmax': 400}
 e0Smooth = True
 e0SmoothN = 6
@@ -436,7 +460,7 @@ bftWindowRange = [1.174927957888965, 2.866363932970127]
 bftWindowWidth = 0.5
 
 [Co-foil_EXAFS_23109]
-madeOf = c:/ParSeq/parseq_XAS/data/foils/Co-foil_EXAFS_23109.dat
+madeOf = C:/ParSeq/parseq_XAS/data/foils/Co-foil_EXAFS_23109.dat
 madeOf_relative = ../data/foils/Co-foil_EXAFS_23109.dat
 dataFormat = {"comments": "#", "dataSource": ["Col1", "Col3+Col4", "Col5+Col6", ""], "conversionFactors": [None, "\u00b5A", "\u00b5A", None], "metadata": "definition, start_time, end_time, entry_identifier, title"}
 suffix = None
@@ -445,8 +469,11 @@ terminalNodeName = None
 transformNames = each
 colorTag = 2
 color = #bcbd22
-plotProps = {'currents Tr': {'i0': {'yaxis': 'left', 'linewidth': 0.7999999999999999, 'linestyle': '-', 'symbol': 'None'}, 'itr': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-', 'symbol': 'None'}}, 'currents PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'currents TEY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, '2D XES': {}, 'µd': {'mu': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'χ(k)': {'chi': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'FT, χ(r)': {'ft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'BFT, χ̃(k)': {'bft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'k-space': {'chi': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'r-space': {'ft': {'yaxis': 'left', 'linewidth': 1.1999999999999997, 'linestyle': '-', 'symbol': 'None'}}}
+plotProps = {'currents Tr': {'i0': {'yaxis': 'left', 'linewidth': 0.7999999999999999, 'linestyle': '-', 'symbol': 'None'}, 'itr': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-', 'symbol': 'None'}}, 'counts PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.5, 'linestyle': '-'}}, 'currents TEY/TFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.5, 'linestyle': '-'}}, '2D XES': {}, 'µd': {'mu': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'χ(k)': {'chi': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'FT, χ(r)': {'ft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'BFT, χ̃(k)': {'bft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'currents PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'currents TEY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'k-space': {'chi': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'r-space': {'ft': {'yaxis': 'left', 'linewidth': 1.1999999999999997, 'linestyle': '-', 'symbol': 'None'}}}
 ;transform params:
+cutoffNeeded = True
+cutoff = 2000
+cutoffMaxBelow = 0
 roiHERFD = {'kind': 'HorizontalRangeROI', 'name': 'roi', 'use': True, 'vmin': 300, 'vmax': 400}
 e0Smooth = True
 e0SmoothN = 6
@@ -489,7 +516,7 @@ bftWindowRange = [1.174927957888965, 2.866363932970127]
 bftWindowWidth = 0.5
 
 [Cu-foil_EXAFS_23068]
-madeOf = c:/ParSeq/parseq_XAS/data/foils/Cu-foil_EXAFS_23068.dat
+madeOf = C:/ParSeq/parseq_XAS/data/foils/Cu-foil_EXAFS_23068.dat
 madeOf_relative = ../data/foils/Cu-foil_EXAFS_23068.dat
 dataFormat = {"comments": "#", "dataSource": ["Col1", "Col3+Col4", "Col5+Col6", ""], "conversionFactors": [None, "\u00b5A", "\u00b5A", None], "metadata": ""}
 suffix = None
@@ -498,8 +525,11 @@ terminalNodeName = None
 transformNames = each
 colorTag = 2
 color = #17becf
-plotProps = {'currents Tr': {'i0': {'yaxis': 'left', 'linewidth': 0.7999999999999999, 'linestyle': '-', 'symbol': 'None'}, 'itr': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-', 'symbol': 'None'}}, 'currents PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'currents TEY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, '2D XES': {}, 'µd': {'mu': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'χ(k)': {'chi': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'FT, χ(r)': {'ft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'BFT, χ̃(k)': {'bft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'k-space': {'chi': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'r-space': {'ft': {'yaxis': 'left', 'linewidth': 1.1999999999999997, 'linestyle': '-', 'symbol': 'None'}}}
+plotProps = {'currents Tr': {'i0': {'yaxis': 'left', 'linewidth': 0.7999999999999999, 'linestyle': '-', 'symbol': 'None'}, 'itr': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-', 'symbol': 'None'}}, 'counts PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.5, 'linestyle': '-'}}, 'currents TEY/TFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.5, 'linestyle': '-'}}, '2D XES': {}, 'µd': {'mu': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'χ(k)': {'chi': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'FT, χ(r)': {'ft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'BFT, χ̃(k)': {'bft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'currents PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'currents TEY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'k-space': {'chi': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'r-space': {'ft': {'yaxis': 'left', 'linewidth': 1.1999999999999997, 'linestyle': '-', 'symbol': 'None'}}}
 ;transform params:
+cutoffNeeded = True
+cutoff = 2000
+cutoffMaxBelow = 0
 roiHERFD = {'kind': 'HorizontalRangeROI', 'name': 'roi', 'use': True, 'vmin': 300, 'vmax': 400}
 e0Smooth = True
 e0SmoothN = 6
@@ -542,7 +572,7 @@ bftWindowRange = [1.2818928536476422, 2.866363932970127]
 bftWindowWidth = 0.5
 
 [Cu-foil_EXAFS_23069]
-madeOf = c:/ParSeq/parseq_XAS/data/foils/Cu-foil_EXAFS_23069.dat
+madeOf = C:/ParSeq/parseq_XAS/data/foils/Cu-foil_EXAFS_23069.dat
 madeOf_relative = ../data/foils/Cu-foil_EXAFS_23069.dat
 dataFormat = {"comments": "#", "dataSource": ["Col1", "Col3+Col4", "Col5+Col6", ""], "conversionFactors": [None, "\u00b5A", "\u00b5A", None], "metadata": ""}
 suffix = None
@@ -551,8 +581,11 @@ terminalNodeName = None
 transformNames = each
 colorTag = 2
 color = #1f77b4
-plotProps = {'currents Tr': {'i0': {'yaxis': 'left', 'linewidth': 0.7999999999999999, 'linestyle': '-', 'symbol': 'None'}, 'itr': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-', 'symbol': 'None'}}, 'currents PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'currents TEY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, '2D XES': {}, 'µd': {'mu': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'χ(k)': {'chi': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'FT, χ(r)': {'ft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'BFT, χ̃(k)': {'bft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'k-space': {'chi': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'r-space': {'ft': {'yaxis': 'left', 'linewidth': 1.1999999999999997, 'linestyle': '-', 'symbol': 'None'}}}
+plotProps = {'currents Tr': {'i0': {'yaxis': 'left', 'linewidth': 0.7999999999999999, 'linestyle': '-', 'symbol': 'None'}, 'itr': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-', 'symbol': 'None'}}, 'counts PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.5, 'linestyle': '-'}}, 'currents TEY/TFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.5, 'linestyle': '-'}}, '2D XES': {}, 'µd': {'mu': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'χ(k)': {'chi': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'FT, χ(r)': {'ft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'BFT, χ̃(k)': {'bft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'currents PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'currents TEY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'k-space': {'chi': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'r-space': {'ft': {'yaxis': 'left', 'linewidth': 1.1999999999999997, 'linestyle': '-', 'symbol': 'None'}}}
 ;transform params:
+cutoffNeeded = True
+cutoff = 2000
+cutoffMaxBelow = 0
 roiHERFD = {'kind': 'HorizontalRangeROI', 'name': 'roi', 'use': True, 'vmin': 300, 'vmax': 400}
 e0Smooth = True
 e0SmoothN = 6
@@ -595,7 +628,7 @@ bftWindowRange = [1.2818928536476422, 2.866363932970127]
 bftWindowWidth = 0.5
 
 [Cu-foil_EXAFS_23070]
-madeOf = c:/ParSeq/parseq_XAS/data/foils/Cu-foil_EXAFS_23070.dat
+madeOf = C:/ParSeq/parseq_XAS/data/foils/Cu-foil_EXAFS_23070.dat
 madeOf_relative = ../data/foils/Cu-foil_EXAFS_23070.dat
 dataFormat = {"comments": "#", "dataSource": ["Col1", "Col3+Col4", "Col5+Col6", ""], "conversionFactors": [None, "\u00b5A", "\u00b5A", None], "metadata": ""}
 suffix = None
@@ -604,8 +637,11 @@ terminalNodeName = None
 transformNames = each
 colorTag = 2
 color = #ff7f0e
-plotProps = {'currents Tr': {'i0': {'yaxis': 'left', 'linewidth': 0.7999999999999999, 'linestyle': '-', 'symbol': 'None'}, 'itr': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-', 'symbol': 'None'}}, 'currents PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'currents TEY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, '2D XES': {}, 'µd': {'mu': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'χ(k)': {'chi': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'FT, χ(r)': {'ft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'BFT, χ̃(k)': {'bft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'k-space': {'chi': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'r-space': {'ft': {'yaxis': 'left', 'linewidth': 1.1999999999999997, 'linestyle': '-', 'symbol': 'None'}}}
+plotProps = {'currents Tr': {'i0': {'yaxis': 'left', 'linewidth': 0.7999999999999999, 'linestyle': '-', 'symbol': 'None'}, 'itr': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-', 'symbol': 'None'}}, 'counts PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.5, 'linestyle': '-'}}, 'currents TEY/TFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.5, 'linestyle': '-'}}, '2D XES': {}, 'µd': {'mu': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'χ(k)': {'chi': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'FT, χ(r)': {'ft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'BFT, χ̃(k)': {'bft': {'yaxis': 'left', 'linewidth': 1.5, 'linestyle': '-'}}, 'currents PFY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'ify': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'currents TEY': {'i0': {'yaxis': 'left', 'linewidth': 0.8, 'linestyle': '-'}, 'iey': {'yaxis': 'right', 'linewidth': 1.3, 'linestyle': '-'}}, 'k-space': {'chi': {'yaxis': 'left', 'linewidth': 1.2000000000000002, 'linestyle': '-', 'symbol': 'None'}}, 'r-space': {'ft': {'yaxis': 'left', 'linewidth': 1.1999999999999997, 'linestyle': '-', 'symbol': 'None'}}}
 ;transform params:
+cutoffNeeded = True
+cutoff = 2000
+cutoffMaxBelow = 0
 roiHERFD = {'kind': 'HorizontalRangeROI', 'name': 'roi', 'use': True, 'vmin': 300, 'vmax': 400}
 e0Smooth = True
 e0SmoothN = 6
@@ -654,8 +690,8 @@ active = µd
 [Geometry]
 mainWindow = maximized
 currents Tr = ()
-currents PFY = ()
-currents TEY = ()
+counts PFY = ()
+currents TEY/TFY = ()
 2D XES = ()
 µd = ()
 χ(k) = ()
