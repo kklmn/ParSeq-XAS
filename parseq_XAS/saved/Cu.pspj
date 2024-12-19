@@ -1,6 +1,6 @@
 [ParSeq Application]
 pipelineName = XAS
-appPath = c:\ParSeq\parseq_XAS_dev
+appPath = c:\ParSeq\parseq_XAS
 appVersion = 2023.6.0
 appSynopsis = A pipeline for data processing of XAS spectra
 
@@ -12,7 +12,7 @@ colorPolicy = loop1
 colorAutoUpdate = False
 
 [Cu_lnt1]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/Cu_lnt1.fio
+madeOf = c:/ParSeq/parseq_XAS/data/Cu_lnt1.fio
 madeOf_relative = ../data/Cu_lnt1.fio
 dataFormat = {"lastSkipRowContains": "Col", "dataSource": ["0", "5", "6", ""], "conversionFactors": ["", "", "", ""], "metadata": ""}
 suffix = None
@@ -73,7 +73,7 @@ exafsfit_rRange = [0.0, 8.191457407309324]
 exafsfit_r_use = False
 
 [Cu_lnt2]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/Cu_lnt2.fio
+madeOf = c:/ParSeq/parseq_XAS/data/Cu_lnt2.fio
 madeOf_relative = ../data/Cu_lnt2.fio
 dataFormat = {"lastSkipRowContains": "Col", "dataSource": ["0", "5", "6", ""], "conversionFactors": ["", "", "", ""], "metadata": ""}
 suffix = None
@@ -134,7 +134,7 @@ exafsfit_rRange = [0.0, 8.191457407309324]
 exafsfit_r_use = False
 
 [Cu_rt1]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/Cu_rt1.fio
+madeOf = c:/ParSeq/parseq_XAS/data/Cu_rt1.fio
 madeOf_relative = ../data/Cu_rt1.fio
 dataFormat = {"lastSkipRowContains": "Col", "dataSource": ["0", "5", "6", ""], "conversionFactors": ["", "", "", ""], "metadata": ""}
 suffix = None
@@ -151,7 +151,7 @@ e0SmoothN = 6
 e0Where = [0.02, 0.7]
 e0Method = 2
 e0 = 8978.99999999072
-preedgeWhere = [0.03, 0.33]
+preedgeWhere = [0.03, 0.53]
 preedgeExps = [0, 1]
 postedgeWhere = [40, 400]
 postedgeExps = [0, 1]
@@ -195,7 +195,7 @@ exafsfit_rRange = [0.0, 8.191457407309324]
 exafsfit_r_use = False
 
 [Cu_rt2]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/Cu_rt2.fio
+madeOf = c:/ParSeq/parseq_XAS/data/Cu_rt2.fio
 madeOf_relative = ../data/Cu_rt2.fio
 dataFormat = {"lastSkipRowContains": "Col", "dataSource": ["0", "5", "6", ""], "conversionFactors": ["", "", "", ""], "metadata": ""}
 suffix = None
@@ -212,7 +212,7 @@ e0SmoothN = 6
 e0Where = [0.02, 0.7]
 e0Method = 2
 e0 = 8979.103736461715
-preedgeWhere = [0.03, 0.33]
+preedgeWhere = [0.03, 0.53]
 preedgeExps = [0, 1]
 postedgeWhere = [40, 400]
 postedgeExps = [0, 1]

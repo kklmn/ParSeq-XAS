@@ -1,6 +1,6 @@
 [ParSeq Application]
 pipelineName = XAS
-appPath = c:\ParSeq\parseq_XAS_dev
+appPath = c:\ParSeq\parseq_XAS
 appVersion = 2023.6.0
 appSynopsis = A pipeline for data processing of XAS spectra
 
@@ -12,7 +12,7 @@ colorPolicy = loop1
 colorAutoUpdate = False
 
 [cu-foil]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/cu-ref-mix.res
+madeOf = c:/ParSeq/parseq_XAS/data/cu-ref-mix.res
 madeOf_relative = ../data/cu-ref-mix.res
 dataFormat = {"dataSource": [0, 1], "skiprows": 1}
 suffix = None
@@ -29,7 +29,7 @@ e0SmoothN = 6
 e0Where = [0.02, 0.7]
 e0Method = 2
 e0 = 8978.861784946022
-preedgeWhere = [0.03, 0.33]
+preedgeWhere = [0.03, 0.53]
 preedgeExps = [-3, 0]
 postedgeWhere = [40, 400]
 postedgeExps = [-2, -1]
@@ -65,7 +65,7 @@ bftWindowRange = [0.5, 2.5]
 bftWindowWidth = 0.5
 
 [cusio3h2o]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/cu-ref-mix.res
+madeOf = c:/ParSeq/parseq_XAS/data/cu-ref-mix.res
 madeOf_relative = ../data/cu-ref-mix.res
 dataFormat = {"dataSource": [0, 2], "skiprows": 1}
 suffix = None
@@ -82,7 +82,7 @@ e0SmoothN = 6
 e0Where = [0.02, 0.7]
 e0Method = 2
 e0 = 8986.244111594953
-preedgeWhere = [0.03, 0.33]
+preedgeWhere = [0.03, 0.53]
 preedgeExps = [-3, 0]
 postedgeWhere = [40, 400]
 postedgeExps = [-2, -1]
@@ -118,7 +118,7 @@ bftWindowRange = [0.5, 2.5]
 bftWindowWidth = 0.5
 
 [cuso45h2o]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/cu-ref-mix.res
+madeOf = c:/ParSeq/parseq_XAS/data/cu-ref-mix.res
 madeOf_relative = ../data/cu-ref-mix.res
 dataFormat = {"dataSource": [0, 3], "skiprows": 1}
 suffix = None
@@ -135,7 +135,7 @@ e0SmoothN = 6
 e0Where = [0.02, 0.7]
 e0Method = 2
 e0 = 8987.703757834377
-preedgeWhere = [0.03, 0.33]
+preedgeWhere = [0.03, 0.53]
 preedgeExps = [-3, 0]
 postedgeWhere = [40, 400]
 postedgeExps = [-2, -1]
@@ -171,7 +171,7 @@ bftWindowRange = [0.5, 2.5]
 bftWindowWidth = 0.5
 
 [cuoh2]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/cu-ref-mix.res
+madeOf = c:/ParSeq/parseq_XAS/data/cu-ref-mix.res
 madeOf_relative = ../data/cu-ref-mix.res
 dataFormat = {"dataSource": [0, 4], "skiprows": 1}
 suffix = None
@@ -188,7 +188,7 @@ e0SmoothN = 6
 e0Where = [0.02, 0.7]
 e0Method = 2
 e0 = 8991.140829878375
-preedgeWhere = [0.03, 0.33]
+preedgeWhere = [0.03, 0.53]
 preedgeExps = [-3, 0]
 postedgeWhere = [40, 400]
 postedgeExps = [-2, -1]
@@ -224,7 +224,7 @@ bftWindowRange = [0.5, 2.5]
 bftWindowWidth = 0.5
 
 [cufe2o4]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/cu-ref-mix.res
+madeOf = c:/ParSeq/parseq_XAS/data/cu-ref-mix.res
 madeOf_relative = ../data/cu-ref-mix.res
 dataFormat = {"dataSource": [0, 5], "skiprows": 1}
 suffix = None
@@ -241,7 +241,7 @@ e0SmoothN = 6
 e0Where = [0.02, 0.7]
 e0Method = 2
 e0 = 8989.855466737861
-preedgeWhere = [0.03, 0.33]
+preedgeWhere = [0.03, 0.53]
 preedgeExps = [-3, 0]
 postedgeWhere = [40, 400]
 postedgeExps = [-2, -1]
@@ -277,7 +277,7 @@ bftWindowRange = [0.5, 2.5]
 bftWindowWidth = 0.5
 
 [cucl2]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/cu-ref-mix.res
+madeOf = c:/ParSeq/parseq_XAS/data/cu-ref-mix.res
 madeOf_relative = ../data/cu-ref-mix.res
 dataFormat = {"dataSource": [0, 6], "skiprows": 1}
 suffix = None
@@ -294,7 +294,7 @@ e0SmoothN = 6
 e0Where = [0.02, 0.7]
 e0Method = 2
 e0 = 8985.460326202003
-preedgeWhere = [0.03, 0.33]
+preedgeWhere = [0.03, 0.53]
 preedgeExps = [-3, 0]
 postedgeWhere = [40, 400]
 postedgeExps = [-2, -1]
@@ -330,7 +330,7 @@ bftWindowRange = [0.5, 2.5]
 bftWindowWidth = 0.5
 
 [cucl]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/cu-ref-mix.res
+madeOf = c:/ParSeq/parseq_XAS/data/cu-ref-mix.res
 madeOf_relative = ../data/cu-ref-mix.res
 dataFormat = {"dataSource": [0, 7], "skiprows": 1}
 suffix = None
@@ -347,7 +347,7 @@ e0SmoothN = 6
 e0Where = [0.02, 0.7]
 e0Method = 2
 e0 = 8981.532915651833
-preedgeWhere = [0.03, 0.33]
+preedgeWhere = [0.03, 0.53]
 preedgeExps = [-3, 0]
 postedgeWhere = [40, 400]
 postedgeExps = [-2, -1]
@@ -383,7 +383,7 @@ bftWindowRange = [0.5, 2.5]
 bftWindowWidth = 0.5
 
 [cuco36h2o]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/cu-ref-mix.res
+madeOf = c:/ParSeq/parseq_XAS/data/cu-ref-mix.res
 madeOf_relative = ../data/cu-ref-mix.res
 dataFormat = {"dataSource": [0, 8], "skiprows": 1}
 suffix = None
@@ -400,7 +400,7 @@ e0SmoothN = 6
 e0Where = [0.02, 0.7]
 e0Method = 2
 e0 = 8988.636397224542
-preedgeWhere = [0.03, 0.33]
+preedgeWhere = [0.03, 0.53]
 preedgeExps = [-3, 0]
 postedgeWhere = [40, 400]
 postedgeExps = [-2, -1]
@@ -436,7 +436,7 @@ bftWindowRange = [0.5, 2.5]
 bftWindowWidth = 0.5
 
 [cu2s]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/cu-ref-mix.res
+madeOf = c:/ParSeq/parseq_XAS/data/cu-ref-mix.res
 madeOf_relative = ../data/cu-ref-mix.res
 dataFormat = {"dataSource": [0, 9], "skiprows": 1}
 suffix = None
@@ -453,7 +453,7 @@ e0SmoothN = 6
 e0Where = [0.02, 0.7]
 e0Method = 2
 e0 = 8980.860232116545
-preedgeWhere = [0.03, 0.33]
+preedgeWhere = [0.03, 0.53]
 preedgeExps = [-3, 0]
 postedgeWhere = [40, 400]
 postedgeExps = [-2, -1]
@@ -489,7 +489,7 @@ bftWindowRange = [0.5, 2.5]
 bftWindowWidth = 0.5
 
 [cus]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/cu-ref-mix.res
+madeOf = c:/ParSeq/parseq_XAS/data/cu-ref-mix.res
 madeOf_relative = ../data/cu-ref-mix.res
 dataFormat = {"dataSource": [0, 10], "skiprows": 1}
 suffix = None
@@ -506,7 +506,7 @@ e0SmoothN = 6
 e0Where = [0.02, 0.7]
 e0Method = 2
 e0 = 8982.380468042673
-preedgeWhere = [0.03, 0.33]
+preedgeWhere = [0.03, 0.53]
 preedgeExps = [-3, 0]
 postedgeWhere = [40, 400]
 postedgeExps = [-2, -1]
@@ -542,7 +542,7 @@ bftWindowRange = [0.5, 2.5]
 bftWindowWidth = 0.5
 
 [cu2o]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/cu-ref-mix.res
+madeOf = c:/ParSeq/parseq_XAS/data/cu-ref-mix.res
 madeOf_relative = ../data/cu-ref-mix.res
 dataFormat = {"dataSource": [0, 11], "skiprows": 1}
 suffix = None
@@ -559,7 +559,7 @@ e0SmoothN = 6
 e0Where = [0.02, 0.7]
 e0Method = 2
 e0 = 8979.964306390522
-preedgeWhere = [0.03, 0.33]
+preedgeWhere = [0.03, 0.53]
 preedgeExps = [-3, 0]
 postedgeWhere = [40, 400]
 postedgeExps = [-2, -1]
@@ -595,7 +595,7 @@ bftWindowRange = [0.5, 2.5]
 bftWindowWidth = 0.5
 
 [cuo]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/cu-ref-mix.res
+madeOf = c:/ParSeq/parseq_XAS/data/cu-ref-mix.res
 madeOf_relative = ../data/cu-ref-mix.res
 dataFormat = {"dataSource": [0, 12], "skiprows": 1}
 suffix = None
@@ -612,7 +612,7 @@ e0SmoothN = 6
 e0Where = [0.02, 0.7]
 e0Method = 2
 e0 = 8990.36746249553
-preedgeWhere = [0.03, 0.33]
+preedgeWhere = [0.03, 0.53]
 preedgeExps = [-3, 0]
 postedgeWhere = [40, 400]
 postedgeExps = [-2, -1]
@@ -648,7 +648,7 @@ bftWindowRange = [0.5, 2.5]
 bftWindowWidth = 0.5
 
 [cusio3xh2o]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/cu-ref-mix.res
+madeOf = c:/ParSeq/parseq_XAS/data/cu-ref-mix.res
 madeOf_relative = ../data/cu-ref-mix.res
 dataFormat = {"dataSource": [0, 14], "skiprows": 1}
 suffix = None
@@ -665,7 +665,7 @@ e0SmoothN = 6
 e0Where = [0.02, 0.7]
 e0Method = 2
 e0 = 8986.425289037052
-preedgeWhere = [0.03, 0.33]
+preedgeWhere = [0.03, 0.53]
 preedgeExps = [-3, 0]
 postedgeWhere = [40, 400]
 postedgeExps = [-2, -1]
@@ -701,7 +701,7 @@ bftWindowRange = [0.5, 2.5]
 bftWindowWidth = 0.5
 
 [cucl2x2h2o]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/cu-ref-mix.res
+madeOf = c:/ParSeq/parseq_XAS/data/cu-ref-mix.res
 madeOf_relative = ../data/cu-ref-mix.res
 dataFormat = {"dataSource": [0, 15], "skiprows": 1}
 suffix = None
@@ -718,7 +718,7 @@ e0SmoothN = 6
 e0Where = [0.02, 0.7]
 e0Method = 2
 e0 = 8985.688558053513
-preedgeWhere = [0.03, 0.33]
+preedgeWhere = [0.03, 0.53]
 preedgeExps = [-3, 0]
 postedgeWhere = [40, 400]
 postedgeExps = [-2, -1]
@@ -754,7 +754,7 @@ bftWindowRange = [0.5, 2.5]
 bftWindowWidth = 0.5
 
 [cu3o8p2]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/cu-ref-mix.res
+madeOf = c:/ParSeq/parseq_XAS/data/cu-ref-mix.res
 madeOf_relative = ../data/cu-ref-mix.res
 dataFormat = {"dataSource": [0, 16], "skiprows": 1}
 suffix = None
@@ -771,7 +771,7 @@ e0SmoothN = 6
 e0Where = [0.02, 0.7]
 e0Method = 2
 e0 = 8989.189327321996
-preedgeWhere = [0.03, 0.33]
+preedgeWhere = [0.03, 0.53]
 preedgeExps = [-3, 0]
 postedgeWhere = [40, 400]
 postedgeExps = [-2, -1]
@@ -807,7 +807,7 @@ bftWindowRange = [0.5, 2.5]
 bftWindowWidth = 0.5
 
 [cucl_w]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/cu-ref-mix.res
+madeOf = c:/ParSeq/parseq_XAS/data/cu-ref-mix.res
 madeOf_relative = ../data/cu-ref-mix.res
 dataFormat = {"dataSource": [0, 17], "skiprows": 1}
 suffix = None
@@ -824,7 +824,7 @@ e0SmoothN = 6
 e0Where = [0.02, 0.7]
 e0Method = 2
 e0 = 8981.66205986423
-preedgeWhere = [0.03, 0.33]
+preedgeWhere = [0.03, 0.53]
 preedgeExps = [-3, 0]
 postedgeWhere = [40, 400]
 postedgeExps = [-2, -1]
@@ -860,7 +860,7 @@ bftWindowRange = [0.5, 2.5]
 bftWindowWidth = 0.5
 
 [mix1]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/cu-ref-mix.res
+madeOf = c:/ParSeq/parseq_XAS/data/cu-ref-mix.res
 madeOf_relative = ../data/cu-ref-mix.res
 dataFormat = {"dataSource": [0, 18], "skiprows": 1}
 suffix = None
@@ -877,7 +877,7 @@ e0SmoothN = 6
 e0Where = [0.02, 0.7]
 e0Method = 2
 e0 = 8982.59308867061
-preedgeWhere = [0.03, 0.33]
+preedgeWhere = [0.03, 0.53]
 preedgeExps = [-3, 0]
 postedgeWhere = [40, 400]
 postedgeExps = [-2, -1]
@@ -917,7 +917,7 @@ lcf_xRange = [8779.483516483517, 10094.326007325948]
 lcf_result = {'R': 0.004798957140519679, 'mesg': '', 'ier': None, 'info': {}, 'nparam': 0}
 
 [mix2]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/cu-ref-mix.res
+madeOf = c:/ParSeq/parseq_XAS/data/cu-ref-mix.res
 madeOf_relative = ../data/cu-ref-mix.res
 dataFormat = {"dataSource": [0, 19], "skiprows": 1}
 suffix = None
@@ -934,7 +934,7 @@ e0SmoothN = 6
 e0Where = [0.02, 0.7]
 e0Method = 2
 e0 = 8990.441514479739
-preedgeWhere = [0.03, 0.33]
+preedgeWhere = [0.03, 0.53]
 preedgeExps = [-3, 0]
 postedgeWhere = [40, 400]
 postedgeExps = [-2, -1]

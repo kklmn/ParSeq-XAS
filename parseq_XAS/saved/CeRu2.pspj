@@ -1,6 +1,6 @@
 [ParSeq Application]
 pipelineName = XAS
-appPath = c:\ParSeq\parseq_XAS_dev
+appPath = c:\ParSeq\parseq_XAS
 appVersion = 2023.6.0
 appSynopsis = A pipeline for data processing of XAS spectra
 
@@ -12,7 +12,7 @@ colorPolicy = loop1
 colorAutoUpdate = False
 
 [CE0074]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/CeRu2/CE0074.DAT
+madeOf = c:/ParSeq/parseq_XAS/data/CeRu2/CE0074.DAT
 madeOf_relative = ../data/CeRu2/CE0074.DAT
 dataFormat = {"skiprows": 2, "dataSource": [0, 1, 2, ""], "conversionFactors": ["lim(None, 6145)", None, None, None], "metadata": ""}
 suffix = None
@@ -29,7 +29,7 @@ e0SmoothN = 6
 e0Where = [0.02, 0.7]
 e0Method = 2
 e0 = 5722.717552211551
-preedgeWhere = [0.03, 0.33]
+preedgeWhere = [0.03, 0.53]
 preedgeExps = [-3, 0]
 postedgeWhere = [40, 400]
 postedgeExps = [-2, -1]
@@ -73,7 +73,7 @@ exafsfit_rRange = [0.0, 8.191457407309324]
 exafsfit_r_use = False
 
 [RU0074]
-madeOf = c:/ParSeq/parseq_XAS_dev/data/CeRu2/RU0074.DAT
+madeOf = c:/ParSeq/parseq_XAS/data/CeRu2/RU0074.DAT
 madeOf_relative = ../data/CeRu2/RU0074.DAT
 dataFormat = {"skiprows": 2, "dataSource": [0, 1, 2, ""], "conversionFactors": ["", "", "", ""], "metadata": ""}
 suffix = None
@@ -90,7 +90,7 @@ e0SmoothN = 6
 e0Where = [0.02, 0.7]
 e0Method = 2
 e0 = 22123.164674806056
-preedgeWhere = [0.03, 0.33]
+preedgeWhere = [0.03, 0.53]
 preedgeExps = [-3, 0]
 postedgeWhere = [40, 400]
 postedgeExps = [-2, -1]

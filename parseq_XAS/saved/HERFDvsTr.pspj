@@ -1,6 +1,6 @@
 [ParSeq Application]
 pipelineName = XAS
-appPath = c:\ParSeq\parseq_XAS_dev
+appPath = c:\ParSeq\parseq_XAS
 appVersion = 2023.6.0
 appSynopsis = A pipeline for data processing of XAS spectra
 
@@ -12,7 +12,7 @@ colorPolicy = loop1
 colorAutoUpdate = False
 
 [rep1-Tr]
-madeOf = silx:c:/ParSeq/parseq_XAS_dev/data/HERFD/20230318.h5::/entry24212
+madeOf = silx:c:/ParSeq/parseq_XAS/data/HERFD/20230318.h5::/entry24212
 madeOf_relative = silx:../data/HERFD/20230318.h5::/entry24212
 dataFormat = {"dataSource": ["measurement/mono1_energy_acs", "d[\"measurement/albaem-01_ch1\"] + d[\"measurement/albaem-01_ch2\"]", "d[\"measurement/albaem-02_ch3\"] + d[\"measurement/albaem-02_ch4\"]", ""], "conversionFactors": ["None", "\u00b5A", "\u00b5A", "None"], "metadata": ""}
 suffix = None
@@ -29,7 +29,7 @@ e0SmoothN = 6
 e0Where = [0.02, 0.7]
 e0Method = 2
 e0 = 16113.071966471962
-preedgeWhere = [0.03, 0.33]
+preedgeWhere = [0.03, 0.53]
 preedgeExps = [0]
 postedgeWhere = [40, 400]
 postedgeExps = [0]
@@ -65,7 +65,7 @@ bftWindowRange = [0.5, 2.5]
 bftWindowWidth = 0.5
 
 [rep2-Tr]
-madeOf = silx:c:/ParSeq/parseq_XAS_dev/data/HERFD/20230318.h5::/entry24213
+madeOf = silx:c:/ParSeq/parseq_XAS/data/HERFD/20230318.h5::/entry24213
 madeOf_relative = silx:../data/HERFD/20230318.h5::/entry24213
 dataFormat = {"dataSource": ["measurement/mono1_energy_acs", "d[\"measurement/albaem-01_ch1\"] + d[\"measurement/albaem-01_ch2\"]", "d[\"measurement/albaem-02_ch3\"] + d[\"measurement/albaem-02_ch4\"]", ""], "conversionFactors": ["None", "\u00b5A", "\u00b5A", "None"], "metadata": ""}
 suffix = None
@@ -82,7 +82,7 @@ e0SmoothN = 6
 e0Where = [0.02, 0.7]
 e0Method = 2
 e0 = 16113.063762953765
-preedgeWhere = [0.03, 0.33]
+preedgeWhere = [0.03, 0.53]
 preedgeExps = [0]
 postedgeWhere = [40, 400]
 postedgeExps = [0]
@@ -118,7 +118,7 @@ bftWindowRange = [0.5, 2.5]
 bftWindowWidth = 0.5
 
 [rep1-HERFD]
-madeOf = silx:c:/ParSeq/parseq_XAS_dev/data/HERFD/20230318.h5::/entry24212
+madeOf = silx:c:/ParSeq/parseq_XAS/data/HERFD/20230318.h5::/entry24212
 madeOf_relative = silx:../data/HERFD/20230318.h5::/entry24212
 dataFormat = {"dataSource": ["measurement/mono1_energy_acs", "d[\"measurement/albaem-01_ch1\"] + d[\"measurement/albaem-01_ch2\"]", "instrument/eiger_streaming/proj_corrected", ""], "conversionFactors": ["", "", "", ""], "metadata": ""}
 suffix = None
@@ -135,7 +135,7 @@ e0SmoothN = 6
 e0Where = [0.02, 0.7]
 e0Method = 2
 e0 = 16110.310429082736
-preedgeWhere = [0.029999999999993116, 0.3300000000000053]
+preedgeWhere = [0.03, 0.53]
 preedgeExps = [0]
 postedgeWhere = [40, 400]
 postedgeExps = [0]
@@ -171,7 +171,7 @@ bftWindowRange = [0.5, 2.5]
 bftWindowWidth = 0.5
 
 [rep2-HERFD]
-madeOf = silx:c:/ParSeq/parseq_XAS_dev/data/HERFD/20230318.h5::/entry24213
+madeOf = silx:c:/ParSeq/parseq_XAS/data/HERFD/20230318.h5::/entry24213
 madeOf_relative = silx:../data/HERFD/20230318.h5::/entry24213
 dataFormat = {"dataSource": ["measurement/mono1_energy_acs", "d[\"measurement/albaem-01_ch1\"] + d[\"measurement/albaem-01_ch2\"]", "instrument/eiger_streaming/proj_corrected", ""], "conversionFactors": ["", "", "", ""], "metadata": ""}
 suffix = None
@@ -188,7 +188,7 @@ e0SmoothN = 6
 e0Where = [0.02, 0.7]
 e0Method = 2
 e0 = 16110.32010312864
-preedgeWhere = [0.03, 0.33]
+preedgeWhere = [0.03, 0.53]
 preedgeExps = [0]
 postedgeWhere = [40, 400]
 postedgeExps = [0]

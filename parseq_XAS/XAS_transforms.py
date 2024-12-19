@@ -130,7 +130,7 @@ class MakeChi(ctr.Transform):
     name = 'make chi'
     defaultParams = dict(
         e0Smooth=True, e0SmoothN=6, e0Where=[0.02, 0.7], e0Method=2,
-        e0=None, preedgeWhere=[0.03, 0.33], preedgeExps=[-3, 0],
+        e0=None, preedgeWhere=[0.03, 0.53], preedgeExps=[-3, 0],
         postedgeWhere=[40, 400], postedgeExps=[-2, -1], edgeJump=0,
         mu0PriorIncludeWhiteLine=False, mu0PriorVScale=1., mu0PriorSmoothN=5,
         mu0method=1,  # see names in mu0methods
@@ -388,10 +388,19 @@ class MakeChi(ctr.Transform):
     def run_main(cls, data):
         dtparams = data.transformParams
 
-        data.e = np.array(data.eraw)
-        data.mu = np.array(data.muraw)
-        if data.eref is not None:
-            data.erefrb = np.array(data.eref)
+        if hasattr(data, 'eraw'):  # may be absent in data combinations
+            data.e = np.array(data.eraw)
+        else:
+            if not hasattr(data, 'e'):  # if data combinations fails:
+                return
+        if hasattr(data, 'muraw'):  # may be absent in data combinations
+            data.mu = np.array(data.muraw)
+        if hasattr(data, 'eref'):  # may be absent in data combinations
+            if data.eref is not None:
+                data.erefrb = np.array(data.eref)
+        else:
+            data.eref = None
+
         # in case the analysis fails:
         data.edge_step = 1.
         data.pre_edge = np.zeros_like(data.e)
