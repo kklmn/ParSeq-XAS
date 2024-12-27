@@ -990,6 +990,9 @@ class MuSelfAbsorptionCorrection(PropWidget):
               "Chantler total (NIST)")
     tablesF = ("Henke", "BrCo", "Chantler", "Chantler total")
 
+    RED_TXT = '<span style="font-weight:600;color:#aa0000;">{0}</span>'
+    GREEN_TXT = '<span style="color:#00aa00;">{0}</span>'
+
     def __init__(self, parent=None, node=None):
         super().__init__(parent, node)
         layout = qt.QVBoxLayout()
@@ -1065,7 +1068,8 @@ class MuSelfAbsorptionCorrection(PropWidget):
         self.jumpLabel = qt.QLabel("")
         self.registerStatusLabel(
             self.jumpLabel, 'selfAbsorptionCorrectionDict.corrJumpStr',
-            ignoreErrors=True)
+            ignoreErrors=True,
+            styleDict={"Δσ": self.GREEN_TXT, "no": self.RED_TXT})
         layoutSA.addWidget(self.jumpLabel)
 
         layoutFE = qt.QHBoxLayout()
@@ -1142,7 +1146,8 @@ class MuSelfAbsorptionCorrection(PropWidget):
             return
         data = csi.selectedItems[0]
         dtparams = data.transformParams
-        ckind = dtparams['selfAbsorptionCorrectionDict']['corrFormula']
+        saDict = dtparams['selfAbsorptionCorrectionDict']
+        ckind = saDict['corrFormula']
         for w in [self.thicknessLabel, self.thicknessEdit]:
             w.setEnabled(ckind != 'thick')
         # if ckind == 'thick':
@@ -1169,7 +1174,7 @@ class ChiWidget(PropWidget):
     name = u'rebin and make χ'
 
     properties = {'show_zero_grid_line': True, 'k_range_visible': True,
-                  'show_ft_window': True, 'show_bft': True}
+                  'show_ft_window': True, 'show_bft': False}
 
     captions = 'pre-edge', 'edge', 'post-edge', 'EXAFS'
     deltas = (['dE', 1.0, 0.1, 10, 0.1],  # label, value, min, max, step
@@ -1457,7 +1462,7 @@ class FTWidget(PropWidget):
 
     name = 'make FT'
 
-    properties = {'show_negative': False, 'show_Re': False, 'show_Im': True,
+    properties = {'show_negative': False, 'show_Re': False, 'show_Im': False,
                   'show_bft_window': True}
 
     extraLines = '-|ft|', 'ft.re', 'ft.im'

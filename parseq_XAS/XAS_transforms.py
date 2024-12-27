@@ -166,9 +166,6 @@ class MakeChi(ctr.Transform):
     mu0methods = ['through internal k-spaced knots', 'smoothing spline']
     eShiftKinds = ['angular shift', 'lattice shift', 'energy shift']
 
-    RED_TXT = '<span style="font-weight:600;color:#aa0000;">{0}</span>'
-    GREEN_TXT = '<span style="color:#00aa00;">{0}</span>'
-
     @classmethod
     @logger(minLevel=20, attrs=[(0, 'name')])
     def get_e0(cls, data):
@@ -587,10 +584,11 @@ class MakeChi(ctr.Transform):
             return If*(mux+mubf) - corrC*mux*expFact
 
         dtparams = data.transformParams
+        saDict = dtparams['selfAbsorptionCorrectionDict']
         if not dtparams['selfAbsorptionCorrectionNeeded']:
+            saDict['corrJumpStr'] = ''
             return
 
-        saDict = dtparams['selfAbsorptionCorrectionDict']
         corrChemFormula = saDict['corrChemFormula']
         corrTable = saDict['corrDataTable']
         corrCalibE = saDict['corrCalibEnergy']
@@ -624,13 +622,13 @@ class MakeChi(ctr.Transform):
                 jump = elemContr[2] * elemContr[3]  # (Δσ)*formula_coeff
                 jumpElement = elem
         if jump == 0:
-            saDict['corrJumpStr'] = cls.RED_TXT.format('no edge found')
+            saDict['corrJumpStr'] = 'no edge found'
             raise ValueError("No absorption edge for {0}!".format(data.alias))
         else:
             ss = "Δσ[{0}] (cm²/mol) = {1:.3g}".format(jumpElement, jump)
             for r in (("e-0", "e-"), ("e+0", "e+")):
                 ss = ss.replace(*r)
-            saDict['corrJumpStr'] = cls.GREEN_TXT.format(ss)
+            saDict['corrJumpStr'] = ss
 
         corrSinPhi = np.sin(np.radians(corrPhiDeg))
         corrSinTheta = np.sin(np.radians(corrThetaDeg))*np.cos(
