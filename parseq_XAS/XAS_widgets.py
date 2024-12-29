@@ -246,14 +246,15 @@ class MuWidget(PropWidget):
 
     extraLines = ('pre_edge', 'post_edge', 'mu0', 'mu0eknots',
                   'mu0eknots.varied', 'mu0prior', 'e0', 'mu_der')
-    preEdgePlotParams = {'linewidth': 1.0, 'linestyle': '-.'}
-    postEdgePlotParams = {'linewidth': 1.0, 'linestyle': '--'}
-    mu0PlotParams = {'linewidth': 0.75, 'linestyle': '--'}
-    mu0knotsPlotParams = {'linestyle': ' ', 'symbol': 'o', 'symbolsize': 3}
-    mu0priorPlotParams = {'linewidth': 0.75, 'linestyle': ':'}
-    derPlotParams = {'linewidth': 1.0, 'linestyle': '-', 'yaxis': 'right'}
-    e0PlotParams = {'linewidth': 0.5, 'linestyle': '-'}
-
+    plotParams = {
+        'pre_edge': {'linewidth': 1.0, 'linestyle': '-.'},
+        'post_edge':  {'linewidth': 1.0, 'linestyle': '--'},
+        'mu0': {'linewidth': 0.75, 'linestyle': '--'},
+        'mu0eknots': {'linestyle': ' ', 'symbol': 'o', 'symbolsize': 3},
+        'mu0prior': {'linewidth': 0.75, 'linestyle': ':'},
+        'e0': {'linewidth': 0.5, 'linestyle': '-'},
+        'mu_der': {'linewidth': 1.0, 'linestyle': '-', 'yaxis': 'right'},
+    }
     cursorLabels = ['E', 'k', u'µd']
 
     def __init__(self, parent=None, node=None):
@@ -751,7 +752,7 @@ class MuWidget(PropWidget):
                 curve = plot.getCurve(legend)
                 if curve is None:
                     plot.addCurve(
-                        data.e, data.pre_edge, **self.preEdgePlotParams,
+                        data.e, data.pre_edge, **self.plotParams['pre_edge'],
                         color=data.color, z=z, legend=legend, resetzoom=False)
                 else:
                     curve.setData(data.e, data.pre_edge)
@@ -772,7 +773,7 @@ class MuWidget(PropWidget):
                 curve = plot.getCurve(legend)
                 if curve is None:
                     plot.addCurve(
-                        data.e, pe, **self.postEdgePlotParams,
+                        data.e, pe, **self.plotParams['post_edge'],
                         color=data.color, z=z, legend=legend, resetzoom=False)
                 else:
                     curve.setData(data.e, pe)
@@ -793,7 +794,7 @@ class MuWidget(PropWidget):
                 curve = plot.getCurve(legend)
                 if curve is None:
                     plot.addCurve(
-                        data.e, pe, **self.mu0PlotParams,
+                        data.e, pe, **self.plotParams['mu0'],
                         color=data.color, z=z, legend=legend, resetzoom=False)
                 else:
                     curve.setData(data.e, pe)
@@ -817,7 +818,7 @@ class MuWidget(PropWidget):
                         pe /= data.edge_step
 
                 curve = plot.getCurve(legend)
-                plotProps = dict(self.mu0knotsPlotParams)
+                plotProps = dict(self.plotParams['mu0eknots'])
                 symbolsize = plotProps.pop('symbolsize', 3)
                 if curve is None:
                     plot.addCurve(
@@ -854,7 +855,7 @@ class MuWidget(PropWidget):
             #             pe /= data.edge_step
 
             #     curve = plot.getCurve(legend)
-            #     plotProps = dict(self.mu0knotsPlotParams)
+            #     plotProps = dict(self.plotParams['mu0eknots'])
             #     symbolsize = plotProps.pop('symbolsize', 3) + 2
             #     if curve is None:
             #         plot.addCurve(
@@ -887,7 +888,7 @@ class MuWidget(PropWidget):
                 curve = plot.getCurve(legend)
                 if curve is None:
                     plot.addCurve(
-                        data.e, pe, **self.mu0priorPlotParams,
+                        data.e, pe, **self.plotParams['mu0prior'],
                         color=data.color, z=z, legend=legend, resetzoom=False)
                 else:
                     curve.setData(data.e, pe)
@@ -909,7 +910,7 @@ class MuWidget(PropWidget):
                 curve = plot.getCurve(legend)
                 if curve is None:
                     plot.addCurve(
-                        [data.e0, data.e0], ylim, **self.e0PlotParams,
+                        [data.e0, data.e0], ylim, **self.plotParams['e0'],
                         color=data.color, z=z, legend=legend, resetzoom=False)
                 else:
                     curve.setData([data.e0, data.e0], ylim)
@@ -928,9 +929,10 @@ class MuWidget(PropWidget):
                 if mu_der is not None:
                     curve = plot.getCurve(legend)
                     if curve is None:
-                        plot.addCurve(data.e, mu_der, **self.derPlotParams,
-                                      color=data.color, z=z, legend=legend,
-                                      resetzoom=self.wasNeverPlotted)
+                        plot.addCurve(
+                            data.e, mu_der, **self.plotParams['mu_der'],
+                            color=data.color, z=z, legend=legend,
+                            resetzoom=self.wasNeverPlotted)
                     else:
                         curve.setData(data.e, mu_der)
                         curve.setZValue(z)
@@ -1186,9 +1188,11 @@ class ChiWidget(PropWidget):
                  ['kmin', 2.1, 0, 5, 0.1],
                  ['kmax', 'inf', 0, 'inf', 0.1])
     defaultRegions = captions, deltas, splitters
-    ftWindowPlotParams = {'linewidth': 0.75, 'linestyle': '-',
-                          'color': '#00000044'}
-    bftPlotParams = {'linewidth': 1.25, 'linestyle': '--'}
+    plotParams = {
+        'ftWindow': {'linewidth': 0.75, 'linestyle': '-',
+                     'color': '#00000044'},
+        'bft': {'linewidth': 1.25, 'linestyle': '--'},
+    }
 
     cursorLabels = ['k', 'E', u'χ']
 
@@ -1306,7 +1310,7 @@ class ChiWidget(PropWidget):
         self.ftWidthAndMin = RangeWidgetFTWidthAndMin(
             self, plot, ('width', 'minimum'), [0., 10.0, 0.1, 2],
             [0.0, 1.0, 0.01, 3], 'FT window\nwidth,FT window\nminimum',
-            self.ftWindowPlotParams['color'], [0.5, 0.1])
+            self.plotParams['ftWindow']['color'], [0.5, 0.1])
         self.registerPropWidget(
             self.ftWidthAndMin, 'FT window width and min', 'ftWindowProp',
             dataItems="all")
@@ -1393,7 +1397,8 @@ class ChiWidget(PropWidget):
                     RangeWidgetFTWidthAndMin.plotFactor
                 plot.addCurve(
                     data.k, data.ftwindow*ymax, yaxis='left',
-                    **self.ftWindowPlotParams, legend=legend, resetzoom=False)
+                    **self.plotParams['ftwindow'], legend=legend,
+                    resetzoom=False)
             else:
                 plot.remove(legend, kind='curve')
 
@@ -1404,7 +1409,7 @@ class ChiWidget(PropWidget):
             if showCurve:
                 z = 1 if data in csi.selectedItems else 0
                 plot.addCurve(
-                    data.bftk, data.bft, **self.bftPlotParams,
+                    data.bftk, data.bft, **self.plotParams['bft'],
                     color=data.color, z=z, legend=legend, resetzoom=False)
             else:
                 plot.remove(legend, kind='curve')
@@ -1466,10 +1471,12 @@ class FTWidget(PropWidget):
                   'show_bft_window': True}
 
     extraLines = '-|ft|', 'ft.re', 'ft.im'
-    ftrPlotParams = {'linewidth': 0.7, 'linestyle': '-.'}
-    ftiPlotParams = {'linewidth': 0.7, 'linestyle': ':'}
-    bftWindowPlotParams = {'linewidth': 0.75, 'linestyle': '-',
-                           'color': '#00000044'}
+    plotParams = {
+        'bftwindow': {'linewidth': 0.75, 'linestyle': '-',
+                      'color': '#00000044'},
+        'ft.re': {'linewidth': 0.7, 'linestyle': '-.'},
+        'ft.im': {'linewidth': 0.7, 'linestyle': ':'},
+    }
 
     def __init__(self, parent=None, node=None):
         super().__init__(parent, node)
@@ -1495,7 +1502,7 @@ class FTWidget(PropWidget):
         self.registerPropWidget(forceFT0, forceFT0.text(), 'forceFT0')
         layout.addWidget(forceFT0)
 
-        self.checkBoxShowNegative = qt.QCheckBox('show negative part')
+        self.checkBoxShowNegative = qt.QCheckBox('show negative part     ')
         self.checkBoxShowNegative.setChecked(self.properties['show_negative'])
         self.checkBoxShowNegative.toggled.connect(self.showNegativeSlot)
         layout.addWidget(self.checkBoxShowNegative)
@@ -1593,7 +1600,7 @@ class FTWidget(PropWidget):
                 RangeWidgetFTWidthAndMin.plotFactor
             plot.addCurve(
                 data.r, data.bftwindow*ymax, yaxis='left',
-                **self.bftWindowPlotParams, legend=legend, resetzoom=False)
+                **self.plotParams['bftwindow'], legend=legend, resetzoom=False)
             if self.bftWindowRange.roi is not None:
                 self.bftWindowRange.roi.setVisible(True)
         else:
@@ -1633,7 +1640,7 @@ class FTWidget(PropWidget):
                 curve = plot.getCurve(legend)
                 if curve is None:
                     plot.addCurve(
-                        data.r, y, **self.ftrPlotParams,
+                        data.r, y, **self.plotParams['ft.re'],
                         color=data.color, z=z, legend=legend, resetzoom=False)
                 else:
                     curve.setData(data.r, y)
@@ -1651,7 +1658,7 @@ class FTWidget(PropWidget):
                 curve = plot.getCurve(legend)
                 if curve is None:
                     plot.addCurve(
-                        data.r, y, **self.ftiPlotParams,
+                        data.r, y, **self.plotParams['ft.im'],
                         color=data.color, z=z, legend=legend, resetzoom=False)
                 else:
                     curve.setData(data.r, y)
