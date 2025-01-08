@@ -62,7 +62,8 @@ if __name__ == '__main__':
     group.add_argument("-p", "--projectFile", metavar='NNN.pspj',
                        help="load a .pspj project file")
     parser.add_argument("-v", "--verbosity", type=int, default=0,
-                        help="verbosity level for diagnostic purpose")
+                        help="verbosity level for diagnostic purpose, "
+                        "int 0 (default) to 50")
     parser.add_argument("-nG", "--noGUI", action="store_true",
                         help="start the data pipeline without GUI")
     parser.add_argument("-b", "--plotBackend", metavar='backend_name',

@@ -1,4 +1,5 @@
-- FY self-absorption
-- line properties for extra lines
+- FY self-absorption, done
+- line properties for extra lines, done
+- add logging, done
 - extract amplitude and phase from BFT
 - glitch marking and deglitching

@@ -1189,7 +1189,7 @@ class ChiWidget(PropWidget):
                  ['kmax', 'inf', 0, 'inf', 0.1])
     defaultRegions = captions, deltas, splitters
     plotParams = {
-        'ftWindow': {'linewidth': 0.75, 'linestyle': '-',
+        'ftwindow': {'linewidth': 0.75, 'linestyle': '-',
                      'color': '#00000044'},
         'bft': {'linewidth': 1.25, 'linestyle': '--'},
     }
@@ -1310,7 +1310,7 @@ class ChiWidget(PropWidget):
         self.ftWidthAndMin = RangeWidgetFTWidthAndMin(
             self, plot, ('width', 'minimum'), [0., 10.0, 0.1, 2],
             [0.0, 1.0, 0.01, 3], 'FT window\nwidth,FT window\nminimum',
-            self.plotParams['ftWindow']['color'], [0.5, 0.1])
+            self.plotParams['ftwindow']['color'], [0.5, 0.1])
         self.registerPropWidget(
             self.ftWidthAndMin, 'FT window width and min', 'ftWindowProp',
             dataItems="all")
