@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
 __author__ = "Konstantin Klementiev"
-__date__ = "5 Apr 2024"
+__date__ = "9 Jan 2025"
 # !!! SEE CODERULES.TXT !!!
 
 import argparse
 import sys; sys.path.append('..')  # analysis:ignore
 
 import parseq.core.singletons as csi
-import parseq_XAS as myapp
-import parseq.core.save_restore as csr  # after myapp import
 
 
 def main(projectFile=None, withTestData=True, withGUI=True):
+    import parseq_XAS as myapp
+    import parseq.core.save_restore as csr  # after myapp import
+
     myapp.make_pipeline(withGUI)
 
     if projectFile:
