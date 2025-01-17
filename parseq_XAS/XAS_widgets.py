@@ -601,29 +601,35 @@ class MuWidget(PropWidget):
         layoutMK.addStretch()
         layoutMu0page0.addLayout(layoutMK)
 
-        # self.ftMinimizeRangeWidget = SimpleRangeWidget(
-        #     self, 'FT, χ(r)', 'optimize µ\u2080 knots by minimizing low-r FT',
-        #     'minimize range [rMin, rMax] (Å)', 'min-FT-range',
-        #     "#da7070", "{0[0]:.2f}, {0[1]:.2f}", [0, 1])
-        # self.ftMinimizeRangeWidget.panel.setCheckable(True)
-        # self.registerPropWidget(self.ftMinimizeRangeWidget.panel,
-        #                         'minimize low-r FT', 'ftMinimize')
-        # self.registerPropWidget(self.ftMinimizeRangeWidget,
-        #                         'optimize knots', 'ftMinRange')
-        # self.ftMinNKnotsBox = qt.QSpinBox()
-        # self.ftMinNKnotsBox.setMinimum(1)
-        # self.ftMinNKnotsBox.setMaximum(30)
-        # self.registerPropWidget(
-        #     self.ftMinNKnotsBox, 'optimized knots', 'ftMinNKnots')
-        # ftMinNKnotsLabel1 = qt.QLabel('knots to vary')
-        # ftMinNKnotsLabel2 = qt.QLabel('FT range')
-        # lk = self.ftMinimizeRangeWidget.panel.layout()
-        # lk.insertWidget(0, ftMinNKnotsLabel1)
-        # lk.insertWidget(1, self.ftMinNKnotsBox)
-        # lk.insertStretch(2)
-        # lk.insertWidget(3, ftMinNKnotsLabel2)
-        # layoutMu0page0.addWidget(self.ftMinimizeRangeWidget)
-        # layoutMu0page0.addStretch()
+        self.ftMinimizeRangeWidget = AutoRangeWidget(
+            self, 'FT, χ(r)',
+            'optimize µ\u2080 knots by minimizing low-r FT',
+            'minimize range [rMin, rMax] (Å)', 'min-FT-range',
+            "#da7070", "{0[0]:.2f}, {0[1]:.2f}", [0., 1.])
+        self.ftMinimizeRangeWidget.panel.setCheckable(True)
+        self.ftMinimizeRangeWidget.editCustom.setSizePolicy(
+            qt.QSizePolicy.Ignored, qt.QSizePolicy.Preferred)
+        self.ftMinimizeRangeWidget.editCustom.setMinimumWidth(80)
+        self.registerPropWidget(self.ftMinimizeRangeWidget.panel,
+                                'minimize low-r FT', 'ftMinimize')
+        self.registerPropWidget(self.ftMinimizeRangeWidget,
+                                'optimize knots', 'ftMinRange')
+        layoutMKFT = qt.QHBoxLayout()
+        ftMinNKnotsLabel1 = qt.QLabel('knots to vary')
+        layoutMKFT.addWidget(ftMinNKnotsLabel1)
+        self.ftMinNKnotsBox = qt.QSpinBox()
+        self.ftMinNKnotsBox.setMinimum(1)
+        self.ftMinNKnotsBox.setMaximum(30)
+        self.registerPropWidget(
+            self.ftMinNKnotsBox, 'optimized knots', 'ftMinNKnots')
+        layoutMKFT.addWidget(self.ftMinNKnotsBox)
+        layoutMKFT.addStretch()
+        self.ftMinimizeRangeWidget.panelLayout.insertLayout(0, layoutMKFT)
+        ftMinNKnotsLabel2 = qt.QLabel('low-r range: ')
+        self.ftMinimizeRangeWidget.rangeLayout.insertWidget(
+            0, ftMinNKnotsLabel2)
+        layoutMu0page0.addWidget(self.ftMinimizeRangeWidget)
+        layoutMu0page0.addStretch()
 
         mu0page1 = qt.QWidget()
         layoutMu0page1 = qt.QVBoxLayout()
@@ -838,42 +844,40 @@ class MuWidget(PropWidget):
             else:
                 plot.remove(legend, kind='curve')
 
-            # legend = '{0}.mu0eknots.varied'.format(data.alias)
-            # if self.properties['show_mu0'] and \
-            #     hasattr(data, 'mu0eknotsVaried') and \
-            #         (data.mu0eknotsVaried is not None):
-            #     pre = interp1d(data.e, data.pre_edge, assume_sorted=True)
-            #     post = interp1d(data.e, data.post_edge, assume_sorted=True)
-            #     knotsx, knotsy = data.mu0eknotsVaried
-            #     pe = knotsy - pre(knotsx) if \
-            #         self.properties['subtract_preedge'] else \
-            #         np.array(knotsy)
-            #     if self.properties['normalize']:
-            #         if self.properties['flatten']:
-            #             pe /= post(knotsx) - pre(knotsx)
-            #         else:
-            #             pe /= data.edge_step
+            legend = '{0}.mu0eknots.varied'.format(data.alias)
+            if self.properties['show_mu0'] and \
+                hasattr(data, 'mu0eknotsVaried') and \
+                    (data.mu0eknotsVaried is not None):
+                knotsx, knotsy = data.mu0eknotsVaried
+                pe = knotsy - pre(knotsx) if \
+                    self.properties['subtract_preedge'] else \
+                    np.array(knotsy)
+                if self.properties['normalize']:
+                    if self.properties['flatten']:
+                        pe /= post(knotsx) - pre(knotsx)
+                    else:
+                        pe /= data.edge_step
 
-            #     curve = plot.getCurve(legend)
-            #     plotProps = dict(self.plotParams['mu0eknots'])
-            #     symbolsize = plotProps.pop('symbolsize', 3) + 2
-            #     if curve is None:
-            #         plot.addCurve(
-            #             knotsx, pe, **plotProps,
-            #             color=data.color, z=z, legend=legend, resetzoom=False)
-            #     else:
-            #         curve.setData(knotsx, pe)
-            #         curve.setZValue(z)
+                curve = plot.getCurve(legend)
+                plotProps = dict(self.plotParams['mu0eknots'])
+                symbolsize = plotProps.pop('symbolsize', 3) + 4
+                if curve is None:
+                    plot.addCurve(
+                        knotsx, pe, **plotProps,
+                        color=data.color, z=z, legend=legend, resetzoom=False)
+                else:
+                    curve.setData(knotsx, pe)
+                    curve.setZValue(z)
 
-            #     symbol = plotProps.get('symbol', None)
-            #     if symbol is not None:
-            #         curve = plot.getCurve(legend)
-            #         if curve is not None:
-            #             if self.node.widget.backend['backend'] == 'opengl':
-            #                 symbolsize *= 2
-            #             curve.setSymbolSize(symbolsize)
-            # else:
-            #     plot.remove(legend, kind='curve')
+                symbol = plotProps.get('symbol', None)
+                if symbol is not None:
+                    curve = plot.getCurve(legend)
+                    if curve is not None:
+                        if self.node.widget.backend['backend'] == 'opengl':
+                            symbolsize *= 2
+                        curve.setSymbolSize(symbolsize)
+            else:
+                plot.remove(legend, kind='curve')
 
             legend = '{0}.mu0prior'.format(data.alias)
             if self.properties['show_mu0_prior']:

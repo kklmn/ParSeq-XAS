@@ -9,8 +9,9 @@ from collections import OrderedDict
 from parseq.core import nodes as cno
 
 
-class NodeIT(cno.Node):  # transmission signals
+class NodeIT(cno.Node):
     name = 'currents Tr'
+    description = "transmission signals"
     arrays = OrderedDict()
     arrays['eraw'] = dict(qLabel='E', qUnit='eV', role='x', plotLabel=r'$E$')
     arrays['i0'] = dict(
@@ -22,8 +23,9 @@ class NodeIT(cno.Node):  # transmission signals
     arrays['eref'] = dict(role='optional', qLabel='Eref')
 
 
-class NodeIF(cno.Node):  # partial fluorescence signals
+class NodeIF(cno.Node):
     name = 'counts PFY'
+    description = "partial fluorescence signals"
     arrays = OrderedDict()
     arrays['eraw'] = dict(qLabel='E', qUnit='eV', role='x', plotLabel=r'$E$')
     arrays['i0'] = dict(
@@ -35,8 +37,9 @@ class NodeIF(cno.Node):  # partial fluorescence signals
     arrays['eref'] = dict(role='optional', qLabel='Eref')
 
 
-class NodeIE(cno.Node):  # total electron yield (fluorescence) signals
+class NodeIE(cno.Node):
     name = 'currents TEY/TFY'
+    description = "total electron yield or total fluorescence signals"
     arrays = OrderedDict()
     arrays['eraw'] = dict(qLabel='E', qUnit='eV', role='x', plotLabel=r'$E$')
     arrays['i0'] = dict(
@@ -51,6 +54,7 @@ class NodeIE(cno.Node):  # total electron yield (fluorescence) signals
 
 class NodeIXES(cno.Node):
     name = '2D XES'
+    description = "HERFD maps: meridional pixel as x and incident energy as y"
     arrays = OrderedDict()
     arrays['eraw'] = dict(qLabel='E', qUnit='eV', role='y', plotLabel=r'$E$')
     arrays['i0'] = dict(  # not plotted, therefore role='1D'
@@ -63,6 +67,7 @@ class NodeIXES(cno.Node):
 
 class NodeMu(cno.Node):
     name = u'µd'
+    description = "µd (optical thickness)"
     arrays = OrderedDict()
     arrays['e'] = dict(qLabel='E', qUnit='eV', role='x', plotLabel=r'$E$',
                        raw='eraw')
@@ -74,6 +79,7 @@ class NodeMu(cno.Node):
 
 class NodeChi(cno.Node):
     name = u'χ(k)'
+    description = "EXAFS function in k-space"
     arrays = OrderedDict()
     arrays['k'] = dict(
         qUnit=u'Å\u207B\u00B9', role='x', plotLabel=r'$k$',
@@ -85,6 +91,7 @@ class NodeChi(cno.Node):
 
 class NodeFT(cno.Node):
     name = 'FT, χ(r)'
+    description = "EXAFS function in r-space"
     arrays = OrderedDict()
     arrays['r'] = dict(qUnit=u'Å', role='x', plotLabel=r'$r$')
     arrays['ft'] = dict(
@@ -95,6 +102,7 @@ class NodeFT(cno.Node):
 
 class NodeBFT(cno.Node):
     name = 'BFT, χ\u0303(k)'
+    description = "FT filtered EXAFS function in k-space"
     arrays = OrderedDict()
     arrays['bftk'] = dict(
         qUnit=u'Å\u207B\u00B9', role='x', plotLabel=r'$k$',

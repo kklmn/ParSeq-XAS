@@ -9,9 +9,10 @@ if not hasattr(np, 'trapezoid'):
     np.trapezoid = np.trapz
 from numpy.polynomial import Polynomial as P
 
-# from functools import partial
+from functools import partial
 from scipy import optimize
 from scipy.interpolate import CubicSpline, LSQUnivariateSpline, interp1d
+# from scipy.interpolate import BSpline
 try:
     from scipy.interpolate import make_smoothing_spline
 except ImportError as e:
@@ -135,7 +136,7 @@ class MakeChi(ctr.Transform):
         mu0PriorIncludeWhiteLine=False, mu0PriorVScale=1., mu0PriorSmoothN=5,
         mu0method=1,  # see names in mu0methods
         mu0knots=7, mu0kpow=2,  # for mu0method=0
-        # ftMinimize=False, ftMinNKnots=4, ftMinRange=[0, 1],  # for method=0
+        ftMinimize=False, ftMinNKnots=4, ftMinRange=[0, 1],  # for mu0method=0
         mu0smoothingFactor=2e6,  # for mu0method=1
         selfAbsorptionCorrectionNeeded=False,
         selfAbsorptionCorrectionDict=dict(
@@ -161,10 +162,11 @@ class MakeChi(ctr.Transform):
     outArrays = ['e', 'mu', 'mu_der', 'erefrb', 'eref_der', 'e0', 'pre_edge',
                  'post_edge', 'edge_step', 'norm', 'flat', 'mu0prior', 'mu0',
                  'mu0eknots', 'k', 'chi', 'bft',
-                 # 'mu0eknotsVaried',
+                 'mu0eknotsVaried',
                  ]
     mu0methods = ['through internal k-spaced knots', 'smoothing spline']
     eShiftKinds = ['angular shift', 'lattice shift', 'energy shift']
+    firstKnot = 1
 
     @classmethod
     @logger(minLevel=20, attrs=[(0, 'name')])
@@ -444,9 +446,7 @@ class MakeChi(ctr.Transform):
         data.flat = (data.mu-data.pre_edge) / (data.post_edge-data.pre_edge)
 
         # make mu0prior:
-
         data.mu0prior = np.array(data.mu)
-        # icorner = np.argwhere(data.mu > data.post_edge).flatten()[0]
         ie0 = np.argwhere(data.e > data.e0).flatten()[0]  # 1st point after E0
         if dtparams['mu0PriorIncludeWhiteLine']:
             ibeforeWL = np.argwhere(
@@ -497,9 +497,9 @@ class MakeChi(ctr.Transform):
             # knots = np.linspace(kmin, kmax, nKnots)
             knots = np.linspace(0, kmax, nKnots)
             kpow = dtparams['mu0kpow']
-            # whereMin = data.e > data.e0 + kmin**2/eV2revA
-            whereMin = data.e > data.e0
-            w[whereMin] = ke[whereMin]**kpow
+            # above = data.e > data.e0 + kmin**2/eV2revA
+            above = data.e > data.e0
+            w[above] = ke[above]**kpow
             w[whereMax] = 1e-10
             try:
                 spl = LSQUnivariateSpline(ke+1e-6, funFit, knots, w, ext=3)
@@ -509,51 +509,54 @@ class MakeChi(ctr.Transform):
                 funFit = funFit[argsort]
                 spl = LSQUnivariateSpline(ke+1e-6, funFit, knots, w, ext=3)
 
-            # cspl = spl.get_coeffs()
             interpPrior = interp1d(ke+1e-6, data.mu0prior, assume_sorted=True)
             eknots = data.e0 + knots**2/eV2revA
-            data.mu0eknots = eknots, spl(knots) + interpPrior(knots)
+            yknots = spl(knots)
+            data.mu0eknots = np.array(eknots), yknots+interpPrior(knots)
 
-            # !! curve_fit to minimize low-r FT is unstable !! removed
-            # # +2 end knots + 2×order(=3) boundary knots:
-            # knotsBSpl = np.array(4*[ke[0]] + list(knots) + 4*[ke[-1]])
-            # if dtparams['ftMinimize']:
-            #     ftMinNKnots = dtparams['ftMinNKnots']
-            #     # 2 first intervals are fixed:
-            #     variedCoeffs = cspl[2:ftMinNKnots+2]
-            #     ftMinRange = dtparams['ftMinRange']
-            #     r = np.fft.rfftfreq(MakeFT.nfft, dk/np.pi)
-            #     wherer = (ftMinRange[0] <= r) & (r <= ftMinRange[1])
-            #     # fitr = np.concatenate((r[wherer], r[wherer]))
-            #     fitr = r[wherer]
-            #     popt = curve_fit(partial(
-            #         cls.mu0_BSpline, knots=knotsBSpl, allCoeffs=cspl,
-            #         ke=ke, mu0prior=data.mu0prior, e=data.e, e0=data.e0,
-            #         mu=data.mu, pre_edge=data.pre_edge, k=data.k,
-            #         kw=dtparams['kw'], wherer=wherer),
-            #         fitr, np.zeros_like(fitr), p0=variedCoeffs)[0]
-            #     cspl[2:2+ftMinNKnots] = popt
-            #     splK = BSpline(knotsBSpl, cspl, 3)
-            #     data.mu0 = splK(ke) + data.mu0prior
-            #     knotsK = knots[1:-1][:ftMinNKnots]
-            #     knotsV = splK(knotsK) + interpPrior(knotsK)
-            #     knotsE = eknots[1:-1][:ftMinNKnots]
-            #     data.mu0eknotsVaried = (knotsE, knotsV)
-            # else:
-            #     if True:  # both ways work equally
-            #         data.mu0 = spl(ke) + data.mu0prior
-            #     else:
-            #         splK = BSpline(knotsBSpl, cspl, 3)
-            #         data.mu0 = splK(ke) + data.mu0prior
-            #     data.mu0eknotsVaried = None
-            data.mu0 = spl(ke) + data.mu0prior
+            if dtparams['ftMinimize']:
+                nvKnots = dtparams['ftMinNKnots']
+                ftMinRange = dtparams['ftMinRange']
+                r = np.fft.rfftfreq(MakeFT.nfft, dk/np.pi)
+                wherer = (ftMinRange[0] <= r) & (r <= ftMinRange[1])
+                # fitr = np.concatenate((r[wherer], r[wherer]))
+                fitr = r[wherer]
+
+                p0y = np.array(yknots[cls.firstKnot:nvKnots+cls.firstKnot])
+                # dp = (funFit.max() - funFit.min())
+                boundsy = (p0y-abs(p0y)*10, p0y+abs(p0y)*10)
+                popt = optimize.curve_fit(partial(
+                    cls.mu0_spline_fit, eknots=eknots, yknots=yknots,
+                    e=data.e, e0=data.e0, mu0prior=data.mu0prior,
+                    mu=data.mu, pre_edge=data.pre_edge, k=data.k,
+                    kw=dtparams['kw'], wherer=wherer, alias=data.alias),
+                    fitr, np.zeros_like(fitr), p0=p0y, bounds=boundsy)[0]
+                yknots[cls.firstKnot:nvKnots+cls.firstKnot] = popt
+                mu0spl = CubicSpline(eknots, yknots)
+                data.mu0[above] = mu0spl(data.e[above]) + data.mu0prior[above]
+                data.mu0eknotsVaried = \
+                    eknots[cls.firstKnot:nvKnots+cls.firstKnot], \
+                    yknots[cls.firstKnot:nvKnots+cls.firstKnot] + \
+                    interpPrior(knots[cls.firstKnot:nvKnots+cls.firstKnot])
+            else:
+                # if True:  # both ways work equally
+                data.mu0 = spl(ke) + data.mu0prior
+                # else:
+                #     cspl = spl.get_coeffs()
+                #     # # +2 end knots + 2×order(=3) boundary knots:
+                #     k = 3
+                #     knotsBSpl = np.array(
+                #         [ke[0]]*(k+1) + list(knots) + [ke[-1]]*(k+1))
+                #     splK = BSpline(knotsBSpl, cspl, k)
+                #     data.mu0 = splK(ke) + data.mu0prior
+                data.mu0eknotsVaried = None
+
         elif dtparams['mu0method'] == 1:  # 'smoothing spline'
             data.mu0eknots = None
-            # data.mu0eknotsVaried = None
+            data.mu0eknotsVaried = None
             s = dtparams['mu0smoothingFactor']
             if s == 0:
                 s = None
-            whereMax = data.e > data.e0 + kmax**2/eV2revA
             w[whereMax] = 1e-10
             try:
                 spl = make_smoothing_spline(data.e, funFit, w, lam=s)
@@ -687,19 +690,23 @@ class MakeChi(ctr.Transform):
         chie = (mu_ - mu0_) / (mu0_ - pre)
         return np.interp(k, kexp, chie) * k**kw
 
-    # @classmethod
-    # def mu0_BSpline(cls, r, *vals, knots, allCoeffs, ke, mu0prior, e, e0, mu,
-    #                 pre_edge, k, kw, wherer):
-    #     c = list(allCoeffs)
-    #     c[2:2+len(vals)] = vals
-    #     splK = BSpline(knots, c, 3)
-    #     mu0 = splK(ke) + mu0prior
-    #     chi = cls.get_chi(e, e0, mu, mu0, pre_edge, k, kw) # * ftwindow
-    #     chi -= np.trapezoid(chi, x=k) / np.trapezoid(np.ones_like(chi), x=k)
-    #     dk = k[1] - k[0]
-    #     ft = np.fft.rfft(chi, n=MakeFT.nfft) * dk/2
-    #     # return np.concatenate((ft.real[wherer], ft.imag[wherer]))
-    #     return np.abs(ft[wherer])
+    @classmethod
+    def mu0_spline_fit(cls, r, *vals, eknots, yknots, e, e0, mu0prior, mu,
+                       pre_edge, k, kw, wherer, alias):
+        nvKnots = len(vals)
+        yknots[cls.firstKnot:nvKnots+cls.firstKnot] = vals
+        mu0spl = CubicSpline(eknots, yknots)
+        mu0 = np.array(mu0prior)
+        above = e > e0
+        mu0[above] = mu0spl(e[above]) + mu0prior[above]
+        chi = cls.get_chi(e, e0, mu, mu0, pre_edge, k, kw)  # * ftwindow
+        chi -= np.trapezoid(chi, x=k) / np.trapezoid(np.ones_like(chi), x=k)
+        dk = k[1] - k[0]
+        ft = np.fft.rfft(chi, n=MakeFT.nfft) * dk/2
+        # res = np.concatenate((ft.real[wherer]**2, ft.imag[wherer]**2))
+        res = np.abs(ft[wherer])**4
+        # print('RRRR', alias, res.sum())
+        return res
 
 
 class MakeFT(ctr.Transform):
