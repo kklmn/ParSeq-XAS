@@ -20,7 +20,7 @@ def make_pipeline(withGUI=False):
     csi.withGUI = withGUI
 
     # instantiate transformation nodes
-    nodeIT = xno.NodeIT()
+    nodeIT = xno.NodeIT(xwi.CurWidget if withGUI else None)
     nodeIF = xno.NodeIF()
     nodeIE = xno.NodeIE()
     nodeIXES = xno.NodeIXES(xwi.HERFDWidget if withGUI else None)

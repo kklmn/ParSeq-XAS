@@ -6,6 +6,7 @@ import numpy as np
 
 from silx.gui import qt, icons
 from scipy.interpolate import interp1d
+from scipy import ndimage
 from functools import partial
 
 import sys; sys.path.append('..')  # analysis:ignore
@@ -13,6 +14,13 @@ from parseq.core import singletons as csi
 from parseq.gui.dataRebin import DataRebinWidget
 from parseq.gui.roi import AutoRangeWidget, SplitRangeWidget, RoiWidget
 import parseq.gui.gcommons as gco
+try:
+    from parseq.gui.glitches import GlitchPanel, clearGlitches, \
+        replotGlitches, replotGlitchesConverted
+except ImportError as e:
+    print(e)
+    print('Upgrade ParSeq from GitHub to have glitch marks.')
+import parseq.utils.glitch as ug
 
 # from parseq.core import commons as cco
 from parseq.gui.propWidget import PropWidget
@@ -133,6 +141,56 @@ class RangeWidgetFTWidthAndMin(SplitRangeWidget):
                 self.roi.setPosition((rmin, rmax))
 
         return amin, amax
+
+
+class CurWidget(PropWidget):
+    def __init__(self, parent=None, node=None):
+        super().__init__(parent, node)
+        layout = qt.QVBoxLayout()
+        self.glitchPanel = GlitchPanel(self)
+        self.glitchPanel.peakSettings = dict(
+            sign=-1, prominence=0.3, width=0, rel_height=0.75)
+        self.glitchPanel.propCleared.connect(self.clearGlitches)
+        self.glitchPanel.propChanged.connect(self.updateGlitches)
+        label = qt.QLabel('<i>These glitch regions are also'
+                          '<br>visible in µd and χ(k) nodes</i>')
+        self.glitchPanel.layout().addWidget(label, 3, 0)
+
+        layout.addWidget(self.glitchPanel)
+        layout.addStretch()
+        self.setLayout(layout)
+
+    def clearGlitches(self):
+        for plot in [self.node.widget.plot, csi.nodes[u'µd'].widget.plot,
+                     csi.nodes[u'χ(k)'].widget.plot]:
+            clearGlitches(plot)
+
+    def updateGlitches(self, peakSettings):
+        if len(csi.selectedItems) == 0:
+            return
+        data = csi.selectedItems[0]
+        peaks, props = ug.calc_glitches(peakSettings, data.eraw, data.i0)
+        plot = self.node.widget.plot
+        replotGlitches(plot, data.eraw, props)
+
+        try:  # plotMu may not yet exist
+            plotMu = csi.nodes[u'µd'].widget.plot
+            replotGlitches(plotMu, data.eraw, props)
+        except Exception:
+            pass
+
+        try:  # plotChi may not yet exist
+            plotChi = csi.nodes[u'χ(k)'].widget.plot
+            esp = ndimage.spline_filter(data.eraw)
+            eleft = ndimage.map_coordinates(
+                esp, [props["left_ips"]], order=1, prefilter=True)
+            props["left_x"] = xtr.MakeChi.e_to_k(data, eleft)
+            eright = ndimage.map_coordinates(
+                esp, [props["right_ips"]], order=1, prefilter=True)
+            props["right_x"] = xtr.MakeChi.e_to_k(data, eright)
+            replotGlitchesConverted(plotChi, props)
+        except Exception:
+            pass
 
 
 class HERFDWidget(PropWidget):

@@ -680,6 +680,11 @@ class MakeChi(ctr.Transform):
         return muX/jump*ICalib + data.pre_edge  # normalize it back to If
 
     @classmethod
+    def e_to_k(cls, data, e):
+        sign = np.sign(e - data.e0)
+        return sign*(np.abs(e - data.e0)*eV2revA)**0.5
+
+    @classmethod
     @logger(minLevel=20, attrs=[(0, 'name')])
     def get_chi(cls, e, e0, mu, mu0, pre_edge, k, kw):
         wherek = e >= e0
