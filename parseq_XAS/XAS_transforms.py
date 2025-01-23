@@ -10,7 +10,7 @@ if not hasattr(np, 'trapezoid'):
 from numpy.polynomial import Polynomial as P
 
 from functools import partial
-from scipy import optimize
+from scipy.optimize import curve_fit, root
 from scipy.interpolate import CubicSpline, LSQUnivariateSpline, interp1d
 # from scipy.interpolate import BSpline
 try:
@@ -172,7 +172,6 @@ class MakeChi(ctr.Transform):
     @logger(minLevel=20, attrs=[(0, 'name')])
     def get_e0(cls, data):
         dtparams = data.transformParams
-
         ge = np.gradient(data.e)
         good = ge > 0
         gmu = np.gradient(data.mu)
@@ -525,7 +524,7 @@ class MakeChi(ctr.Transform):
                 p0y = np.array(yknots[cls.firstKnot:nvKnots+cls.firstKnot])
                 # dp = (funFit.max() - funFit.min())
                 boundsy = (p0y-abs(p0y)*10, p0y+abs(p0y)*10)
-                popt = optimize.curve_fit(partial(
+                popt = curve_fit(partial(
                     cls.mu0_spline_fit, eknots=eknots, yknots=yknots,
                     e=data.e, e0=data.e0, mu0prior=data.mu0prior,
                     mu=data.mu, pre_edge=data.pre_edge, k=data.k,
@@ -672,11 +671,21 @@ class MakeChi(ctr.Transform):
             corrC = ICalib * (sumSigma2c + sumSigma2f*corrG) / jump / expFact
 
             guess = 2 * mubf
-            root = optimize.root(fToSolve, guess, method='krylov')
-            if root.success:
-                muX = root.x
+            # calc_self_abs() has taken:
+            # answ = root(fToSolve, guess, method='hybr')  # 3.178245s
+            # answ = root(fToSolve, guess, method='lm')  # 9.654587s
+            # answ = root(fToSolve, guess, method='broyden1')  # 0.052743s
+            # answ = root(fToSolve, guess, method='broyden2')  # 0.048696s
+            # answ = root(fToSolve, guess, method='anderson')  # 0.060855s
+            # answ = root(fToSolve, guess, method='linearmixing')  # 0.058723s
+            # answ = root(fToSolve, guess, method='diagbroyden')  # 0.058723s
+            answ = root(fToSolve, guess, method='excitingmixing')  # 0.040009s
+            # answ = root(fToSolve, guess, method='krylov')  # fails
+            # answ = root(fToSolve, guess, method='df-sane')  # fails
+            if answ.success:
+                muX = answ.x
             else:
-                raise ValueError(root.message)
+                raise ValueError(answ.message)
         return muX/jump*ICalib + data.pre_edge  # normalize it back to If
 
     @classmethod
@@ -710,7 +719,6 @@ class MakeChi(ctr.Transform):
         ft = np.fft.rfft(chi, n=MakeFT.nfft) * dk/2
         # res = np.concatenate((ft.real[wherer]**2, ft.imag[wherer]**2))
         res = np.abs(ft[wherer])**4
-        # print('RRRR', alias, res.sum())
         return res
 
 

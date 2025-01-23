@@ -37,7 +37,7 @@ class RangeWidgetE0(AutoRangeWidget):
         if len(csi.selectedItems) == 0:
             return
         data = csi.selectedItems[0]
-        if not hasattr(data, 'e'):
+        if not hasattr(data, 'e') or len(data.e) == 0:
             return
         dE = data.e[-1] - data.e[0]
         if direction == 1:  # from vidget values to roi limits
@@ -169,6 +169,8 @@ class CurWidget(PropWidget):
         if len(csi.selectedItems) == 0:
             return
         data = csi.selectedItems[0]
+        if len(data.eraw) == 0:
+            return
         peaks, props = ug.calc_glitches(peakSettings, data.eraw, data.i0)
         plot = self.node.widget.plot
         replotGlitches(plot, data.eraw, props)
