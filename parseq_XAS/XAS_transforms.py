@@ -85,7 +85,7 @@ class MakeHERFD(ctr.Transform):
     inArrays = ['i0', 'xes2D', 'eraw', 'eref']
     outArrays = ['muraw']
     defaultParams = dict(
-        cutoffNeeded=True, cutoff=2000, cutoffMaxBelow=0,
+        cutoffNeeded=True, cutoff=20000, cutoffMaxBelow=0,
         )
 
     # defaultParams['roi'] = dict(
@@ -458,7 +458,10 @@ class MakeChi(ctr.Transform):
             # build a linear rise at the edge:
             ledge = (data.e-data.e[ie0-2]) / (data.e[ie0+2]-data.e[ie0-2]) *\
                 (data.mu[ie0+2]-data.mu[ie0-2]) + data.mu[ie0-2]
-            icorner = np.argwhere(ledge > data.post_edge).flatten()[0]
+            try:
+                icorner = np.argwhere(ledge > data.post_edge).flatten()[0]
+            except IndexError:
+                return
             data.mu0prior[ie0:icorner] = ledge[ie0:icorner]
         data.mu0prior[icorner:] = data.post_edge[icorner:]
         if dtparams['mu0PriorVScale'] != 1:
