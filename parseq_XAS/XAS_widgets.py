@@ -1,4 +1,12 @@
 # -*- coding: utf-8 -*-
+u"""
+GUI
+---
+
+work in progress
+
+"""
+
 __author__ = "Konstantin Klementiev"
 __date__ = "28 Nov 2023"
 
