@@ -1,6 +1,6 @@
 ﻿# -*- coding: utf-8 -*-
 __author__ = "Konstantin Klementiev"
-__date__ = "21 Nov 2023"
+__date__ = "13 Feb 2025"
 
 import sys; sys.path.append('..')  # analysis:ignore
 from collections import OrderedDict
@@ -12,6 +12,7 @@ from parseq.core import nodes as cno
 class NodeIT(cno.Node):
     name = 'currents Tr'
     description = "transmission signals"
+    icon = "doc/_images/icon-xas-cur-tr.png"
     arrays = OrderedDict()
     arrays['eraw'] = dict(qLabel='E', qUnit='eV', role='x', plotLabel=r'$E$')
     arrays['i0'] = dict(
@@ -26,6 +27,7 @@ class NodeIT(cno.Node):
 class NodeIF(cno.Node):
     name = 'counts PFY'
     description = "partial fluorescence signals"
+    icon = "doc/_images/icon-xas-cur-FY.png"
     arrays = OrderedDict()
     arrays['eraw'] = dict(qLabel='E', qUnit='eV', role='x', plotLabel=r'$E$')
     arrays['i0'] = dict(
@@ -40,6 +42,7 @@ class NodeIF(cno.Node):
 class NodeIE(cno.Node):
     name = 'currents TEY/TFY'
     description = "total electron yield or total fluorescence signals"
+    icon = "doc/_images/icon-xas-cur-TFY.png"
     arrays = OrderedDict()
     arrays['eraw'] = dict(qLabel='E', qUnit='eV', role='x', plotLabel=r'$E$')
     arrays['i0'] = dict(
@@ -55,6 +58,7 @@ class NodeIE(cno.Node):
 class NodeIXES(cno.Node):
     name = '2D XES'
     description = "HERFD maps: meridional pixel as x and incident energy as y"
+    icon = "doc/_images/icon-xas-cur-HERFD.png"
     arrays = OrderedDict()
     arrays['eraw'] = dict(qLabel='E', qUnit='eV', role='y', plotLabel=r'$E$')
     arrays['i0'] = dict(  # not plotted, therefore role='1D'
@@ -68,6 +72,7 @@ class NodeIXES(cno.Node):
 class NodeMu(cno.Node):
     name = u'µd'
     description = "µd (optical thickness)"
+    icon = "doc/_images/icon-xas-mu.png"
     arrays = OrderedDict()
     arrays['e'] = dict(qLabel='E', qUnit='eV', role='x', plotLabel=r'$E$',
                        raw='eraw')
@@ -80,6 +85,7 @@ class NodeMu(cno.Node):
 class NodeChi(cno.Node):
     name = u'χ(k)'
     description = "EXAFS function in k-space"
+    icon = "doc/_images/icon-xas-chi.png"
     arrays = OrderedDict()
     arrays['k'] = dict(
         qUnit=u'Å\u207B\u00B9', role='x', plotLabel=r'$k$',
@@ -92,6 +98,7 @@ class NodeChi(cno.Node):
 class NodeFT(cno.Node):
     name = 'FT, χ(r)'
     description = "EXAFS function in r-space"
+    icon = "doc/_images/icon-xas-ft.png"
     arrays = OrderedDict()
     arrays['r'] = dict(qUnit=u'Å', role='x', plotLabel=r'$r$')
     arrays['ft'] = dict(
@@ -103,6 +110,7 @@ class NodeFT(cno.Node):
 class NodeBFT(cno.Node):
     name = 'BFT, χ\u0303(k)'
     description = "FT filtered EXAFS function in k-space"
+    icon = "doc/_images/icon-xas-bft.png"
     arrays = OrderedDict()
     arrays['bftk'] = dict(
         qUnit=u'Å\u207B\u00B9', role='x', plotLabel=r'$k$',

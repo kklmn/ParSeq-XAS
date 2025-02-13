@@ -3,8 +3,29 @@ u"""
 Data transformations
 --------------------
 
-work in progress
+Make absorption coefficient
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+In all cases, the obtained absorption coefficient is unnormalized, i.e. defined
+down to an unknown multiplicative constant.
+
+.. automodule:: parseq_XAS.XAS_transforms.MakeTrMu
+.. automodule:: parseq_XAS.XAS_transforms.MakeFYMu
+
+Make EXAFS function χ(k)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: parseq_XAS.XAS_transforms.MakeChi
+
+Make Fourier-transformed EXAFS function χ(r)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: parseq_XAS.XAS_transforms.MakeFT
+
+Make back-Fourier-transformed EXAFS function χ\u0303(k)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: parseq_XAS.XAS_transforms.MakeBFT
 
 """
 
@@ -44,6 +65,10 @@ cpus = 'half'  # can be 'all' or 'half' or a number (int)
 
 
 class MakeTrMu(ctr.Transform):
+    """
+    The transmission absorption coefficient is calculated as
+    :math:`µ(E)_{tr}=log(I_0/I_{tr})`.
+    """
     name = 'make tr mu'
     nThreads = 1
     inArrays = ['i0', 'itr', 'eraw', 'eref']
@@ -59,6 +84,12 @@ class MakeTrMu(ctr.Transform):
 
 
 class MakeFYMu(ctr.Transform):
+    """
+    The other versions of :math:`µ(E)` are obtained by dividing the measured
+    signal (fluorescence or electron yield) by :math:`I_0`. In addition, the
+    result is multiplied by :math:`I_0.max()` in order to keep the physical
+    meaning and units of the original signal.
+    """
     name = 'make PFY mu'
     nThreads = 1
     inArrays = ['i0', 'ify', 'eraw', 'eref']
@@ -137,6 +168,9 @@ class MakeHERFD(ctr.Transform):
 
 
 class MakeChi(ctr.Transform):
+    """
+    Bla
+    """
     name = 'make chi'
     defaultParams = dict(
         e0Smooth=True, e0SmoothN=6, e0Where=[0.02, 0.7], e0Method=2,
@@ -735,6 +769,9 @@ class MakeChi(ctr.Transform):
 
 
 class MakeFT(ctr.Transform):
+    """
+    Bla
+    """
     name = 'make FT'
     defaultParams = dict(
         ftWindowKind='box', ftWindowProp=[1.5, 0.05],
@@ -781,6 +818,9 @@ class MakeFT(ctr.Transform):
 
 
 class MakeBFT(ctr.Transform):
+    """
+    Bla
+    """
     name = 'make BFT'
     defaultParams = dict(
         bftWindowKind='box', bftWindowRange=[0.5, 2.5],
