@@ -21,7 +21,7 @@ __synopsis__ = "A pipeline for data processing of XAS spectra"
 
 csi.pipelineName = 'XAS'
 csi.appPath = osp.dirname(osp.abspath(__file__))
-csi.appIconPath = osp.join(csi.appPath, 'doc', '_images', 'XAS_icon.ico')
+csi.appIconPath = osp.join(csi.appPath, 'doc', '_images', 'parseq-XAS.ico')
 csi.appBigIconPath = osp.join(
     csi.appPath, 'doc', '_images', 'parseq-XAS_big.png')
 csi.appSynopsis = __synopsis__

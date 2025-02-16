@@ -1,6 +1,43 @@
 ﻿# -*- coding: utf-8 -*-
+u"""
+Data nodes
+----------
+
+Experimental signals
+~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: NodeIT
+
+.. autoclass:: NodeIF
+
+.. autoclass:: NodeIE
+
+.. autoclass:: NodeIXES
+
+Absorption coefficient µ(E)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: NodeMu
+
+EXAFS function χ(k)
+~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: NodeChi
+
+Fourier-transformed EXAFS function χ(r)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: NodeFT
+
+Fourier-filtered EXAFS function χ\u0303(k)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: NodeBFT
+
+"""
+
 __author__ = "Konstantin Klementiev"
-__date__ = "13 Feb 2025"
+__date__ = "15 Feb 2025"
 
 import sys; sys.path.append('..')  # analysis:ignore
 from collections import OrderedDict
@@ -10,9 +47,13 @@ from parseq.core import nodes as cno
 
 
 class NodeIT(cno.Node):
+    """
+    Work in progress
+    """
     name = 'currents Tr'
     description = "transmission signals"
     icon = "doc/_images/icon-xas-cur-tr.png"
+    ref = "nodes.html#experimental-signals"
     arrays = OrderedDict()
     arrays['eraw'] = dict(qLabel='E', qUnit='eV', role='x', plotLabel=r'$E$')
     arrays['i0'] = dict(
@@ -25,9 +66,13 @@ class NodeIT(cno.Node):
 
 
 class NodeIF(cno.Node):
+    """
+    Work in progress
+    """
     name = 'counts PFY'
     description = "partial fluorescence signals"
     icon = "doc/_images/icon-xas-cur-FY.png"
+    ref = "nodes.html#experimental-signals"
     arrays = OrderedDict()
     arrays['eraw'] = dict(qLabel='E', qUnit='eV', role='x', plotLabel=r'$E$')
     arrays['i0'] = dict(
@@ -40,9 +85,13 @@ class NodeIF(cno.Node):
 
 
 class NodeIE(cno.Node):
+    """
+    Work in progress
+    """
     name = 'currents TEY/TFY'
     description = "total electron yield or total fluorescence signals"
     icon = "doc/_images/icon-xas-cur-TFY.png"
+    ref = "nodes.html#experimental-signals"
     arrays = OrderedDict()
     arrays['eraw'] = dict(qLabel='E', qUnit='eV', role='x', plotLabel=r'$E$')
     arrays['i0'] = dict(
@@ -56,9 +105,13 @@ class NodeIE(cno.Node):
 
 
 class NodeIXES(cno.Node):
+    """
+    Work in progress
+    """
     name = '2D XES'
     description = "HERFD maps: meridional pixel as x and incident energy as y"
     icon = "doc/_images/icon-xas-cur-HERFD.png"
+    ref = "nodes.html#experimental-signals"
     arrays = OrderedDict()
     arrays['eraw'] = dict(qLabel='E', qUnit='eV', role='y', plotLabel=r'$E$')
     arrays['i0'] = dict(  # not plotted, therefore role='1D'
@@ -70,9 +123,13 @@ class NodeIXES(cno.Node):
 
 
 class NodeMu(cno.Node):
+    """
+    Work in progress
+    """
     name = u'µd'
     description = "µd (optical thickness)"
     icon = "doc/_images/icon-xas-mu.png"
+    ref = "nodes.html#absorption-coefficient-e"
     arrays = OrderedDict()
     arrays['e'] = dict(qLabel='E', qUnit='eV', role='x', plotLabel=r'$E$',
                        raw='eraw')
@@ -83,9 +140,13 @@ class NodeMu(cno.Node):
 
 
 class NodeChi(cno.Node):
+    """
+    Work in progress
+    """
     name = u'χ(k)'
     description = "EXAFS function in k-space"
     icon = "doc/_images/icon-xas-chi.png"
+    ref = "nodes.html#exafs-function-k"
     arrays = OrderedDict()
     arrays['k'] = dict(
         qUnit=u'Å\u207B\u00B9', role='x', plotLabel=r'$k$',
@@ -96,9 +157,13 @@ class NodeChi(cno.Node):
 
 
 class NodeFT(cno.Node):
+    """
+    Work in progress
+    """
     name = 'FT, χ(r)'
     description = "EXAFS function in r-space"
     icon = "doc/_images/icon-xas-ft.png"
+    ref = "nodes.html#fourier-transformed-exafs-function-r"
     arrays = OrderedDict()
     arrays['r'] = dict(qUnit=u'Å', role='x', plotLabel=r'$r$')
     arrays['ft'] = dict(
@@ -108,9 +173,13 @@ class NodeFT(cno.Node):
 
 
 class NodeBFT(cno.Node):
+    """
+    Work in progress
+    """
     name = 'BFT, χ\u0303(k)'
     description = "FT filtered EXAFS function in k-space"
     icon = "doc/_images/icon-xas-bft.png"
+    ref = "nodes.html#fourier-filtered-exafs-function-k"
     arrays = OrderedDict()
     arrays['bftk'] = dict(
         qUnit=u'Å\u207B\u00B9', role='x', plotLabel=r'$k$',

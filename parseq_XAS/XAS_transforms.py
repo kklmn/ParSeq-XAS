@@ -9,23 +9,26 @@ Make absorption coefficient
 In all cases, the obtained absorption coefficient is unnormalized, i.e. defined
 down to an unknown multiplicative constant.
 
-.. automodule:: parseq_XAS.XAS_transforms.MakeTrMu
-.. automodule:: parseq_XAS.XAS_transforms.MakeFYMu
+.. autoclass:: MakeTrMu
+
+.. autoclass:: MakeFYMu
+
+.. autoclass:: MakeHERFD
 
 Make EXAFS function χ(k)
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: parseq_XAS.XAS_transforms.MakeChi
+.. autoclass:: MakeChi
 
 Make Fourier-transformed EXAFS function χ(r)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: parseq_XAS.XAS_transforms.MakeFT
+.. autoclass:: MakeFT
 
 Make back-Fourier-transformed EXAFS function χ\u0303(k)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: parseq_XAS.XAS_transforms.MakeBFT
+.. autoclass:: MakeBFT
 
 """
 
@@ -70,6 +73,7 @@ class MakeTrMu(ctr.Transform):
     :math:`µ(E)_{tr}=log(I_0/I_{tr})`.
     """
     name = 'make tr mu'
+    ref = "transforms.html#make-absorption-coefficient"
     nThreads = 1
     inArrays = ['i0', 'itr', 'eraw', 'eref']
     outArrays = ['muraw']
@@ -91,6 +95,7 @@ class MakeFYMu(ctr.Transform):
     meaning and units of the original signal.
     """
     name = 'make PFY mu'
+    ref = "transforms.html#make-absorption-coefficient"
     nThreads = 1
     inArrays = ['i0', 'ify', 'eraw', 'eref']
     outArrays = ['muraw']
@@ -106,6 +111,7 @@ class MakeFYMu(ctr.Transform):
 
 class MakeTEYMu(ctr.Transform):
     name = 'make TEY mu'
+    ref = "transforms.html#make-absorption-coefficient"
     nThreads = 1
     inArrays = ['i0', 'iey', 'eraw', 'eref']
     outArrays = ['muraw']
@@ -120,7 +126,11 @@ class MakeTEYMu(ctr.Transform):
 
 
 class MakeHERFD(ctr.Transform):
+    """
+    Work in progress
+    """
     name = 'make HERFD'
+    ref = "transforms.html#make-absorption-coefficient"
     nThreads = cpus
     inArrays = ['i0', 'xes2D', 'eraw', 'eref']
     outArrays = ['muraw']
@@ -169,9 +179,10 @@ class MakeHERFD(ctr.Transform):
 
 class MakeChi(ctr.Transform):
     """
-    Bla
+    Work in progress
     """
     name = 'make chi'
+    ref = "transforms.html#make-exafs-function-k"
     defaultParams = dict(
         e0Smooth=True, e0SmoothN=6, e0Where=[0.02, 0.7], e0Method=2,
         e0=None, preedgeWhere=[0.03, 0.53], preedgeExps=[-3, 0],
@@ -770,9 +781,10 @@ class MakeChi(ctr.Transform):
 
 class MakeFT(ctr.Transform):
     """
-    Bla
+    Work in progress
     """
     name = 'make FT'
+    ref = "transforms.html#make-fourier-transformed-exafs-function-r"
     defaultParams = dict(
         ftWindowKind='box', ftWindowProp=[1.5, 0.05],
         rmax=8.2, forceFT0=True)
@@ -819,9 +831,10 @@ class MakeFT(ctr.Transform):
 
 class MakeBFT(ctr.Transform):
     """
-    Bla
+    Work in progress
     """
     name = 'make BFT'
+    ref = "transforms.html#make-back-fourier-transformed-exafs-function-k"
     defaultParams = dict(
         bftWindowKind='box', bftWindowRange=[0.5, 2.5],
         bftWindowWidth=0.5)
