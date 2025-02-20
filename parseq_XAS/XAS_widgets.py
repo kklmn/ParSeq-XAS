@@ -1546,8 +1546,6 @@ class FTWidget(PropWidget):
     plotParams = {
         'bftwindow': {'linewidth': 0.75, 'linestyle': '-',
                       'color': '#00000044'},
-        'ft.re': {'linewidth': 0.7, 'linestyle': '-.'},
-        'ft.im': {'linewidth': 0.7, 'linestyle': ':'},
     }
 
     def __init__(self, parent=None, node=None):
@@ -1648,7 +1646,24 @@ class FTWidget(PropWidget):
         self.properties[prop] = value
         if self.bftWindowRange.roi is not None:
             self.bftWindowRange.roi.setVisible(value)
+        if prop == 'show_Re' and len(csi.selectedItems) > 0:
+            for item in csi.selectedItems:
+                plotProps = item.plotProps[self.node.name]['ftr']
+                plotProps['hidden'] = not value
+        if prop == 'show_Im' and len(csi.selectedItems) > 0:
+            for item in csi.selectedItems:
+                plotProps = item.plotProps[self.node.name]['fti']
+                plotProps['hidden'] = not value
         csi.model.needReplot.emit(False, True, 'showSlot')
+
+    def extraSetUIFromData(self):
+        if len(csi.selectedItems) == 0:
+            return
+        for item in csi.selectedItems:
+            plotProps = item.plotProps[self.node.name]['ftr']
+            plotProps['hidden'] = not self.properties['show_Re']
+            plotProps = item.plotProps[self.node.name]['fti']
+            plotProps['hidden'] = not self.properties['show_Im']
 
     def updateBFTwindow(self, ind):
         self.bftWindowRange.setVisible(ind > 0)
@@ -1702,41 +1717,41 @@ class FTWidget(PropWidget):
             else:
                 plot.remove(legend, kind='curve')
 
-            legend = '{0}.ft.re'.format(data.alias)
-            if self.properties['show_Re']:
-                if self.properties['show_negative']:
-                    y = data.ftr
-                else:
-                    y = np.array(data.ftr)
-                    y[y < 0] = 0
-                curve = plot.getCurve(legend)
-                if curve is None:
-                    plot.addCurve(
-                        data.r, y, **self.plotParams['ft.re'],
-                        color=data.color, z=z, legend=legend, resetzoom=False)
-                else:
-                    curve.setData(data.r, y)
-                    curve.setZValue(z)
-            else:
-                plot.remove(legend, kind='curve')
+            # legend = '{0}.ft.re'.format(data.alias)
+            # if self.properties['show_Re']:
+            #     if self.properties['show_negative']:
+            #         y = data.ftr
+            #     else:
+            #         y = np.array(data.ftr)
+            #         y[y < 0] = 0
+            #     curve = plot.getCurve(legend)
+            #     if curve is None:
+            #         plot.addCurve(
+            #             data.r, y, **self.plotParams['ft.re'],
+            #             color=data.color, z=z, legend=legend, resetzoom=False)
+            #     else:
+            #         curve.setData(data.r, y)
+            #         curve.setZValue(z)
+            # else:
+            #     plot.remove(legend, kind='curve')
 
-            legend = '{0}.ft.im'.format(data.alias)
-            if self.properties['show_Im']:
-                if self.properties['show_negative']:
-                    y = data.fti
-                else:
-                    y = np.array(data.fti)
-                    y[y < 0] = 0
-                curve = plot.getCurve(legend)
-                if curve is None:
-                    plot.addCurve(
-                        data.r, y, **self.plotParams['ft.im'],
-                        color=data.color, z=z, legend=legend, resetzoom=False)
-                else:
-                    curve.setData(data.r, y)
-                    curve.setZValue(z)
-            else:
-                plot.remove(legend, kind='curve')
+            # legend = '{0}.ft.im'.format(data.alias)
+            # if self.properties['show_Im']:
+            #     if self.properties['show_negative']:
+            #         y = data.fti
+            #     else:
+            #         y = np.array(data.fti)
+            #         y[y < 0] = 0
+            #     curve = plot.getCurve(legend)
+            #     if curve is None:
+            #         plot.addCurve(
+            #             data.r, y, **self.plotParams['ft.im'],
+            #             color=data.color, z=z, legend=legend, resetzoom=False)
+            #     else:
+            #         curve.setData(data.r, y)
+            #         curve.setZValue(z)
+            # else:
+            #     plot.remove(legend, kind='curve')
 
         data = csi.selectedItems[0]
         dtparams = data.transformParams

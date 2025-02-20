@@ -856,8 +856,18 @@ class MakeBFT(ctr.Transform):
             data.bftwindow = np.ones_like(data.r)
         dk = dtparams['dk']
         bft = np.fft.irfft((data.ftr + 1j*data.fti)*data.bftwindow, n=cls.nfft)
-        ftwindow = np.array(data.ftwindow)
-        ftwindow[ftwindow <= 0] = 1.
+        if hasattr(data, 'ftwindow'):  # may not have it if loaded from file
+            ftwindow = np.array(data.ftwindow)
+            ftwindow[ftwindow <= 0] = 1.
+        else:
+            ftwindow = 1
+
+        if not hasattr(data, 'k'):  # may not have it if loaded from file
+            kmin, kmax = dtparams['krange']
+            kmaxE = dtparams['datakmax']
+            kmax = min(kmax, kmaxE) if kmax else kmaxE
+            dk = dtparams['dk']
+            data.k = np.arange(kmin, kmax + dk*0.5, dk)
         bftr = bft.real[:len(data.k)] * 2 / (dk * ftwindow)
         bftr -= np.trapezoid(bftr, x=data.k) / np.trapezoid(
             np.ones_like(bftr), x=data.k)
