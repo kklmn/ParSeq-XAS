@@ -21,8 +21,8 @@ def make_pipeline(withGUI=False):
 
     # instantiate transformation nodes
     nodeIT = xno.NodeIT(xwi.CurWidget if withGUI else None)
-    nodeIF = xno.NodeIF()
-    nodeIE = xno.NodeIE()
+    nodeIF = xno.NodeIF(xwi.CurWidget if withGUI else None)
+    nodeIE = xno.NodeIE(xwi.CurWidget if withGUI else None)
     nodeIXES = xno.NodeIXES(xwi.HERFDWidget if withGUI else None)
     nodeMu = xno.NodeMu(
         [xwi.MuWidget, xwi.MuSelfAbsorptionCorrection] if withGUI else None)
@@ -40,8 +40,8 @@ def make_pipeline(withGUI=False):
     xtr.MakeBFT(nodeFT, nodeBFT)
 
     # instantiate fits
-    xfi.LCF(nodeMu, LCFWidget if withGUI else None)
-    xfi.FunctionFit(nodeMu, FunctionFitWidget if withGUI else None)
+    xfi.LCF_mu(nodeMu, LCFWidget if withGUI else None)
+    xfi.FunctionFit_mu(nodeMu, FunctionFitWidget if withGUI else None)
     xfi.EXAFSFit([nodeBFT, nodeFT], EXAFSFitWidget if withGUI else None)
 
     # initiate data tree

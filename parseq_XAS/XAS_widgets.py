@@ -3,7 +3,14 @@ u"""
 GUI
 ---
 
-work in progress
+Experimental 1D signals
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The first three transformation nodes have the same transformation widget with
+the only function of highlighting monochromator glitches in the present
+transformation node, the µd(E) node and the χ(k) node.
+
+.. autoclass:: CurWidget
 
 """
 
@@ -152,6 +159,53 @@ class RangeWidgetFTWidthAndMin(SplitRangeWidget):
 
 
 class CurWidget(PropWidget):
+    u"""
+    This widget has a single tool -- a panel for highlighting monochromator
+    glitches in several transformation nodes. This tool is not a part of any
+    transformation and only serves for visual diagnostics.
+
+    The glitch detection utilizes `scipy.signal.find_peaks()`. :red:`Read the
+    tooltips` of the two involved parameters.
+
+    .. note::
+       The glitch detection works only for one data object -- the first
+       one among possibly several selected.
+
+    .. note::
+       The glitch detection is implemented as static, i.e. it does not change
+       upon changing the data selection. The change is always manual and is
+       requested by unchecking the checkbox "mark glitches" and checking it
+       again.
+
+    .. tabs::
+
+       .. tab:: Currents
+          +---------+
+          |  |cur|  |
+          +---------+
+
+       .. tab:: µd(E)
+          +---------+
+          |  |mue|  |
+          +---------+
+
+       .. tab:: χ(k)
+          +---------+
+          |  |chi|  |
+          +---------+
+
+    .. |cur| imagezoom:: _images/glitch-0-cur.png
+       :scale: 75%
+       :loc: lower-left-corner
+    .. |mue| imagezoom:: _images/glitch-1-mu.png
+       :scale: 75%
+       :loc: lower-left-corner
+    .. |chi| imagezoom:: _images/glitch-2-chi.png
+       :scale: 75%
+       :loc: lower-left-corner
+
+    """
+
     def __init__(self, parent=None, node=None):
         super().__init__(parent, node)
         layout = qt.QVBoxLayout()
@@ -161,7 +215,7 @@ class CurWidget(PropWidget):
         self.glitchPanel.propCleared.connect(self.clearGlitches)
         self.glitchPanel.propChanged.connect(self.updateGlitches)
         label = qt.QLabel('<i>These glitch regions are also'
-                          '<br>visible in µd and χ(k) nodes</i>')
+                          '<br>visible in µd(E) and χ(k) nodes</i>')
         self.glitchPanel.layout().addWidget(label, 3, 0)
 
         layout.addWidget(self.glitchPanel)
@@ -531,7 +585,7 @@ class MuWidget(PropWidget):
         layoutPo.addWidget(self.postedgeRangeWidget)
 
         self.postedgeStateButtons = gco.StateButtons(
-            self, 'exponents', (-2, -1, 0, 1, 2), default=0)
+            self, 'exponents', (-4, -3, 0, 1, 2), default=0)
         self.registerPropWidget(
             self.postedgeStateButtons, 'post-edge exponents', 'postedgeExps')
         layoutPo.addWidget(self.postedgeStateButtons)
@@ -1770,3 +1824,13 @@ class FTWidget(PropWidget):
             skf = u'¹'
         plot.plotLeftYLabel = u'FT[χ'+skw+u'] (Å'+u"\u207B"+skf+u')'
         plot.setGraphYLabel(label=plot.plotLeftYLabel, axis='left')
+
+    def extraPlotActionAfterTransform(self, props):
+        if ChiWidget.properties['show_bft']:
+            prevNodeInd = list(csi.nodes.keys()).index(self.node.name) - 1
+            prevNodeName = list(csi.nodes.keys())[prevNodeInd]
+            prevNode = csi.nodes[prevNodeName]
+            if any(prop in props for prop in
+                   ['rmax', 'forceFT0', 'bftWindowKind', 'bftWindowRange',
+                    'bftWindowWidth']):
+                prevNode.widget.transformWidgets[0].extraPlot()

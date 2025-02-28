@@ -155,7 +155,8 @@ class NodeIXES(cno.Node):
       | 'eraw': the original energy axis in eV; it will later transform to 'e',
       | 'i0': the I₀ signal -- instensity upstream of the sample,
       | 'xes2D': the 2D intensity array in (scan axis (DCM energy) vs
-                 meridional detector pixel) coordinates.
+                 meridional detector pixel) coordinates. The number of rows of
+                 'xes2D' must be equal to the length of 'eraw' and 'XES2D'.
 
     An optional array 'eref' can be given to be used for energy calibration.
     If used, it should contain an absorption spectrum of a foil.
@@ -173,6 +174,7 @@ class NodeIXES(cno.Node):
         qLabel='XES2D', qUnit='counts', role='2D',
         plotLabel=['tangential pixel', 'eraw'])
     arrays['eref'] = dict(role='optional', qLabel='Eref')
+    checkShapes = ['eraw', 'i0', 'xes2D[0]']
 
 
 class NodeMu(cno.Node):

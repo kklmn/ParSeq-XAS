@@ -10,9 +10,8 @@ In all cases, the obtained absorption coefficient is unnormalized, i.e. defined
 down to an unknown multiplicative constant.
 
 .. autoclass:: MakeTrMu
-
 .. autoclass:: MakeFYMu
-
+.. autoclass:: MakeTEYMu
 .. autoclass:: MakeHERFD
 
 Make EXAFS function χ(k)
@@ -44,7 +43,8 @@ from numpy.polynomial import Polynomial as P
 
 from functools import partial
 from scipy.optimize import curve_fit, root
-from scipy.interpolate import CubicSpline, LSQUnivariateSpline, interp1d
+from scipy.interpolate import (CubicSpline, LSQUnivariateSpline, interp1d,
+                               make_lsq_spline)
 # from scipy.interpolate import BSpline
 try:
     from scipy.interpolate import make_smoothing_spline
@@ -59,7 +59,7 @@ from parseq.core import transforms as ctr
 from parseq.core.logger import logger
 from parseq.utils import ft as uft
 from parseq.utils import math as uma
-from parseq.utils.constants import eV2revA
+from parseq.utils.constants import eV2revA  # 2m_e(eV)/(^h(eVs)c(A/s))^2
 
 from parseq.third_party import XAFSmass
 
@@ -68,10 +68,11 @@ cpus = 'half'  # can be 'all' or 'half' or a number (int)
 
 
 class MakeTrMu(ctr.Transform):
-    """
+    r"""
     The transmission absorption coefficient is calculated as
-    :math:`µ(E)_{tr}=log(I_0/I_{tr})`.
+    :math:`µ_{tr}(E)=\log(I_0/I_{tr})`.
     """
+
     name = 'make tr mu'
     ref = "transforms.html#make-absorption-coefficient"
     nThreads = 1
@@ -88,12 +89,6 @@ class MakeTrMu(ctr.Transform):
 
 
 class MakeFYMu(ctr.Transform):
-    """
-    The other versions of :math:`µ(E)` are obtained by dividing the measured
-    signal (fluorescence or electron yield) by :math:`I_0`. In addition, the
-    result is multiplied by :math:`I_0.max()` in order to keep the physical
-    meaning and units of the original signal.
-    """
     name = 'make PFY mu'
     ref = "transforms.html#make-absorption-coefficient"
     nThreads = 1
@@ -110,6 +105,13 @@ class MakeFYMu(ctr.Transform):
 
 
 class MakeTEYMu(ctr.Transform):
+    r"""
+    These versions of :math:`µ(E)` (in fluorescence or electron yield) are
+    obtained by dividing the measured signal by :math:`I_0`. In addition, the
+    result is multiplied by :math:`\max(I_0)` in order to keep the physical
+    meaning and units of the original signal.
+    """
+
     name = 'make TEY mu'
     ref = "transforms.html#make-absorption-coefficient"
     nThreads = 1
@@ -126,9 +128,14 @@ class MakeTEYMu(ctr.Transform):
 
 
 class MakeHERFD(ctr.Transform):
+    r"""
+    The 2D intensity array `xes2D` (the scan axis (DCM energy) vs meridional
+    detector pixel) is summed within a given vertical band ROI horizontally
+    (i.e. the columns are summed) to get a 1D count array. This array is
+    divided by :math:`I_0` and multiplied by :math:`\max(I_0)` to get the HERFD
+    absorption coefficient.
     """
-    Work in progress
-    """
+
     name = 'make HERFD'
     ref = "transforms.html#make-absorption-coefficient"
     nThreads = cpus
@@ -178,9 +185,177 @@ class MakeHERFD(ctr.Transform):
 
 
 class MakeChi(ctr.Transform):
+    r"""
+    This transformation is the largest by the number of code lines (but still
+    only ~600 Python lines) and by computation load. It comprises several
+    sub-steps explained below.
+
+    Edge position :math:`E_0`
+    ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    The absorption coefficient is differentiated and optionally smoothed.
+    :math:`E_0` is found within the search interval :param:`e0Where` (two
+    relative fractions) by one of the three methods selected by
+    :param:`e0Method`: (0) the simple derivative maximum, (1) the derivative
+    maximum of interpolating cubic spline, (2, default) the center of mass of
+    interpolating cubic spline.
+
+    Energy calibration
+    ~~~~~~~~~~~~~~~~~~
+
+    The energy axis can be calibrated to match the found :math:`E_0` to a
+    tabulated value. The calibration can be done by a Bragg angle offset
+    (default), a lattice parameter offset or as a constant energy offset
+    (:param:`eShiftKind` = 0, 1, 2). The shift can be applied by moving
+    :math:`E_0` to a target value (:param:`eCalibrationMethod` = 0) or applying
+    a given shift to :math:`E_0` (:param:`eCalibrationMethod` = 1). The latter
+    option is useful when copying a calibration shift of :math:`E_0` found for
+    a metal foil to other spectra from the same beam time measurements.
+
+    If a calibration foil was measured *simultaneously* with the sample, two
+    calibration scenarios are possible. (1) The two spectra, of the sample and
+    of the foil are loaded separately by modifying their format definitions.
+    The foil spectrum is calibrated and then its :math:`E_0` shift is copied to
+    the sample spectrum. (2) Only the sample spectrum is loaded and in the
+    :math:`E_0` determination the derivative of the reference foil spectrum is
+    used (:param:`useERefCurve` = True).
+
+    Data rebinning
+    ~~~~~~~~~~~~~~
+
+    If the energy scan was done in a continuous way with a constant slew rate,
+    the resulted spectrum is typically strongly over sampled. This means that
+    several experimental points fall into one :math:`dk` interval (the EXAFS
+    function will be defined on a constant :math:`dk` mesh, see below). Even
+    more, as the k-space and the E-space are quadratically related, the energy
+    intervals corresponding to :math:`dk` become linearly (with k) larger to
+    the end of the spectrum, so more and more experimental points fall into one
+    :math:`dk` interval. On converting from E-space to k-space, a kind of
+    interpolation will be used, which only uses the local interpolation
+    polynomial between the matching experimental points. A way of using *all*
+    experimental data, called *rebinning*, consists of summing the exerimental
+    points belonging to one :math:`dk` interval before doing the interpolation.
+    The user provides :param:`rebinRegions` dictionary that defines regions --
+    pre-edge, edge, post-edge and EXAFS -- by setting their borders
+    (`splitters`) and bin sizes (`deltas`). The defined bins are fed to
+    `numpy.histogram()` to perform the actual rebinning. The number of original
+    bins and the redefined bins per region are reported in
+    :param:`nbinOriginal` and :param:`binDistrNew`.
+
+    Pre-edge background
+    ~~~~~~~~~~~~~~~~~~~
+
+    The pre-edge background :math:`µ_b(E)` is constructed by polynomial
+    interpolation over the region specified by :param:`preedgeWhere`. The
+    polynomial law is given by :param:`preedgeExps`.
+
+    For absorption spectra measured in transmission mode, usually a Victoreen
+    polynomial :math:`aE^{-3}+bE^{-4}` or a modified Victoreen polynomial
+    :math:`aE^{-3}+b` is utilized, where the coefficients are found by the
+    least-squares fit from `numpy.polynomial.Polynomial` class.
+
+    For absorption spectra measured in fluorescence, background subtraction is
+    frequently not needed. More frequently a constant shift is sufficient
+    (with only power "0"). Sometimes the spectra exhibit a net growth with
+    energy, which can be approximated by a linear law (powers "0" and "1").
+
+    Self-absorption correction
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    See the description of self-absorption correction, including its history,
+    :ref:`here <sacorrection>`.
+
+    The correction is defined by a dictionary
+    :param:`selfAbsorptionCorrectionDict` that specifies the following keys:
+    :param:`corrChemFormula`, :param:`corrDataTable` -- one of ("Henke",
+    "BrCo", "Chantler", "Chantler total"), :param:`corrCalibEnergy` -- energy
+    at which the calibration constant :param:`C` is calculated,
+    :param:`corrFluoEnergy` -- the fluorescence line energy,
+    :param:`corrPhiDeg, corrThetaDeg, corrTauDeg` -- the observation angles
+    φ, θ and τ in degrees, :param:`corrFormula` -- 'thick' or another str,
+    and :param:`corrThickness` -- the edge jump for a 'thin' case.
+
+    If the specified material has no absorption edge within the spectrum range,
+    this is reported in :param:`selfAbsorptionCorrectionDict['corrJumpStr']`.
+    Otherwise, it contains a str of the tabulated edge jump.
+
+    Post-edge background and edge normalization
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    The post-edge background is needed for defining the edge normalization.
+
+    The post-edge background is constructed by polynomial interpolation over
+    the region specified by :param:`postedgeWhere`. The polynomial law is given
+    by :param:`postedgeExps`. The arguments for choosing the polynomial are the
+    same as for the pre-edge background.
+
+    The obtained edge height is reported in :param:`edgeJump`.
+
+    The post-edge background can also be used to construct a "flat" view of the
+    absorption coefficient, where the post-edge part is seen horizontal. This
+    can be useful for the linear combination fit and the function fit of µ(E).
+
+    Atomic-like absortion coefficient µ₀
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    The definition of EXAFS function (see below) includes µ₀ -- an artificial
+    absortion coefficient that the material would have without EXAFS wiggles,
+    i.e. when the central atom would be isolated without neighbours. The
+    absorption coefficient of such a single atom gas is most typically not
+    possible to measure, but also the electronic state of the atom in a gas
+    state would differ from that in a solid or liquid, so that µ₀ has to be
+    constructed artificially. µ₀ is believed to be a smooth function of energy
+    and therfore is usually constructed as a spline.
+
+    Two methods are offered for the spline creation: 'through internal k-spaced
+    knots' and 'smoothing spline', :param:`mu0method` 0 and 1. The method of a
+    spline through knots is generally better, as it contains only low-frequency
+    oscillations, so that χ(k) preserves all the true structural oscillations.
+    This is not the case for the smoothing spline, where the resulting χ(k)
+    partially loses its signal and transfers it toward µ₀, but this method is
+    easier to use, it always "just works".
+
+    Prior to constructing µ₀, a helping curve is built, "µ₀ prior", that makes
+    the final µ₀ resemble an absorption edge, optionally with a white line.
+    µ₀ prior is first subtracted from µ before constructing a spline and then
+    added again to the resulting spline.
+
+    In the first µ₀ method ('through internal k-spaced knots'), a given number
+    of knots (:param:`mu0knots`) are equidistantly placed in k-space and an LSQ
+    (Least SQuared) based fitting B-spline is calculated by
+    `scipy.interpolate.LSQUnivariateSpline()`. The difference µ₀ minus µ₀ prior
+    is optionally weighted with a :math:`k^w` fator (w=:param:`mu0kpow`) that
+    may significantly affect the obtained µ₀. Additionally, a given number of
+    the first knots can be set variable in height to automaticaly minimize the
+    low-r portion (set by :param:`ftMinRange`) of the FT EXAFS. The number of
+    the varied knots (:param:`ftMinNKnots`) is advised to be kept small (much
+    smaller than the total number of knots) to make the minimization stable.
+
+    The second µ₀ method ('smoothing spline') depends on a smoothing parameter
+    (:param:`mu0smoothingFactor`) that is set by examining the low-r FT. By
+    comparing with the first µ₀ method, one can discover that the 1st FT peak
+    hight is always lower with the second method. This signal loss can be
+    tolerated if it is smaller than the fitting error of the first shell
+    coordination number.
+
+    k-mesh and χ(k)
+    ~~~~~~~~~~~~~~~
+
+    Finally, the EXAFS function χ(k) is defined as:
+
+    .. math::
+        χ(k) = \frac{µ - µ_b - µ_0}{µ_0 - µ_b}
+
+    where
+
+    .. math::
+        k = \sqrt{2m_e(E-E_0)} / \hbar
+
+    The resulted χ(k) is interpolated onto the equidistant k-mesh defined by
+    :param:`krange` and :param:`dk` and weighted by :math:`k^w`, where
+    :math:`w` is defined by :param:`kw`.
     """
-    Work in progress
-    """
+
     name = 'make chi'
     ref = "transforms.html#make-exafs-function-k"
     defaultParams = dict(
@@ -200,7 +375,8 @@ class MakeChi(ctr.Transform):
             corrFormula='thick', corrThickness=1.),
         rebinNeeded=False,
         rebinRegions=dict(
-            deltas=(1., 0.2, 0.5, 0.025), splitters=(-15, 15, 2.5, 'inf')),
+            deltas=(1., 0.2, 0.5, 0.025),  # pre, edge, post, dk
+            splitters=(-15, 15, 2.5, 'inf')),  # edge from to, k from to
         nbinOriginal=None, nbinNew=None, binDistrNew=None,
         needECalibration=False, eCalibrationMethod=1, eRef=8979.,
         eShift=0, eShiftKind=0,  # see names in eShiftKinds
@@ -265,8 +441,8 @@ class MakeChi(ctr.Transform):
         else:
             mu_der = data.mu_der[cond]
 
-        # e0Method = 0:  simple derivative maximum
-        # e0Method = 1:  derivative maximum of cubic spline
+        # e0Method=0:  simple derivative maximum
+        # e0Method=1:  derivative maximum of cubic spline
         # e0Method=2:  center of mass of spline derivative
         if dtparams['e0Method'] == 0:
             e0 = e[np.argmax(mu_der)]
@@ -559,11 +735,13 @@ class MakeChi(ctr.Transform):
             w[whereMax] = 1e-10
             try:
                 spl = LSQUnivariateSpline(ke+1e-6, funFit, knots, w, ext=3)
+                # spl = make_lsq_spline(ke+1e-6, funFit, knots, w=w)
             except ValueError:
                 argsort = ke.argsort()
                 ke = ke[argsort]
                 funFit = funFit[argsort]
                 spl = LSQUnivariateSpline(ke+1e-6, funFit, knots, w, ext=3)
+                # spl = make_lsq_spline(ke+1e-6, funFit, knots, w=w)
 
             interpPrior = interp1d(ke+1e-6, data.mu0prior, assume_sorted=True)
             eknots = data.e0 + knots**2/eV2revA
@@ -780,9 +958,28 @@ class MakeChi(ctr.Transform):
 
 
 class MakeFT(ctr.Transform):
+    r"""
+    The reason for setting χ(k) on a uniform grid is the use of the efficient
+    Fast Fourier Transform (FFT) algorithm. ParSeq-XAS utilizes numpy function
+    `fft.rfft()` that computes the one-dimensional FFT for real input. Because
+    the EXAFS FT has a doubled exponential power :math:`-2ikr`, not the
+    usual :math:`-ikr`, the result is multiplied by :math:`dk/2`, not the usual
+    :math:`dk`; the real-space spacing :math:`dr=π/(N\cdot dk)`. The real-space
+    grid is given by numpy function `fft.rfftfreq(N, dk/π)`. The number of grid
+    poinds :math:`N` is a class variable `nfft` and equals 2¹³ = 8192.
+
+    Before making FT, χ(k) is multiplied by a window function that is one of
+    these choices: 'none', 'box', 'linear-tapered', 'cosine-tapered',
+    'Gaussian-tapered', as set by :param:`ftWindowKind`.
+
+    Optionally, the zeroth frequency (here, distance :math:`r`) can be removed
+    by nulling the first integral of χ(k); this choice is controlled by
+    :param:`forceFT0`.
+
+    The resulting FT is cut at a selected :param:`rmax` value, mainly for the
+    plotting purpose.
     """
-    Work in progress
-    """
+
     name = 'make FT'
     ref = "transforms.html#make-fourier-transformed-exafs-function-r"
     defaultParams = dict(
@@ -831,8 +1028,12 @@ class MakeFT(ctr.Transform):
 
 class MakeBFT(ctr.Transform):
     """
-    Work in progress
+    This calss applies a window function, as per :param:`bftWindowKind`,
+    :param:`bftWindowRange` and :param:`bftWindowWidth`, and claculates
+    Back Fourier Transform (BFT) by numpy's fft.irfft(). The resulted BFT is
+    cut to the k range defined in the previous steps.
     """
+
     name = 'make BFT'
     ref = "transforms.html#make-back-fourier-transformed-exafs-function-k"
     defaultParams = dict(

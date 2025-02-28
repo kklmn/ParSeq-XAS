@@ -4,7 +4,7 @@ The pipeline calculates absorption coefficient from transmission signals or
 signals of secondary processes (fluorescence or electron yield), determines
 absorption edge position, calculates pre- and post-edge background, calculates
 EXAFS function, its forward and backward Fourier Transform. The pipeline has
-a Linear Combination Fit and an EXAFS fit.
+a Linear Combination Fit, a Function Fit and an EXAFS fit.
 """
 
 import os.path as osp
