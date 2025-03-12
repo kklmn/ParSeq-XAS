@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 u"""
-GUI
----
+GUI: transformations
+--------------------
 
 Experimental 1D signals
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -12,10 +12,27 @@ transformation node, the µd(E) node and the χ(k) node.
 
 .. autoclass:: CurWidget
 
+.. autoclass:: HERFDWidget
+
+Absorption coefficient µd(E)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: MuWidget
+
+EXAFS function χ(k)
+~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: ChiWidget
+
+Fourier-transformed EXAFS function χ(r)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: FTWidget
+
 """
 
 __author__ = "Konstantin Klementiev"
-__date__ = "28 Nov 2023"
+__date__ = "28 Feb 2025"
 
 import numpy as np
 
@@ -26,6 +43,7 @@ from functools import partial
 
 import sys; sys.path.append('..')  # analysis:ignore
 from parseq.core import singletons as csi
+from parseq.core.logger import syslogger
 from parseq.gui.dataRebin import DataRebinWidget
 from parseq.gui.roi import AutoRangeWidget, SplitRangeWidget, RoiWidget
 import parseq.gui.gcommons as gco
@@ -164,8 +182,8 @@ class CurWidget(PropWidget):
     glitches in several transformation nodes. This tool is not a part of any
     transformation and only serves for visual diagnostics.
 
-    The glitch detection utilizes `scipy.signal.find_peaks()`. :red:`Read the
-    tooltips` of the two involved parameters.
+    The glitch detection utilizes ``scipy.signal.find_peaks()``.
+    :red:`Read the tooltips` of the two involved parameters.
 
     .. note::
        The glitch detection works only for one data object -- the first
@@ -174,8 +192,7 @@ class CurWidget(PropWidget):
     .. note::
        The glitch detection is implemented as static, i.e. it does not change
        upon changing the data selection. The change is always manual and is
-       requested by unchecking the checkbox "mark glitches" and checking it
-       again.
+       requested by re-checking the checkbox "mark glitches".
 
     .. tabs::
 
@@ -195,14 +212,14 @@ class CurWidget(PropWidget):
           +---------+
 
     .. |cur| imagezoom:: _images/glitch-0-cur.png
+       :align: center
        :scale: 75%
-       :loc: lower-left-corner
     .. |mue| imagezoom:: _images/glitch-1-mu.png
+       :align: center
        :scale: 75%
-       :loc: lower-left-corner
     .. |chi| imagezoom:: _images/glitch-2-chi.png
+       :align: center
        :scale: 75%
-       :loc: lower-left-corner
 
     """
 
@@ -259,13 +276,39 @@ class CurWidget(PropWidget):
 
 class HERFDWidget(PropWidget):
     u"""
-    Help page under construction
+    This widget controls the HERFD µ calculation from a 2D data array in
+    "scanning energy" vs "tangential detector axis" coordinates. The widget
+    sets the parameters of two actions: level cutoff and integration within
+    a ROI.
 
-    .. image:: _images/mickey-rtfm.gif
-        :width: 309
+    +-----------+
+    | |2DHERFD| |
+    +-----------+
 
-    test link: `MAX IV Laboratory <https://www.maxiv.lu.se/>`_
+    .. |2DHERFD| imagezoom:: _images/2D-HERFD.png
+       :align: center
 
+    Level cutoff
+    ~~~~~~~~~~~~
+
+    Doing a cutoff can be useful if a bad pixel appears within the ROI. The
+    side histograms can be useful in setting the level.
+
+    .. caution::
+
+        Examine the "max pixel" value that is calculated after applying the
+        cutoff. It should be much less than the cutoff value, otherwise the
+        cutoff removes a useful signal.
+
+    Integration ROI
+    ~~~~~~~~~~~~~~~
+
+    There is a choice of two ROIs: a vertical band (horizontal range) and a
+    slanted band. The ROI can be set by the mouse in the 2D plot and/or from
+    the "geometry" cell in the table. The current ROI can be deleted by using
+    the popup menu in the plot.
+
+    The calculations are done by :class:`.XAS_transforms.MakeHERFD`.
     """
 
     name = 'extract HERFD'
@@ -344,18 +387,174 @@ class HERFDWidget(PropWidget):
         data = csi.selectedItems[0]
         if hasattr(data, 'xes2D'):
             self.roiWidget.dataToCount = data.xes2D  # to display roi counts
+            self.roiWidget.dataToCountY = data.eraw
             dtparams = data.transformParams
             self.roiWidget.setRois(dict(dtparams['roiHERFD']))
 
 
 class MuWidget(PropWidget):
-    u"""
-    Help page under construction
+    r"""
+    The calculations are done by :class:`.XAS_transforms.MakeChi`.
 
-    .. image:: _images/mickey-rtfm.gif
-        :width: 309
+    .. tip::
 
-    test link: `MAX IV Laboratory <https://www.maxiv.lu.se/>`_
+        The range selection widgets have an auto option and a custom selection
+        option. The latter can be set by the mouse in the plot or by typing in
+        the edit widget. Hover the pointer over the edit widget to discover the
+        meaning of the *min* and *max* values: sometimes as fractions of a
+        given range, sometimes as absolute values of a given unit etc.
+        Similarly, a tooltip of the "auto" radio button displays the implied
+        automatic range.
+
+    Edge position :math:`E_0`
+    ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    The three :math:`E_0` options give similar, still varying, results.
+
+    +------------------+------------------+------------------+
+    |   0: (µd)' max   | 1: (spline)' max | 2: µd' peak mean |
+    +------------------+------------------+------------------+
+    |    E₀=7112.498   |    E₀=7112.655   |    E₀=7112.333   |
+    +------------------+------------------+------------------+
+    |      |mu00|      |      |mu01|      |      |mu02|      |
+    +------------------+------------------+------------------+
+
+    .. |mu00| imagezoom:: _images/e0method0.png
+    .. |mu01| imagezoom:: _images/e0method1.png
+    .. |mu02| imagezoom:: _images/e0method2.png
+       :loc: upper-right-corner
+
+    When the edge has several derivative maxima, the edge position should be
+    placed over the first one. In this case, the :math:`E_0` search range
+    should exclude the main derivative peak:
+
+    .. imagezoom:: _images/e0range.png
+       :align: center
+
+    Energy calibration
+    ~~~~~~~~~~~~~~~~~~
+
+    The found :math:`E_0` position can be assigned to a tabulated value that
+    can either be selected from the drop-down list or typed in manually.
+    Alternatively, a shift of :math:`E_0` can be specified. The former method
+    should be used for a reference material with a known edge position (most
+    typically a foil), which would calculate a shift of :math:`E_0`. This shift
+    can be applied to all other spectra measured during the same beam time. The
+    energy shift is most typically applied as a constant Bragg angle offset.
+
+    Pre-edge background
+    ~~~~~~~~~~~~~~~~~~~
+
+    .. note::
+
+        When "show subtracted" is unchecked, not only the pre-edge background
+        becomes visible, also the edge normalization is switched off and
+        disabled.
+
+    For transmission spectra, a Victoreen polynomial :math:`aE^{-3}+bE^{-4}` or
+    a modified Victoreen polynomial :math:`aE^{-3}+b` are most typical. For
+    fluorescence spectra, the background is either constant or linear.
+
+    Self-absorption correction
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    See the description of self-absorption correction, including its history,
+    :ref:`here <sacorrection>`.
+
+    .. tip::
+
+        Find the self-absorption correction widget in the "data correction"
+        splitter widget that is initially hidden. Use a small vertical button
+        on the left from the transformation widget.
+
+    Give a chemical formula (observe thetwo given examples). A table of
+    scattering factors is selected for the drop-down list; the one by Chantler
+    is recommended. The parameter "calibration energy" is where the calibration
+    constant :ref:`C is calculated <sacorrection>`. The status line below
+    calibration energy is green if an absorption edge within the spectrum range
+    has been found. "fluorescence energy" is at present a simple edit line, but
+    will be a drop-down list in the future. The three angles are defined in the
+    :ref:`geometry figure <sacorrection>`.
+
+    .. note::
+
+        The "thin" version of the correction is much heavier in calculations.
+
+    Post-edge background and edge normalization
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    The post-edge background is needed for defining the edge normalization. It
+    is constructed by a polynomial interpolation. The arguments for choosing
+    the polynomial are the same as for the pre-edge background.
+
+    .. note::
+
+        The checkbox "show edge height normalized" is not an individual
+        attribute of a data item but rather a global display property. It
+        affects *all* data items.
+
+    .. note::
+
+        The checkbox "show edge height normalized" is disabled if the pre-edge
+        background is shown unsubtracted.
+
+    The post-edge background can also be shown "flat" (horizontal). This can be
+    useful for the linear combination fit and the function fit of µ(E).
+
+    Atomic-like absorption coefficient µ₀
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    A "µ₀ prior" curve is a step-like function, with or without a "white line",
+    is constructed from the absorption spectrum itself. The sharp step can be
+    smoothened. The µ₀ prior can also be vertically displaced by applying a
+    multiplicative factor.
+
+    Two methods are offered for the spline creation: 'through internal k-spaced
+    knots' and 'smoothing spline'. The method of a spline through knots is
+    generally better, as it contains only low-frequency oscillations, so that
+    χ(k) preserves all the true structural oscillations. This is not the case
+    for the smoothing spline, where the resulting χ(k) partially loses its
+    signal and transfers it toward µ₀, but this method is easier to use, it
+    always "just works".
+
+    .. tip::
+
+        When working on µ₀ optimization, make the FT node visible by dragging
+        it to another screen or docking it next to the µd(E) node, as on the
+        picture below. The optimization target is to minimize the low-r portion
+        of the FT curve, typically within the range 0 to 1 Å.
+
+    +-----------+
+    | |XAS-mu0| |
+    +-----------+
+
+    .. |XAS-mu0| imagezoom:: _images/XAS-mu0.gif
+       :scalezoom: 70%
+       :align: center
+       :alt: &ensp;A demonstration of simultaneous observation of µd(E) and
+             χ(r) during the optimization of µ₀.
+
+    In the first µ₀ method ('through internal k-spaced knots'), a given number
+    of knots are equidistantly placed in k-space and a spline is drawn through
+    them. The difference µ₀ -- µ₀ prior is optionally weighted with a
+    :math:`k^{\rm exp weight}` factor. Additionally, a given number of the
+    first knots can be variable in height to automatically minimize the low-r
+    portion of the FT EXAFS. The varied knots are plotted by bigger symbols.
+    The number of the varied knots is advised to be kept small (much smaller
+    than the total number of knots) to make the minimization stable.
+
+    .. note::
+
+        The minimization sometimes becomes unstable, so that the original knots
+        may give a better result. The reason for the failure is a very strong
+        correlation between the knots, which makes the optimization problem
+        poorly defined (ill-posed).
+
+    The second µ₀ method ('smoothing spline') depends on a smoothing parameter
+    that is set by examining the low-r FT. By switching between the µ₀ methods,
+    one can discover that the 1st FT peak height is always lower with the
+    second method. This signal loss can be tolerated if it is smaller than the
+    fitting error of the first shell coordination number.
 
     """
 
@@ -378,6 +577,8 @@ class MuWidget(PropWidget):
         'mu_der': {'linewidth': 1.0, 'linestyle': '-', 'yaxis': 'right'},
     }
     cursorLabels = ['E', 'k', u'µd']
+
+    extraDocs = 'self-absorption.rst', 'nogui.rst'  # files in ./doc
 
     def __init__(self, parent=None, node=None):
         super().__init__(parent, node)
@@ -415,7 +616,7 @@ class MuWidget(PropWidget):
         labeNSm = qt.QLabel('n =')
         layoutSm.addWidget(labeNSm)
         self.e0SmoothN = qt.QSpinBox()
-        self.e0SmoothN.setToolTip(u'n ≥ 2')
+        self.e0SmoothN.setToolTip(u'n ≥ 1')
         self.e0SmoothN.setMinimum(1)
         self.e0SmoothN.setFixedWidth(44)
         layoutSm.addWidget(self.e0SmoothN)
@@ -818,8 +1019,10 @@ class MuWidget(PropWidget):
             peMiddle = pe(eMiddle)
             ylim = [yl-peMiddle if value else yl+peMiddle for yl in ylim]
             plot.getYAxis().setLimits(*ylim)
-        except (ValueError, TypeError):
-            pass
+        except (ValueError, TypeError, AttributeError) as e:
+            syslogger.log(
+                100, 'Error in subtractPreedgeSlot() for spectrum {0}:\n{1}'
+                .format(data.alias, e))
         csi.model.needReplot.emit(False, True, 'subtractPreedgeSlot')
 
     def energy_selected(self, txt=None):
@@ -845,8 +1048,13 @@ class MuWidget(PropWidget):
         plot = self.node.widget.plot
         ylim = list(plot.getYAxis().getLimits())
         data = csi.selectedItems[0]
-        ylim[1] *= 1./data.edge_step if value else data.edge_step
-        plot.getYAxis().setLimits(*ylim)
+        try:
+            ylim[1] *= 1./data.edge_step if value else data.edge_step
+            plot.getYAxis().setLimits(*ylim)
+        except ValueError as e:
+            syslogger.log(
+                100, 'Error in normalizeSlot() for spectrum {0}:\n{1}'
+                .format(data.alias, e))
         csi.model.needReplot.emit(False, True, 'normalizeSlot')
 
     def showSlot(self, prop, value):
@@ -1290,12 +1498,66 @@ class MuSelfAbsorptionCorrection(PropWidget):
 
 class ChiWidget(PropWidget):
     u"""
-    Help page under construction
+    Data rebinning
+    ~~~~~~~~~~~~~~
 
-    .. image:: _images/mickey-rtfm.gif
-        :width: 309
+    .. imagezoom:: _images/rebin.png
+       :scalezoom: 120%
+       :align: right
+       :loc: upper-right-corner
+       :alt: &ensp;The rebin widget.
 
-    test link: `MAX IV Laboratory <https://www.maxiv.lu.se/>`_
+    If the energy scan was done in a continuous way with a constant slew rate,
+    the resulted spectrum is typically strongly over sampled. This means that
+    several experimental points fall into one dk interval of χ(k). Even more,
+    dk intervals become larger in energy to the end of the spectrum, so more
+    and more experimental points fall into one dk interval. These experimental
+    points can be averaged, and this is the meaning of *rebinning*.
+
+    The rebinning table defines four regions by setting their limits and steps
+    in E- or k-space.
+
+    .. tip::
+
+        Hover the mouse pointer to any table cell to discover the meaning of
+        the cell value.
+
+    k range
+    ~~~~~~~
+
+    .. imagezoom:: _images/krange.png
+       :scalezoom: 120%
+       :align: right
+       :loc: upper-right-corner
+       :alt: &ensp;The k range panel.
+
+    The desired k range can be set either from the spin box widgets or from the
+    range widget in the plot.
+
+    .. note::
+
+        The default k max value is not set at the spectrum end. Please check
+        the "data k max" value and use the |icoLast| button to maximize the
+        range.
+
+    .. |icoLast| image:: /_images/last.png
+       :width: 12
+
+    FT window
+    ~~~~~~~~~
+
+    The tapered FT window functions (the last three in the list) are defined by
+    the width of the tapered part and the minimum value reached at the ends.
+    These two parameters can be set from the spin box widgets or from the
+    pointer widget in the plot. The pointer can be dragged in the top left
+    quadrant of the plot.
+
+    .. note::
+
+        The true maximum value of the FT window function equals 1. The
+        *displayed* vertical size of it is scaled to the data vertical extent,
+        which can hinder the auto-zooming action. In this case, first hide the
+        window, do auto-zoom and display the window again.
 
     """
 
@@ -1582,12 +1844,25 @@ class ChiWidget(PropWidget):
 
 class FTWidget(PropWidget):
     u"""
-    Help page under construction
+    The resulting FT is cut at a selected r max value, mainly for the plotting
+    purpose.
 
-    .. image:: _images/mickey-rtfm.gif
-        :width: 309
+    The zeroth FT frequency (here, the uncorrected distance :math:`r`) can be
+    removed by nulling the first integral of χ(k); this choice is controlled by
+    the checkbox "force FT(0)=0".
 
-    test link: `MAX IV Laboratory <https://www.maxiv.lu.se/>`_
+    BFT window
+    ~~~~~~~~~~
+
+    The BFT window function can be defined by the spin box widgets or from the
+    range widget in the plot.
+
+    .. note::
+
+        The true maximum value of the FT window function equals 1. The
+        *displayed* vertical size of it is scaled to the data vertical extent,
+        which can hinder the auto-zooming action. In this case, first hide the
+        window, do auto-zoom and display the window again.
 
     """
 

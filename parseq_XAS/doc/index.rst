@@ -15,9 +15,7 @@ User's Guide
 .. toctree::
    :maxdepth: 3
 
-   nodes.rst
-   transforms.rst
-   fits.rst
+   nogui.rst
    gui.rst
    howto.rst
    license.rst

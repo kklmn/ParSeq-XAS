@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 u"""
-Data transformations
---------------------
+No GUI: data transformations
+----------------------------
 
 Make absorption coefficient
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -74,7 +74,7 @@ class MakeTrMu(ctr.Transform):
     """
 
     name = 'make tr mu'
-    ref = "transforms.html#make-absorption-coefficient"
+    ref = "nogui.html#make-absorption-coefficient"
     nThreads = 1
     inArrays = ['i0', 'itr', 'eraw', 'eref']
     outArrays = ['muraw']
@@ -90,7 +90,7 @@ class MakeTrMu(ctr.Transform):
 
 class MakeFYMu(ctr.Transform):
     name = 'make PFY mu'
-    ref = "transforms.html#make-absorption-coefficient"
+    ref = "nogui.html#make-absorption-coefficient"
     nThreads = 1
     inArrays = ['i0', 'ify', 'eraw', 'eref']
     outArrays = ['muraw']
@@ -113,7 +113,7 @@ class MakeTEYMu(ctr.Transform):
     """
 
     name = 'make TEY mu'
-    ref = "transforms.html#make-absorption-coefficient"
+    ref = "nogui.html#make-absorption-coefficient"
     nThreads = 1
     inArrays = ['i0', 'iey', 'eraw', 'eref']
     outArrays = ['muraw']
@@ -129,15 +129,15 @@ class MakeTEYMu(ctr.Transform):
 
 class MakeHERFD(ctr.Transform):
     r"""
-    The 2D intensity array `xes2D` (the scan axis (DCM energy) vs meridional
-    detector pixel) is summed within a given vertical band ROI horizontally
-    (i.e. the columns are summed) to get a 1D count array. This array is
-    divided by :math:`I_0` and multiplied by :math:`\max(I_0)` to get the HERFD
-    absorption coefficient.
+    The 2D count array `xes2D` (the scan axis (DCM energy *e*) vs meridional
+    detector pixel) is summed within a given band ROI horizontally (i.e. the
+    columns are summed) to get a 1D count array of the length of *e*. This
+    array is divided by :math:`I_0` and multiplied by :math:`\max(I_0)` to get
+    the HERFD absorption coefficient in count units.
     """
 
     name = 'make HERFD'
-    ref = "transforms.html#make-absorption-coefficient"
+    ref = "nogui.html#make-absorption-coefficient"
     nThreads = cpus
     inArrays = ['i0', 'xes2D', 'eraw', 'eref']
     outArrays = ['muraw']
@@ -170,12 +170,11 @@ class MakeHERFD(ctr.Transform):
                 posIXES = xes2Dwork[:, vmin:vmax+1].sum(axis=1)
             elif roi['kind'] == 'BandROI':
                 sh = xes2Dwork.shape
-                xs = data.eraw
-                ys = np.arange(sh[0])[:, None]
+                xs = np.arange(sh[1])[None, :]
+                ys = data.eraw[:, None]
                 m = uma.get_roi_mask(roi, xs, ys)
-                _, indx = np.nonzero(m)
-                posIXES = xes2Dwork[m].sum(axis=1) if len(indx) > 0 else \
-                    xes2Dwork.sum(axis=1)
+                masked = np.where(m, xes2Dwork, 0)
+                posIXES = masked.sum(axis=1)
             else:
                 raise ValueError('Unknown roi kind for {0}'.format(data.alias))
         else:
@@ -193,12 +192,12 @@ class MakeChi(ctr.Transform):
     Edge position :math:`E_0`
     ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    The absorption coefficient is differentiated and optionally smoothed.
+    The absorption coefficient is differentiated and optionally smoothened.
     :math:`E_0` is found within the search interval :param:`e0Where` (two
-    relative fractions) by one of the three methods selected by
-    :param:`e0Method`: (0) the simple derivative maximum, (1) the derivative
-    maximum of interpolating cubic spline, (2, default) the center of mass of
-    interpolating cubic spline.
+    relative fractions of the spectrum energy range) by one of the three
+    methods selected by :param:`e0Method`: (0) simple derivative maximum,
+    (1) the derivative maximum of interpolating cubic spline, (2, default)
+    the center of mass of interpolating cubic spline.
 
     Energy calibration
     ~~~~~~~~~~~~~~~~~~
@@ -214,7 +213,7 @@ class MakeChi(ctr.Transform):
 
     If a calibration foil was measured *simultaneously* with the sample, two
     calibration scenarios are possible. (1) The two spectra, of the sample and
-    of the foil are loaded separately by modifying their format definitions.
+    of the foil, are loaded separately by modifying their format definitions.
     The foil spectrum is calibrated and then its :math:`E_0` shift is copied to
     the sample spectrum. (2) Only the sample spectrum is loaded and in the
     :math:`E_0` determination the derivative of the reference foil spectrum is
@@ -224,7 +223,7 @@ class MakeChi(ctr.Transform):
     ~~~~~~~~~~~~~~
 
     If the energy scan was done in a continuous way with a constant slew rate,
-    the resulted spectrum is typically strongly over sampled. This means that
+    the resulting spectrum is typically strongly over sampled. This means that
     several experimental points fall into one :math:`dk` interval (the EXAFS
     function will be defined on a constant :math:`dk` mesh, see below). Even
     more, as the k-space and the E-space are quadratically related, the energy
@@ -233,13 +232,13 @@ class MakeChi(ctr.Transform):
     :math:`dk` interval. On converting from E-space to k-space, a kind of
     interpolation will be used, which only uses the local interpolation
     polynomial between the matching experimental points. A way of using *all*
-    experimental data, called *rebinning*, consists of summing the exerimental
+    experimental data, called *rebinning*, consists of summing the experimental
     points belonging to one :math:`dk` interval before doing the interpolation.
     The user provides :param:`rebinRegions` dictionary that defines regions --
     pre-edge, edge, post-edge and EXAFS -- by setting their borders
     (`splitters`) and bin sizes (`deltas`). The defined bins are fed to
-    `numpy.histogram()` to perform the actual rebinning. The number of original
-    bins and the redefined bins per region are reported in
+    ``numpy.histogram()`` to perform the actual rebinning. The number of
+    original bins and the redefined bins per region are reported in
     :param:`nbinOriginal` and :param:`binDistrNew`.
 
     Pre-edge background
@@ -252,7 +251,7 @@ class MakeChi(ctr.Transform):
     For absorption spectra measured in transmission mode, usually a Victoreen
     polynomial :math:`aE^{-3}+bE^{-4}` or a modified Victoreen polynomial
     :math:`aE^{-3}+b` is utilized, where the coefficients are found by the
-    least-squares fit from `numpy.polynomial.Polynomial` class.
+    least-squares fit from ``numpy.polynomial.Polynomial`` class.
 
     For absorption spectra measured in fluorescence, background subtraction is
     frequently not needed. More frequently a constant shift is sufficient
@@ -295,17 +294,17 @@ class MakeChi(ctr.Transform):
     absorption coefficient, where the post-edge part is seen horizontal. This
     can be useful for the linear combination fit and the function fit of µ(E).
 
-    Atomic-like absortion coefficient µ₀
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Atomic-like absorption coefficient µ₀
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     The definition of EXAFS function (see below) includes µ₀ -- an artificial
-    absortion coefficient that the material would have without EXAFS wiggles,
-    i.e. when the central atom would be isolated without neighbours. The
+    absorption coefficient that the material would have without EXAFS wiggles,
+    i.e. when the central atom would be isolated without neighbors. The
     absorption coefficient of such a single atom gas is most typically not
     possible to measure, but also the electronic state of the atom in a gas
     state would differ from that in a solid or liquid, so that µ₀ has to be
     constructed artificially. µ₀ is believed to be a smooth function of energy
-    and therfore is usually constructed as a spline.
+    and therefore is usually constructed as a spline.
 
     Two methods are offered for the spline creation: 'through internal k-spaced
     knots' and 'smoothing spline', :param:`mu0method` 0 and 1. The method of a
@@ -323,18 +322,18 @@ class MakeChi(ctr.Transform):
     In the first µ₀ method ('through internal k-spaced knots'), a given number
     of knots (:param:`mu0knots`) are equidistantly placed in k-space and an LSQ
     (Least SQuared) based fitting B-spline is calculated by
-    `scipy.interpolate.LSQUnivariateSpline()`. The difference µ₀ minus µ₀ prior
-    is optionally weighted with a :math:`k^w` fator (w=:param:`mu0kpow`) that
-    may significantly affect the obtained µ₀. Additionally, a given number of
-    the first knots can be set variable in height to automaticaly minimize the
-    low-r portion (set by :param:`ftMinRange`) of the FT EXAFS. The number of
-    the varied knots (:param:`ftMinNKnots`) is advised to be kept small (much
-    smaller than the total number of knots) to make the minimization stable.
+    ``scipy.interpolate.LSQUnivariateSpline()``. The difference µ₀ -- µ₀ prior
+    is optionally weighted with a :math:`k^w` factor (:math:`w` =
+    :param:`mu0kpow`). Additionally, a given number of the first knots can be
+    set variable in height to automatically minimize the low-r portion (set by
+    :param:`ftMinRange`) of the FT EXAFS. The number of the varied knots
+    (:param:`ftMinNKnots`) is advised to be kept small (much smaller than the
+    total number of knots) to make the minimization stable.
 
     The second µ₀ method ('smoothing spline') depends on a smoothing parameter
     (:param:`mu0smoothingFactor`) that is set by examining the low-r FT. By
     comparing with the first µ₀ method, one can discover that the 1st FT peak
-    hight is always lower with the second method. This signal loss can be
+    height is always lower with the second method. This signal loss can be
     tolerated if it is smaller than the fitting error of the first shell
     coordination number.
 
@@ -357,7 +356,7 @@ class MakeChi(ctr.Transform):
     """
 
     name = 'make chi'
-    ref = "transforms.html#make-exafs-function-k"
+    ref = "nogui.html#make-exafs-function-k"
     defaultParams = dict(
         e0Smooth=True, e0SmoothN=6, e0Where=[0.02, 0.7], e0Method=2,
         e0=None, preedgeWhere=[0.03, 0.53], preedgeExps=[-3, 0],
@@ -623,6 +622,7 @@ class MakeChi(ctr.Transform):
                 return
         if hasattr(data, 'muraw'):  # may be absent in data combinations
             data.mu = np.array(data.muraw)
+
         if hasattr(data, 'eref'):  # may be absent in data combinations
             if data.eref is not None:
                 data.erefrb = np.array(data.eref)
@@ -961,12 +961,13 @@ class MakeFT(ctr.Transform):
     r"""
     The reason for setting χ(k) on a uniform grid is the use of the efficient
     Fast Fourier Transform (FFT) algorithm. ParSeq-XAS utilizes numpy function
-    `fft.rfft()` that computes the one-dimensional FFT for real input. Because
-    the EXAFS FT has a doubled exponential power :math:`-2ikr`, not the
+    ``fft.rfft()`` that computes the one-dimensional FFT for real input.
+    Because the EXAFS FT has a doubled exponential power :math:`-2ikr`, not the
     usual :math:`-ikr`, the result is multiplied by :math:`dk/2`, not the usual
     :math:`dk`; the real-space spacing :math:`dr=π/(N\cdot dk)`. The real-space
-    grid is given by numpy function `fft.rfftfreq(N, dk/π)`. The number of grid
-    poinds :math:`N` is a class variable `nfft` and equals 2¹³ = 8192.
+    grid is given by numpy function ``fft.rfftfreq(N, dk/π)``. The number of
+    grid points :math:`N` is a class variable ``nfft`` and equals here
+    2¹³ = 8192.
 
     Before making FT, χ(k) is multiplied by a window function that is one of
     these choices: 'none', 'box', 'linear-tapered', 'cosine-tapered',
@@ -981,7 +982,7 @@ class MakeFT(ctr.Transform):
     """
 
     name = 'make FT'
-    ref = "transforms.html#make-fourier-transformed-exafs-function-r"
+    ref = "nogui.html#make-fourier-transformed-exafs-function-r"
     defaultParams = dict(
         ftWindowKind='box', ftWindowProp=[1.5, 0.05],
         rmax=8.2, forceFT0=True)
@@ -1028,14 +1029,14 @@ class MakeFT(ctr.Transform):
 
 class MakeBFT(ctr.Transform):
     """
-    This calss applies a window function, as per :param:`bftWindowKind`,
-    :param:`bftWindowRange` and :param:`bftWindowWidth`, and claculates
-    Back Fourier Transform (BFT) by numpy's fft.irfft(). The resulted BFT is
-    cut to the k range defined in the previous steps.
+    This class applies a window function, as per :param:`bftWindowKind`,
+    :param:`bftWindowRange` and :param:`bftWindowWidth`, and calculates
+    Back Fourier Transform (BFT) by numpy's ``fft.irfft()``. The resulted BFT
+    is cut to the k range defined in the previous steps.
     """
 
     name = 'make BFT'
-    ref = "transforms.html#make-back-fourier-transformed-exafs-function-k"
+    ref = "nogui.html#make-back-fourier-transformed-exafs-function-k"
     defaultParams = dict(
         bftWindowKind='box', bftWindowRange=[0.5, 2.5],
         bftWindowWidth=0.5)

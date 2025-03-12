@@ -36,8 +36,8 @@ the synchrotron orbit plane, in EXAFS [Brewe]_ and also out of plane: in EXAFS
 [Pfalzer]_ and XANES [Carboni]_. All three works operated in the thick limit.
 In my opinion, detector elements are always small enough in the sense that the
 self-absorption effect can be considered as uniform over each single element
-an therefore the correction can be done only for one direction toward the pixel
-center.
+and therefore the correction can be done only for one direction toward the
+pixel center.
 
 An interesting approach to correcting the self-absorption effect was proposed
 by [Booth]_ who considered another small parameter, not the usual exp(-μd),

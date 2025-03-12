@@ -69,7 +69,7 @@ setup(
                        'doc/_images/*.*', 'saved/*.*']},
     scripts=['parseq_XAS/XAS_start.py'],
     install_requires=['numpy>=1.8.0', 'scipy>=1.10.0', 'matplotlib>=2.0.0',
-                      'sphinx>=1.6.2', 'h5py', 'silx>=1.1.0', 'hdf5plugin'],
+                      'h5py', 'silx>=1.1.0', 'hdf5plugin'],
     classifiers=['Development Status :: 5 - Production/Stable',
                  'Intended Audience :: Science/Research',
                  'Natural Language :: English',

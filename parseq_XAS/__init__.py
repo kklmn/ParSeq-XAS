@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 """
+A pipeline for data analysis of XAS spectra built on top of |ParSeq framework|.
+
 The pipeline calculates absorption coefficient from transmission signals or
 signals of secondary processes (fluorescence or electron yield), determines
 absorption edge position, calculates pre- and post-edge background, calculates
 EXAFS function, its forward and backward Fourier Transform. The pipeline has
-a Linear Combination Fit, a Function Fit and an EXAFS fit.
+Linear Combination Fit, Function Fit and EXAFS fit.
 """
 
 import os.path as osp
