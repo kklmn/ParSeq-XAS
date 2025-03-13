@@ -7,6 +7,7 @@
    :noindex:
 
 .. "graph.rst" is created in webWidget via gui.aboutDialog.makeGraphPipeline()
+.. include:: icons.rst
 .. include:: graph.rst
 
 User's Guide

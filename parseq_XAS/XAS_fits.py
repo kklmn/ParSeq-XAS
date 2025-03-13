@@ -21,7 +21,7 @@ EXAFS Fit of χ(k) and χ(r)
 """
 
 __author__ = "Konstantin Klementiev"
-__date__ = "15 Feb 2025"
+__date__ = "13 Mar 2025"
 # !!! SEE CODERULES.TXT !!!
 
 import parseq.fits as fits
@@ -39,6 +39,7 @@ class LCF_mu(fits.lcf.LCF):
     The fit creates an attribute :param:`lcf_params` of the data container that
     is a list of dictionaries, a dictionary per reference spectrum, with the
     following items:
+
        | *name*: str, the alias of the reference spectrum,
        | *use*: bool, switches the reference on/off,
        | *w*: float, the weight of the reference,

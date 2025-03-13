@@ -3,12 +3,15 @@
 Version history
 ---------------
 
-Current GitHub code (modified 12 Mar 2025):
+Current GitHub code (modified 13 Mar 2025):
+    -
+
+2025.3.0 (13 Mar 2025):
     - Start the docs on parseq-xas.readthedocs.io.
     - Add docstrings to nodes, transformations, fits and widgets.
     - Add individual node icons.
     - Add glitch detection visible in currents, mu and chi.
-    - Add self-absorption correction.
+    - Add self-absorption correction and its description to docs.
 
 2024.11.0 (23 Nov 2024):
     - Minor new features
