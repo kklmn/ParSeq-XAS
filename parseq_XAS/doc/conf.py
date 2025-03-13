@@ -6,7 +6,7 @@ import sys
 import os
 import codecs
 # import shutil
-# import subprocess
+import subprocess
 
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
 
@@ -35,6 +35,37 @@ def get_version():
     else:
         raise RuntimeError("Unable to find version string.")
 
+
+def execute_shell_command(cmd, repo_dir):
+    """Executes a command in a subprocess, waiting until it has completed.
+
+    :param cmd: Command to execute.
+    :param work_dir: Working directory path.
+    """
+    pipe = subprocess.Popen(cmd, shell=True, cwd=repo_dir,
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (out, error) = pipe.communicate()
+    print(out, error)
+    pipe.wait()
+
+
+def git_clone(repo_url, repo_dir):
+    cmd = 'git clone --depth 1 -b master ' + repo_url + ' ' + repo_dir
+    execute_shell_command(cmd, repo_dir)
+
+
+def load_parseq():
+    repo_dir = os.path.join(__fdir__, "parseq")
+    if os.path.exists(repo_dir):
+        return  # already exists from the 1st run (rtfd has several runs)
+
+    os.makedirs(repo_dir)
+    sys.path.insert(0, repo_dir)
+
+    repo_url = "https://github.com/kklmn/ParSeq.git"
+    git_clone(repo_url, repo_dir)
+
+
 # import Cloud
 # import cloud_sptheme as csp
 
@@ -45,7 +76,9 @@ sys.path.insert(0, '../..')
 sys.path.append(os.path.abspath('exts'))
 # autodoc_mock_imports = ["PyQt5.QtWebKitWidgets"]
 
-if not on_rtd:
+if on_rtd:
+    load_parseq()  # from GH
+else:
     import parseq.gui.webWidget as pgww
 
 # -- General configuration ----------------------------------------------------
