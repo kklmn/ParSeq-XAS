@@ -30,3 +30,10 @@ their folders `parseq` and `parseq_XAS` near by (i.e. in the same folder) and
 run `python XAS_start.py --help` to see the accepted options. Run the pipeline
 as `python XAS_start.py`. Load a ready project from `saved` folder from the GUI
 or from the starting command line.
+
+Documentation
+-------------
+
+See the documentation inside the analysis pipeline or on
+https://parseq-xas.readthedocs.io/ 
+[![Documentation Status](https://readthedocs.org/projects/parseq-xas/badge/?version=latest)](https://parseq-xas.readthedocs.io)
