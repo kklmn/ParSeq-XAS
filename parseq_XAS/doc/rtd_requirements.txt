@@ -3,3 +3,4 @@ scipy
 matplotlib
 sphinxcontrib-jquery
 sphinx_tabs
+xafsmass
