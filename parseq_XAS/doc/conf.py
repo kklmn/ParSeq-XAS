@@ -61,7 +61,6 @@ def load_parseq():
 
     os.makedirs(repo_dir)
     sys.path.insert(0, repo_dir)
-
     repo_url = "https://github.com/kklmn/ParSeq.git"
     git_clone(repo_url, repo_dir)
 
@@ -161,7 +160,7 @@ release = version
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['_build']
+exclude_patterns = ['_build', 'parseq']
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 # default_role = None
