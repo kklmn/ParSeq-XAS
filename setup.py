@@ -65,11 +65,12 @@ setup(
     zip_safe=False,  # True: build zipped egg, False: unzipped
     packages=['parseq_XAS'],
     package_data={
-        'parseq_XAS': ['data/*.*', 'data/foils/*.*', 'data/HERFD/*.*',
-                       'doc/_images/*.*', 'saved/*.*']},
+        'parseq_XAS': ['data/foils/*.*', 'data/HERFD/*.*',
+                       'data/CeRu2/*.*', 'data/*.fio', 'data/*.res',
+                       'doc/*.*', 'doc/_images/*.*', 'saved/*.*']},
     scripts=['parseq_XAS/XAS_start.py'],
     install_requires=['numpy>=1.8.0', 'scipy>=1.10.0', 'matplotlib>=2.0.0',
-                      'h5py', 'silx>=1.1.0', 'hdf5plugin'],
+                      'h5py', 'silx>=2.2.0', 'hdf5plugin'],
     classifiers=['Development Status :: 5 - Production/Stable',
                  'Intended Audience :: Science/Research',
                  'Natural Language :: English',

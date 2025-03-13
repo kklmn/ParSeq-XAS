@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: parseq_XAS
-Version: 2024.11.0
+Version: 2025.3.0
 Summary: A pipeline for data processing of XAS spectra
 Author: Konstantin Klementiev
 Author-email: konstantin.klementiev@gmail.com
@@ -23,9 +23,8 @@ License-File: LICENSE
 Requires-Dist: numpy>=1.8.0
 Requires-Dist: scipy>=1.10.0
 Requires-Dist: matplotlib>=2.0.0
-Requires-Dist: sphinx>=1.6.2
 Requires-Dist: h5py
-Requires-Dist: silx>=1.1.0
+Requires-Dist: silx>=2.2.0
 Requires-Dist: hdf5plugin
 
 
