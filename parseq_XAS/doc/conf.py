@@ -99,8 +99,8 @@ source_suffix = {'.rst': 'restructuredtext'}
 
 wwwParSeq = r"https://parseq.readthedocs.io"
 helpParSeq = wwwParSeq if on_rtd else pgww.MAINHELPFILE
-helpCorr = r"{wwwParSeq}/corrections.html" if on_rtd else pgww.MAINHELPCORR
-helpForm = r"{wwwParSeq}/howto.html#file-tree-views-and-file-formats" \
+helpCorr = f"{wwwParSeq}/corrections.html" if on_rtd else pgww.MAINHELPCORR
+helpForm = f"{wwwParSeq}/howto.html#file-tree-views-and-file-formats" \
     if on_rtd else pgww.MAINHELPFORM
 
 rst_prolog = """
