@@ -47,6 +47,13 @@ Either install ParSeq and this pipeline application by their installers or put
 their folders `parseq` and `parseq_XAS` near by (i.e. in the same folder) and
 run `python XAS_start.py --help` to see the accepted options. Load a ready
 project from `saved` folder from the GUI or from the starting command line.
+
+Documentation
+-------------
+
+The documentation is available online on
+`Read the Docs <https://parseq-xas.readthedocs.io>`_.
+
 """
 
 setup(
