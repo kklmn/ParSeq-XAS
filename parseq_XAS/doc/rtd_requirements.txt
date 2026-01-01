@@ -2,5 +2,6 @@ numpy
 scipy
 matplotlib
 sphinxcontrib-jquery
-sphinx_tabs
+docutils<0.22
+sphinx-tabs>=3.4.7
 xafsmass
