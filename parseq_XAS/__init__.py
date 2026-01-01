@@ -31,7 +31,8 @@ csi.appDescription = __doc__
 csi.appAuthor = __author__
 csi.appLicense = __license__
 csi.appVersion = __version__
-csi.rtdPath = r"https://parseq-xas.readthedocs.io/en/latest/"
+csi.appRtdPath = r"https://parseq-xas.readthedocs.io/en/latest/"
+csi.appHelpTab = "How-tos", "howto.html"
 
 from .XAS_pipeline import make_pipeline
 from .XAS_tests import load_test_data
