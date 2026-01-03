@@ -43,6 +43,7 @@ from numpy.polynomial import Polynomial as P
 
 from functools import partial
 from scipy.optimize import curve_fit, root
+from scipy.signal import butter, sosfiltfilt
 from scipy.interpolate import (CubicSpline, LSQUnivariateSpline, interp1d,
                                make_lsq_spline)
 # from scipy.interpolate import BSpline
@@ -353,6 +354,21 @@ class MakeChi(ctr.Transform):
     The resulted χ(k) is interpolated onto the equidistant k-mesh defined by
     :param:`krange` and :param:`dk` and weighted by :math:`k^w`, where
     :math:`w` is defined by :param:`kw`.
+
+    Denoising
+    ~~~~~~~~~
+
+    The curve can optionally be denoised by means of ``scipy.signal.butter()``.
+    The two parameters, *order* and *lowpass frequency* are the first two
+    parameters of ``scipy.signal.butter()``. The former one is directly it, and
+    the latter is slightly modified: Wn = "lowpass frequency" × kmax. The
+    calculated noise level is a normalized difference between the original and
+    the denoised χ·kᵂ:
+
+    .. math::
+        N/S = \left( \sum_k(χ·k^w-χ(denoised)·k^w)^2 /
+                    \sum_k(χ(denoised)·k^w)^2 \right)^{1/2}.
+
     """
 
     name = 'make chi'
@@ -380,7 +396,9 @@ class MakeChi(ctr.Transform):
         needECalibration=False, eCalibrationMethod=1, eRef=8979.,
         eShift=0, eShiftKind=0,  # see names in eShiftKinds
         useERefCurve=False,
-        kw=2, krange=[2.0, None], dk=0.025, datakmax=15.
+        kw=2, krange=[2.0, None], dk=0.025, datakmax=15.,
+        denoiseNeeded=False, denoiseOrder=7, denoiseFrequency=7.0,
+        noiseLevel=None,
         )
     dontSaveParamsWhenUnused = {  # paramName: paramSwitch
         'rebinRegions': 'rebinNeeded',
@@ -804,8 +822,9 @@ class MakeChi(ctr.Transform):
             raise ValueError(
                 "unknown value mu0method={0}".format(dtparams['mu0method']))
 
-        data.chi = cls.get_chi(data.e, data.e0, data.mu, data.mu0,
-                               data.pre_edge, data.k, dtparams['kw'])
+        data.chi = cls.get_chi(
+            data.e, data.e0, data.mu, data.mu0, data.pre_edge, data.k,
+            dtparams['kw'], dtparams)
 
         # # test with ft + bft
         # # differs from VIPER by sqrt(2/pi) that is tranferred to BFT:
@@ -930,14 +949,22 @@ class MakeChi(ctr.Transform):
 
     @classmethod
     @logger(minLevel=20, attrs=[(0, 'name')])
-    def get_chi(cls, e, e0, mu, mu0, pre_edge, k, kw):
+    def get_chi(cls, e, e0, mu, mu0, pre_edge, k, kw, dtparams=None):
         wherek = e >= e0
         kexp = ((e[wherek] - e0)*eV2revA)**0.5
         mu_ = mu[wherek]
         mu0_ = mu0[wherek]
         pre = pre_edge[wherek]
         chie = (mu_ - mu0_) / (mu0_ - pre)
-        return np.interp(k, kexp, chie) * k**kw
+        chik = np.interp(k, kexp, chie) * k**kw
+        if dtparams is not None and dtparams['denoiseNeeded']:
+            sos = butter(dtparams['denoiseOrder'],
+                         dtparams['denoiseFrequency']*k[-1],
+                         fs=len(k), output='sos')  # Butterworth
+            d = sosfiltfilt(sos, chik)
+            dtparams['noiseLevel'] = (((chik-d)**2).sum() / (d**2).sum())**0.5
+            chik = d
+        return chik
 
     @classmethod
     def mu0_spline_fit(cls, r, *vals, eknots, yknots, e, e0, mu0prior, mu,

@@ -1543,6 +1543,14 @@ class ChiWidget(PropWidget):
     .. |icoLast| image:: /_images/last.png
        :width: 12
 
+    Denoising
+    ~~~~~~~~~
+
+    Denoising utilizes ``scipy.signal.butter()``. The two parameters, *order*
+    and *lowpass frequency* are the first two parameters of
+    ``scipy.signal.butter()``. The calculated noise level is a normalized
+    difference between the original and the denoised χ·kᵂ, see the tooltip.
+
     FT window
     ~~~~~~~~~
 
@@ -1672,6 +1680,53 @@ class ChiWidget(PropWidget):
         layoutkw.addStretch()
         layout.addLayout(layoutkw)
 
+        denoisePanel = qt.QGroupBox(self)
+        denoisePanel.setFlat(False)
+        denoisePanel.setTitle('denoise')
+        denoisePanel.setCheckable(True)
+        denoisePanel.setStyleSheet(
+            'QGroupBox[flat="false"] {font-weight: bold;}')
+        self.registerPropWidget(
+            denoisePanel, denoisePanel.title(), 'denoiseNeeded')
+        layoutDN = qt.QVBoxLayout()
+        layoutDN.setContentsMargins(2, 2, 2, 2)
+        layoutdo = qt.QHBoxLayout()
+        labeldo = qt.QLabel('order')
+        layoutdo.addWidget(labeldo)
+        spinboxdo = qt.QSpinBox()
+        spinboxdo.setToolTip(u'0 ≤ order ≤ 50')
+        spinboxdo.setMinimum(0)
+        spinboxdo.setMaximum(50)
+        layoutdo.addWidget(spinboxdo)
+        layoutdo.addStretch()
+        self.registerPropWidget(
+            (labeldo, spinboxdo), 'denoise order', 'denoiseOrder')
+        labeldc = qt.QLabel('lowpass frequency')
+        layoutdo.addWidget(labeldc)
+        spinboxdc = qt.QDoubleSpinBox()
+        spinboxdc.setMinimum(0)
+        spinboxdc.setMaximum(20)
+        spinboxdc.setSingleStep(0.5)
+        spinboxdc.setDecimals(1)
+        spinboxdc.setAccelerated(True)
+        layoutdo.addWidget(spinboxdc)
+        layoutDN.addLayout(layoutdo)
+        self.registerPropWidget(
+            (labeldc, spinboxdc), 'lowpass frequency', 'denoiseFrequency')
+        layoutnl = qt.QHBoxLayout()
+        labelnl = qt.QLabel('noise level')
+        tt = 'defined as N/S = √Σₖ(χ·kᵂ-χ(denoised)·kᵂ)² / √Σₖ(χ(denoised)·kᵂ)²'
+        labelnl.setToolTip(tt)
+        layoutnl.addWidget(labelnl)
+        self.valueNoiseLevel = qt.QLabel()
+        self.valueNoiseLevel.setToolTip(tt)
+        layoutnl.addWidget(self.valueNoiseLevel)
+        layoutDN.addLayout(layoutnl)
+        self.registerStatusLabel(
+            self.valueNoiseLevel, 'noiseLevel', textFormat='.4f')
+        denoisePanel.setLayout(layoutDN)
+        layout.addWidget(denoisePanel)
+
         ftPanel = qt.QGroupBox(self)
         ftPanel.setFlat(False)
         ftPanel.setTitle('FT window')
@@ -1739,6 +1794,7 @@ class ChiWidget(PropWidget):
             ind = self.ftWindowKind.currentIndex()
             self.ftWidthAndMin.roi.setVisible(
                 ind > 1 and self.properties['show_ft_window'])
+
 
     def extraPlotActionAfterTransform(self, props):
         if 'kw' in props:
@@ -1813,6 +1869,19 @@ class ChiWidget(PropWidget):
         plot.plotLeftYLabel = u'χ'+skw
         plot.setGraphYLabel(label=plot.plotLeftYLabel, axis='left')
         # plot.setGraphYLabel(label='FT window', axis='right')  # not good
+        if dtparams['denoiseNeeded']:
+            kw = dtparams['kw']
+            v = dtparams['noiseLevel']
+            if kw == 1:
+                c = 'green' if v < 0.025 else 'red' if v > 0.25 else 'black'
+            elif kw == 2:
+                c = 'green' if v < 0.05 else 'red' if v > 0.5 else 'black'
+            elif kw == 3:
+                c = 'green' if v < 0.1 else 'red' if v > 1.0 else 'black'
+            else:
+                return
+            self.valueNoiseLevel.setStyleSheet(
+                "QLabel {color: "+c+"; font: bold 12px;}")
 
     def updateFTwindow(self, ind):
         self.ftWidthAndMin.setVisible(ind > 1)
