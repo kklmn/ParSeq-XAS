@@ -3,8 +3,9 @@
 Version history
 ---------------
 
-Current GitHub code (modified 13 Mar 2025):
-    -
+Current GitHub code (modified 3 Jan 2026):
+    - Add How-tos tab to the main tabbed window.
+    - Add denoise function.
 
 2025.3.0 (13 Mar 2025):
     - Start the docs on parseq-xas.readthedocs.io.
@@ -14,7 +15,7 @@ Current GitHub code (modified 13 Mar 2025):
     - Add self-absorption correction and its description to docs.
 
 2024.11.0 (23 Nov 2024):
-    - Minor new features
+    - Minor new features.
     - Minor bug fixes.
 
 2024.5.0 (30 May 2023):
@@ -24,7 +25,7 @@ Current GitHub code (modified 13 Mar 2025):
 2023.5.0 (30 May 2023):
     - Add LCF and function fit.
 
-0.9.0 (28 Mar 2023): 
+0.9.0 (28 Mar 2023):
     - Re-arrange transformation to comply with multiple entry points.
     - Add HERFD example data.
 
