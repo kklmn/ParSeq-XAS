@@ -3,9 +3,12 @@
 Version history
 ---------------
 
-Current GitHub code (modified 3 Jan 2026):
+Current GitHub code (modified 5 Jan 2026):
+    -
+
+2026.1.0 (5 Jan 2026):
     - Add How-tos tab to the main tabbed window.
-    - Add denoise function.
+    - Add denoise function and integral noise estimation.
 
 2025.3.0 (13 Mar 2025):
     - Start the docs on parseq-xas.readthedocs.io.

@@ -166,7 +166,7 @@
         transform="translate(0, 0)"
         style="stroke: #2ca02c; marker-end: url(#arrow2); filter: url(#flt2)"  /></svg>
         <div class="pipeline-tr" style="color: #d62728; text-shadow: 1px 1.5px 3px #d6272899;">
-            <a href=https://parseq-xas.readthedocs.io/en/latest/nogui.html#make-absorption-coefficient>make HERFD</a>&nbsp(10 threads)</div>
+            <a href=https://parseq-xas.readthedocs.io/en/latest/nogui.html#make-absorption-coefficient>make HERFD</a>&nbsp(2 threads)</div>
 
         <svg><line id="line_3" node1=pn_2D_XES node2=pn_µd class="shadow"
         transform="translate(0, 0)"
@@ -181,7 +181,7 @@
       <div class="pipeline-transforms">
         <div class="pipeline-tr" ></div>
         <div class="pipeline-tr" style="color: #9467bd; text-shadow: 1px 1.5px 3px #9467bd99;">
-            <a href=https://parseq-xas.readthedocs.io/en/latest/nogui.html#make-exafs-function-k>make chi</a>&nbsp(10 threads)</div>
+            <a href=https://parseq-xas.readthedocs.io/en/latest/nogui.html#make-exafs-function-k>make chi</a>&nbsp(2 threads)</div>
 
         <svg><line id="line_4" node1=pn_µd node2=pn_χ(k) class="shadow"
         transform="translate(0, 0)"
@@ -194,7 +194,7 @@
       <div class="pipeline-transforms">
         <div class="pipeline-tr" ></div>
         <div class="pipeline-tr" style="color: #8c564b; text-shadow: 1px 1.5px 3px #8c564b99;">
-            <a href=https://parseq-xas.readthedocs.io/en/latest/nogui.html#make-fourier-transformed-exafs-function-r>make FT</a>&nbsp(10 threads)</div>
+            <a href=https://parseq-xas.readthedocs.io/en/latest/nogui.html#make-fourier-transformed-exafs-function-r>make FT</a>&nbsp(2 threads)</div>
 
         <svg><line id="line_5" node1=pn_χ(k) node2=pn_FT,_χ(r) class="shadow"
         transform="translate(0, 0)"
@@ -207,7 +207,7 @@
       <div class="pipeline-transforms">
         <div class="pipeline-tr" ></div>
         <div class="pipeline-tr" style="color: #e377c2; text-shadow: 1px 1.5px 3px #e377c299;">
-            <a href=https://parseq-xas.readthedocs.io/en/latest/nogui.html#make-back-fourier-transformed-exafs-function-k>make BFT</a>&nbsp(10 threads)</div>
+            <a href=https://parseq-xas.readthedocs.io/en/latest/nogui.html#make-back-fourier-transformed-exafs-function-k>make BFT</a>&nbsp(2 threads)</div>
 
         <svg><line id="line_6" node1=pn_FT,_χ(r) node2=pn_BFT,_χ̃(k) class="shadow"
         transform="translate(0, 0)"

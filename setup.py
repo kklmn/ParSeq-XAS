@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 from setuptools import setup
-
 import os.path as osp
-import codecs
 
 __dir__ = osp.abspath(osp.dirname(__file__))
 
 
 def read(pathnames):
-    with codecs.open(osp.join(__dir__, *pathnames), 'r') as fp:
+    with open(osp.join(__dir__, *pathnames), 'r') as fp:
         return fp.read()
 
 
@@ -66,15 +64,17 @@ setup(
     author_email='konstantin.klementiev@gmail.com',
     project_urls={'Source': 'https://github.com/kklmn/ParSeq-XAS'},
     platforms='OS Independent',
-    license='MIT License',
+    license='MIT',
     keywords='data-analysis pipeline framework gui synchrotron spectroscopy',
     # python_requires=,
     zip_safe=False,  # True: build zipped egg, False: unzipped
     packages=['parseq_XAS'],
     package_data={
-        'parseq_XAS': ['data/foils/*.*', 'data/HERFD/*.*',
-                       'data/CeRu2/*.*', 'data/*.fio', 'data/*.res',
-                       'doc/*.*', 'doc/_images/*.*', 'saved/*.*']},
+        'parseq_XAS': [
+            'data/foils/*', 'data/foils/*/*', 'data/foils/*/*/*',
+            'data/CeRu2/*', 'data/CeRu2/*/*', 'data/CeRu2/*/*/*',
+            'data/HERFD/*.*', 'data/*.fio', 'data/*.res',
+            'doc/*.*', 'doc/_images/*.*', 'saved/*.*']},
     scripts=['parseq_XAS/XAS_start.py'],
     install_requires=['numpy>=1.8.0', 'scipy>=1.10.0', 'matplotlib>=2.0.0',
                       'h5py', 'silx>=2.2.0', 'hdf5plugin'],
@@ -83,7 +83,6 @@ setup(
                  'Natural Language :: English',
                  'Operating System :: OS Independent',
                  'Programming Language :: Python',
-                 'License :: OSI Approved :: MIT License',
                  'Intended Audience :: Science/Research',
                  'Topic :: Scientific/Engineering',
                  'Topic :: Software Development',

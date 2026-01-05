@@ -1,10 +1,10 @@
-Metadata-Version: 2.1
+Metadata-Version: 2.4
 Name: parseq_XAS
-Version: 2025.3.0
+Version: 2026.1.0
 Summary: A pipeline for data processing of XAS spectra
 Author: Konstantin Klementiev
 Author-email: konstantin.klementiev@gmail.com
-License: MIT License
+License: MIT
 Project-URL: Source, https://github.com/kklmn/ParSeq-XAS
 Keywords: data-analysis pipeline framework gui synchrotron spectroscopy
 Platform: OS Independent
@@ -13,7 +13,6 @@ Classifier: Intended Audience :: Science/Research
 Classifier: Natural Language :: English
 Classifier: Operating System :: OS Independent
 Classifier: Programming Language :: Python
-Classifier: License :: OSI Approved :: MIT License
 Classifier: Intended Audience :: Science/Research
 Classifier: Topic :: Scientific/Engineering
 Classifier: Topic :: Software Development
@@ -26,6 +25,18 @@ Requires-Dist: matplotlib>=2.0.0
 Requires-Dist: h5py
 Requires-Dist: silx>=2.2.0
 Requires-Dist: hdf5plugin
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: keywords
+Dynamic: license
+Dynamic: license-file
+Dynamic: platform
+Dynamic: project-url
+Dynamic: requires-dist
+Dynamic: summary
 
 
 EXAFS analysis pipeline
@@ -51,3 +62,10 @@ Either install ParSeq and this pipeline application by their installers or put
 their folders `parseq` and `parseq_XAS` near by (i.e. in the same folder) and
 run `python XAS_start.py --help` to see the accepted options. Load a ready
 project from `saved` folder from the GUI or from the starting command line.
+
+Documentation
+-------------
+
+The documentation is available online on
+`Read the Docs <https://parseq-xas.readthedocs.io>`_.
+
