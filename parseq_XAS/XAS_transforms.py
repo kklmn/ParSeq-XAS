@@ -64,8 +64,8 @@ from parseq.utils.constants import eV2revA  # 2m_e(eV)/(^h(eVs)c(A/s))^2
 
 from parseq.third_party import XAFSmass
 
-cpus = 'half'  # can be 'all' or 'half' or a number (int)
-# cpus = 4
+# cpus = 'half'  # can be 'all' or 'half' or 'quarter' a number (int)
+cpus = 1
 
 
 class MakeTrMu(ctr.Transform):
@@ -1017,7 +1017,8 @@ class MakeFT(ctr.Transform):
     inArrays = ['k', 'chi']
     outArrays = ['r', 'ft', 'ftr', 'fti', 'ftwindow']
 
-    nfft = 8192
+    # nfft = 8192
+    nfft = 4096
 
     @classmethod
     def run_main(cls, data):
@@ -1033,8 +1034,8 @@ class MakeFT(ctr.Transform):
         kind = dtparams['ftWindowKind']
         w, vmin = dtparams['ftWindowProp']
         kmin, kmax = dtparams['krange']
-        # kmaxE = dtparams['datakmax']
-        # kmax = min(kmax, kmaxE) if kmax else kmaxE
+        if kmax is None:
+            kmax = dtparams['datakmax']
         data.ftwindow = uft.make_ft_window(kind, data.k, kmin, kmax, w, vmin)
         chi = np.array(data.chi) * data.ftwindow
         if dtparams['forceFT0']:
