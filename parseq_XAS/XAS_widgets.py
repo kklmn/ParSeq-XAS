@@ -177,7 +177,7 @@ class RangeWidgetFTWidthAndMin(SplitRangeWidget):
 
 
 class CurWidget(PropWidget):
-    u"""
+    r"""
     This widget has a single tool -- a panel for highlighting monochromator
     glitches in several transformation nodes. This tool is not a part of any
     transformation and only serves for visual diagnostics.
@@ -275,7 +275,7 @@ class CurWidget(PropWidget):
 
 
 class HERFDWidget(PropWidget):
-    u"""
+    r"""
     This widget controls the HERFD µ calculation from a 2D data array in
     "scanning energy" vs "tangential detector axis" coordinates. The widget
     sets the parameters of two actions: level cutoff and integration within
@@ -406,10 +406,10 @@ class MuWidget(PropWidget):
         Similarly, a tooltip of the "auto" radio button displays the implied
         automatic range.
 
-    Edge position :math:`E_0`
-    ~~~~~~~~~~~~~~~~~~~~~~~~~
+    Edge position E₀
+    ~~~~~~~~~~~~~~~~
 
-    The three :math:`E_0` options give similar, still varying, results.
+    The three E₀ options give similar, still varying, results.
 
     +------------------+------------------+------------------+
     |   0: (µd)' max   | 1: (spline)' max | 2: µd' peak mean |
@@ -425,8 +425,8 @@ class MuWidget(PropWidget):
        :loc: upper-right-corner
 
     When the edge has several derivative maxima, the edge position should be
-    placed over the first one. In this case, the :math:`E_0` search range
-    should exclude the main derivative peak:
+    placed over the first one. In this case, the E₀ search range should exclude
+    the main derivative peak:
 
     .. imagezoom:: _images/e0range.png
        :align: center
@@ -434,13 +434,13 @@ class MuWidget(PropWidget):
     Energy calibration
     ~~~~~~~~~~~~~~~~~~
 
-    The found :math:`E_0` position can be assigned to a tabulated value that
-    can either be selected from the drop-down list or typed in manually.
-    Alternatively, a shift of :math:`E_0` can be specified. The former method
-    should be used for a reference material with a known edge position (most
-    typically a foil), which would calculate a shift of :math:`E_0`. This shift
-    can be applied to all other spectra measured during the same beam time. The
-    energy shift is most typically applied as a constant Bragg angle offset.
+    The found E₀ position can be assigned to a tabulated value that can either
+    be selected from the drop-down list or typed in manually. Alternatively, a
+    shift of E₀ can be specified. The former method should be used for a
+    reference material with a known edge position (most typically a foil),
+    which would calculate a shift of E₀. This shift can be applied to all other
+    spectra measured during the same beam time. The energy shift is most
+    typically applied as a constant Bragg angle offset.
 
     Pre-edge background
     ~~~~~~~~~~~~~~~~~~~
@@ -1310,7 +1310,7 @@ class MuWidget(PropWidget):
 
 
 class MuSelfAbsorptionCorrection(PropWidget):
-    u"""
+    r"""
     Help page under construction
 
     .. image:: _images/mickey-rtfm.gif
@@ -1497,7 +1497,7 @@ class MuSelfAbsorptionCorrection(PropWidget):
 
 
 class ChiWidget(PropWidget):
-    u"""
+    r"""
     Data rebinning
     ~~~~~~~~~~~~~~
 
@@ -1912,13 +1912,13 @@ class ChiWidget(PropWidget):
 
 
 class FTWidget(PropWidget):
-    u"""
+    r"""
     The resulting FT is cut at a selected r max value, mainly for the plotting
     purpose.
 
-    The zeroth FT frequency (here, the uncorrected distance :math:`r`) can be
-    removed by nulling the first integral of χ(k); this choice is controlled by
-    the checkbox "force FT(0)=0".
+    The zeroth FT frequency (here, the uncorrected distance r) can be removed
+    by nulling the first integral of χ(k); this choice is controlled by the
+    checkbox "force FT(0)=0".
 
     BFT window
     ~~~~~~~~~~
