@@ -32,7 +32,7 @@ Fourier-transformed EXAFS function χ(r)
 """
 
 __author__ = "Konstantin Klementiev"
-__date__ = "28 Feb 2025"
+__date__ = "1 Mar 2026"
 
 import numpy as np
 
@@ -1329,12 +1329,17 @@ class MuSelfAbsorptionCorrection(PropWidget):
     RED_TXT = '<span style="font-weight:600;color:#aa0000;">{0}</span>'
     GREEN_TXT = '<span style="color:#00aa00;">{0}</span>'
 
+    updateSplitterButton = qt.Signal()
+
     def __init__(self, parent=None, node=None):
         super().__init__(parent, node)
         layout = qt.QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
 
         sacPanel = qt.QGroupBox(self)
+        sacPanel.customSignals = [self.updateSplitterButton, ]
+        self.updateSplitterButton.connect(
+            partial(self.highlightSplitterButton, sacPanel))
         sacPanel.setFlat(False)
         sacPanel.setTitle('self-absorption correction')
         sacPanel.setCheckable(True)
@@ -1476,6 +1481,17 @@ class MuSelfAbsorptionCorrection(PropWidget):
         layout.addWidget(sacPanel)
 
         self.setLayout(layout)
+
+    def highlightSplitterButton(self, but):
+        correctionWidget = self.node.widget.correctionWidget
+        names = [corr['name'] for corr in correctionWidget.getCorrections()]
+        if but.isChecked():
+            colors = dict(color1='#751515', color2='#ffc6c7', color3='#ffaaab')
+            names += ['self-absorption']
+        else:
+            return  # highlighted by other corrections
+        splitterBut = self.node.widget.splitterButtons['data corrections']
+        splitterBut.setHighlight(colors, names)
 
     def extraSetUIFromData(self):
         if len(csi.selectedItems) == 0:
