@@ -6,9 +6,13 @@ ParSeq-XAS How-tos
 Pipeline launch and command line options
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The ParSeq-XAS pipeline starts by ``python XAS_start.py``. Use the key
-``--help`` to discover the start options. Two particularly useful options are
-``-p`` to load an existing project file and ``-v`` to troubleshoot an error. 
+The ParSeq-XAS pipeline starts by ``python XAS_start.py``.
+
+.. hint::
+
+    Use the key ``-h`` to discover the start options. Two particularly useful
+    options are ``-p {filename}`` to load an existing project file and
+    ``-v 100`` to troubleshoot errors.
 
 Data loading
 ~~~~~~~~~~~~
@@ -34,6 +38,13 @@ the used instruments, the data format definitions can be automated in ParSeq
 if the files have a header line with a description of the columns. ParSeq-XAS
 implements `auto_format()` methods of a few data nodes (see the module
 `XAS_nodes`) that can be tweaked for specific needs.
+
+Data range
+~~~~~~~~~~
+
+The data format widget has a tab "conversion". Read its tooltip panel. In
+particular, one can use the function `lim(Emin, Emax)` in the top-most edit
+line to select a desirable energy range.
 
 Data deglitching
 ~~~~~~~~~~~~~~~~
@@ -86,7 +97,7 @@ images:
 
    When saving a project file, pay attention to the current data selection.
    Only the selected data items will be exported.
-   
+
 Make publication plots
 ~~~~~~~~~~~~~~~~~~~~~~
 
