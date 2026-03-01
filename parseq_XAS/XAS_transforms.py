@@ -1072,7 +1072,7 @@ class MakeBFT(ctr.Transform):
     inArrays = ['k', 'r', 'ftr', 'fti', 'ftwindow']
     outArrays = ['bft', 'bftk', 'bftwindow']
 
-    nfft = 8192
+    nfft = MakeFT.nfft
 
     @classmethod
     def run_main(cls, data):
