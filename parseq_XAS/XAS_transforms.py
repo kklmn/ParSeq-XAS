@@ -769,7 +769,7 @@ class MakeChi(ctr.Transform):
             if dtparams['ftMinimize']:
                 nvKnots = dtparams['ftMinNKnots']
                 ftMinRange = dtparams['ftMinRange']
-                r = np.fft.rfftfreq(MakeFT.nfft, dk/np.pi)
+                r = np.fft.rfftfreq(uft.nfft, dk/np.pi)
                 wherer = (ftMinRange[0] <= r) & (r <= ftMinRange[1])
                 # fitr = np.concatenate((r[wherer], r[wherer]))
                 fitr = r[wherer]
@@ -828,7 +828,7 @@ class MakeChi(ctr.Transform):
 
         # # test with ft + bft
         # # differs from VIPER by sqrt(2/pi) that is tranferred to BFT:
-        # ft = np.fft.rfft(data.chi, n=MakeFT.nfft) * dk/2
+        # ft = np.fft.rfft(data.chi, n=uft.nfft) * dk/2
         # data.bft = np.fft.irfft(ft)[0:len(data.k)] / (dk/2)
 
         return True
@@ -978,7 +978,7 @@ class MakeChi(ctr.Transform):
         chi = cls.get_chi(e, e0, mu, mu0, pre_edge, k, kw)  # * ftwindow
         chi -= np.trapezoid(chi, x=k) / np.trapezoid(np.ones_like(chi), x=k)
         dk = k[1] - k[0]
-        ft = np.fft.rfft(chi, n=MakeFT.nfft) * dk/2
+        ft = np.fft.rfft(chi, n=uft.nfft) * dk/2
         # res = np.concatenate((ft.real[wherer]**2, ft.imag[wherer]**2))
         res = np.abs(ft[wherer])**4
         return res
@@ -993,8 +993,7 @@ class MakeFT(ctr.Transform):
     usual :math:`-ikr`, the result is multiplied by :math:`dk/2`, not the usual
     :math:`dk`; the real-space spacing :math:`dr=π/(N\cdot dk)`. The real-space
     grid is given by numpy function ``fft.rfftfreq(N, dk/π)``. The number of
-    grid points :math:`N` is a class variable ``nfft`` and equals here
-    2¹³ = 8192.
+    grid points :math:`N` is a class variable ``nfft`` and equals here 4096.
 
     Before making FT, χ(k) is multiplied by a window function that is one of
     these choices: 'none', 'box', 'linear-tapered', 'cosine-tapered',
@@ -1017,8 +1016,7 @@ class MakeFT(ctr.Transform):
     inArrays = ['k', 'chi']
     outArrays = ['r', 'ft', 'ftr', 'fti', 'ftwindow']
 
-    # nfft = 8192
-    nfft = 4096
+    nfft = uft.nfft
 
     @classmethod
     def run_main(cls, data):
@@ -1072,7 +1070,7 @@ class MakeBFT(ctr.Transform):
     inArrays = ['k', 'r', 'ftr', 'fti', 'ftwindow']
     outArrays = ['bft', 'bftk', 'bftwindow']
 
-    nfft = MakeFT.nfft
+    nfft = uft.nfft
 
     @classmethod
     def run_main(cls, data):
