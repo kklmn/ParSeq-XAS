@@ -89,7 +89,7 @@ class NodeIT(cno.Node):
 
     def auto_format(self, path, ftype='column'):
         if ftype == 'column':
-            with open(path, 'r') as f:
+            with open(path, 'r', encoding="utf-8") as f:
                 for line in f:
                     if not line.startswith('#'):
                         return
@@ -170,7 +170,7 @@ class NodeIE(cno.Node):
 
     def auto_format(self, path, ftype='column'):
         if ftype == 'column':
-            with open(path, 'r') as f:
+            with open(path, 'r', encoding="utf-8") as f:
                 for line in f:
                     if not line.startswith('#'):
                         return
