@@ -563,7 +563,8 @@ class MuWidget(PropWidget):
     properties = {
         'subtract_preedge': True, 'normalize': True, 'flatten': False,
         'show_derivative': False, 'show_E0': True,
-        'show_mu0': True, 'show_mu0_prior': False, 'show_post': False}
+        'show_mu0': True, 'show_mu0_prior': False, 'show_post': False,
+        'ystep': 0.2}
 
     extraLines = ('pre_edge', 'post_edge', 'mu0', 'mu0eknots',
                   'mu0eknots.varied', 'mu0prior', 'e0', 'mu_der')
@@ -1074,6 +1075,11 @@ class MuWidget(PropWidget):
 
     def extraPlot(self):
         plot = self.node.widget.plot
+        ystep, iystep = None, 0
+        try:
+            ystep = self.properties['ystep']
+        except Exception:
+            ystep = None
         for data in csi.allLoadedItems:
             if not self.node.widget.shouldPlotItem(data):
                 for extraLine in self.extraLines:
@@ -1082,16 +1088,22 @@ class MuWidget(PropWidget):
                 continue
             dtparams = data.transformParams
             z = 1 if data in csi.selectedItems else 0
+            if ystep is not None:
+                dy = ystep*iystep
+                iystep += 1
+            else:
+                dy = 0
 
             legend = '{0}.pre_edge'.format(data.alias)
             if not self.properties['subtract_preedge']:
                 curve = plot.getCurve(legend)
                 if curve is None:
                     plot.addCurve(
-                        data.e, data.pre_edge, **self.plotParams['pre_edge'],
+                        data.e, data.pre_edge+dy,
+                        **self.plotParams['pre_edge'],
                         color=data.color, z=z, legend=legend, resetzoom=False)
                 else:
-                    curve.setData(data.e, data.pre_edge)
+                    curve.setData(data.e, data.pre_edge+dy)
                     curve.setZValue(z)
             else:
                 plot.remove(legend, kind='curve')
@@ -1109,10 +1121,10 @@ class MuWidget(PropWidget):
                 curve = plot.getCurve(legend)
                 if curve is None:
                     plot.addCurve(
-                        data.e, pe, **self.plotParams['post_edge'],
+                        data.e, pe+dy, **self.plotParams['post_edge'],
                         color=data.color, z=z, legend=legend, resetzoom=False)
                 else:
-                    curve.setData(data.e, pe)
+                    curve.setData(data.e, pe+dy)
                     curve.setZValue(z)
             else:
                 plot.remove(legend, kind='curve')
@@ -1130,10 +1142,10 @@ class MuWidget(PropWidget):
                 curve = plot.getCurve(legend)
                 if curve is None:
                     plot.addCurve(
-                        data.e, pe, **self.plotParams['mu0'],
+                        data.e, pe+dy, **self.plotParams['mu0'],
                         color=data.color, z=z, legend=legend, resetzoom=False)
                 else:
-                    curve.setData(data.e, pe)
+                    curve.setData(data.e, pe+dy)
                     curve.setZValue(z)
             else:
                 plot.remove(legend, kind='curve')
@@ -1158,10 +1170,10 @@ class MuWidget(PropWidget):
                 symbolsize = plotProps.pop('symbolsize', 3)
                 if curve is None:
                     plot.addCurve(
-                        knotsx, pe, **plotProps,
+                        knotsx, pe+dy, **plotProps,
                         color=data.color, z=z, legend=legend, resetzoom=False)
                 else:
-                    curve.setData(knotsx, pe)
+                    curve.setData(knotsx, pe+dy)
                     curve.setZValue(z)
 
                 symbol = plotProps.get('symbol', None)
@@ -1193,10 +1205,10 @@ class MuWidget(PropWidget):
                 symbolsize = plotProps.pop('symbolsize', 3) + 4
                 if curve is None:
                     plot.addCurve(
-                        knotsx, pe, **plotProps,
+                        knotsx, pe+dy, **plotProps,
                         color=data.color, z=z, legend=legend, resetzoom=False)
                 else:
-                    curve.setData(knotsx, pe)
+                    curve.setData(knotsx, pe+dy)
                     curve.setZValue(z)
 
                 symbol = plotProps.get('symbol', None)
@@ -1222,10 +1234,10 @@ class MuWidget(PropWidget):
                 curve = plot.getCurve(legend)
                 if curve is None:
                     plot.addCurve(
-                        data.e, pe, **self.plotParams['mu0prior'],
+                        data.e, pe+dy, **self.plotParams['mu0prior'],
                         color=data.color, z=z, legend=legend, resetzoom=False)
                 else:
-                    curve.setData(data.e, pe)
+                    curve.setData(data.e, pe+dy)
                     curve.setZValue(z)
             else:
                 plot.remove(legend, kind='curve')
@@ -1239,8 +1251,8 @@ class MuWidget(PropWidget):
                 # ylim = plot.getYAxis().getLimits()
                 ylim = (0, de.max()) if self.properties['subtract_preedge'] \
                     else (de.min(), de.max())
-                dy = ylim[1] - ylim[0]
-                ylim = ylim[0] + 0.05*dy, ylim[1] - 0.05*dy
+                dyl = ylim[1] - ylim[0]
+                ylim = ylim[0] + 0.05*dyl + dy, ylim[1] - 0.05*dyl + dy
                 curve = plot.getCurve(legend)
                 if curve is None:
                     plot.addCurve(
@@ -1588,7 +1600,7 @@ class ChiWidget(PropWidget):
     name = u'rebin and make χ'
 
     properties = {'show_zero_grid_line': True, 'k_range_visible': True,
-                  'show_ft_window': True, 'show_bft': False}
+                  'show_ft_window': True, 'show_bft': False, 'ystep': 0.}
 
     captions = 'pre-edge', 'edge', 'post-edge', 'EXAFS'
     deltas = (['dE', 1.0, 0.1, 10, 0.1],  # label, value, min, max, step
@@ -1811,7 +1823,6 @@ class ChiWidget(PropWidget):
             self.ftWidthAndMin.roi.setVisible(
                 ind > 1 and self.properties['show_ft_window'])
 
-
     def extraPlotActionAfterTransform(self, props):
         if 'kw' in props:
             plot = self.node.widget.plot
@@ -1843,34 +1854,57 @@ class ChiWidget(PropWidget):
         dtparams = data.transformParams
 
         plot = self.node.widget.plot
+        ystep, iystep = None, 0
+        try:
+            ystep = self.properties['ystep']
+        except Exception:
+            ystep = None
         self.ftWidthAndMin.fromSpinBox(100)
         if hasattr(data, 'ftwindow'):
             legend = 'hline'
             xlim = plot.getXAxis().getLimits()
-            if self.properties['show_zero_grid_line']:
-                plot.addCurve(xlim, [0, 0], color='gray', legend=legend,
-                              resetzoom=False)
+            curve = plot.getCurve(legend)
+            if curve is None:
+                if self.properties['show_zero_grid_line']:
+                    plot.addCurve(xlim, [0, 0], color='gray', legend=legend,
+                                  resetzoom=False)
+            else:
+                curve.setData(xlim, [0, 0])
 
             legend = 'FT window'
             if self.properties['show_ft_window']:
                 ymax = plot.getYAxis().getLimits()[1] * \
                     RangeWidgetFTWidthAndMin.plotFactor
-                plot.addCurve(
-                    data.k, data.ftwindow*ymax, yaxis='left',
-                    **self.plotParams['ftwindow'], legend=legend,
-                    resetzoom=False)
+                curve = plot.getCurve(legend)
+                if curve is None:
+                    plot.addCurve(
+                        data.k, data.ftwindow*ymax, yaxis='left',
+                        **self.plotParams['ftwindow'], legend=legend,
+                        resetzoom=False)
+                else:
+                    curve.setData(data.k, data.ftwindow*ymax)
             else:
                 plot.remove(legend, kind='curve')
 
         for data in csi.allLoadedItems:
+            if ystep is not None:
+                dy = ystep*iystep
+                iystep += 1
+            else:
+                dy = 0
             legend = '{0}.bft'.format(data.alias)
             showCurve = self.node.widget.shouldPlotItem(data) and \
                 self.properties['show_bft']
             if showCurve:
                 z = 1 if data in csi.selectedItems else 0
-                plot.addCurve(
-                    data.bftk, data.bft, **self.plotParams['bft'],
-                    color=data.color, z=z, legend=legend, resetzoom=False)
+                curve = plot.getCurve(legend)
+                if curve is None:
+                    plot.addCurve(
+                        data.bftk, data.bft+dy, **self.plotParams['bft'],
+                        color=data.color, z=z, legend=legend, resetzoom=False)
+                else:
+                    curve.setData(data.bftk, data.bft+dy)
+                    curve.setZValue(z)
             else:
                 plot.remove(legend, kind='curve')
         kw = dtparams['kw']
@@ -1954,7 +1988,7 @@ class FTWidget(PropWidget):
     name = 'make FT'
 
     properties = {'show_negative': False, 'show_Re': False, 'show_Im': False,
-                  'show_bft_window': True}
+                  'show_bft_window': True, 'ystep': 0.}
 
     extraLines = '-|ft|', 'ft.re', 'ft.im'
     plotParams = {
@@ -2094,6 +2128,11 @@ class FTWidget(PropWidget):
         dtparams = data.transformParams
 
         plot = self.node.widget.plot
+        ystep, iystep = None, 0
+        try:
+            ystep = self.properties['ystep']
+        except Exception:
+            ystep = None
         self.bftWindowRange.fromSpinBox(100)
         legend = 'BFT window'
         if hasattr(data, 'bftwindow') and self.properties['show_bft_window']:
@@ -2116,6 +2155,11 @@ class FTWidget(PropWidget):
                     plot.remove(legend, kind='curve')
                 continue
             z = 1 if data in csi.selectedItems else 0
+            if ystep is not None:
+                dy = ystep*iystep
+                iystep += 1
+            else:
+                dy = 0
 
             legend = '{0}.-|ft|'.format(data.alias)
             if self.properties['show_negative']:
@@ -2123,49 +2167,13 @@ class FTWidget(PropWidget):
                 curve = plot.getCurve(legend)
                 if curve is None:
                     plot.addCurve(
-                        data.r, -data.ft, color=data.color, z=z, legend=legend,
-                        resetzoom=False, **plotProps)
+                        data.r, -data.ft+dy, color=data.color, z=z,
+                        legend=legend, resetzoom=False, **plotProps)
                 else:
                     curve.setData(data.r, -data.ft)
                     curve.setZValue(z)
             else:
                 plot.remove(legend, kind='curve')
-
-            # legend = '{0}.ft.re'.format(data.alias)
-            # if self.properties['show_Re']:
-            #     if self.properties['show_negative']:
-            #         y = data.ftr
-            #     else:
-            #         y = np.array(data.ftr)
-            #         y[y < 0] = 0
-            #     curve = plot.getCurve(legend)
-            #     if curve is None:
-            #         plot.addCurve(
-            #             data.r, y, **self.plotParams['ft.re'],
-            #             color=data.color, z=z, legend=legend, resetzoom=False)
-            #     else:
-            #         curve.setData(data.r, y)
-            #         curve.setZValue(z)
-            # else:
-            #     plot.remove(legend, kind='curve')
-
-            # legend = '{0}.ft.im'.format(data.alias)
-            # if self.properties['show_Im']:
-            #     if self.properties['show_negative']:
-            #         y = data.fti
-            #     else:
-            #         y = np.array(data.fti)
-            #         y[y < 0] = 0
-            #     curve = plot.getCurve(legend)
-            #     if curve is None:
-            #         plot.addCurve(
-            #             data.r, y, **self.plotParams['ft.im'],
-            #             color=data.color, z=z, legend=legend, resetzoom=False)
-            #     else:
-            #         curve.setData(data.r, y)
-            #         curve.setZValue(z)
-            # else:
-            #     plot.remove(legend, kind='curve')
 
         data = csi.selectedItems[0]
         dtparams = data.transformParams
