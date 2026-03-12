@@ -449,7 +449,8 @@ class HERFDWidget(PropWidget):
             y = data.skewy0
             if curve is None:
                 plot.addCurve(x, y, linestyle=' ', symbol='o', color='red',
-                              z=1, legend=legend, resetzoom=False)
+                              yerror=data.skewz, z=1, legend=legend,
+                              resetzoom=False)
                 curve = plot.getCurve(legend)
                 curve.setSymbolSize(2)
             else:

@@ -156,7 +156,7 @@ class MakeHERFD(ctr.Transform):
         return k*x + b
 
     @classmethod
-    def shear_image(cls, image, k, x0):
+    def shear_image(cls, image, x0, k):
         def shear(xy):
             # cols in xy[:, 0] and rows in xy[:, 1]
             xy[:, 1] += k * (xy[:, 0] - x0)
@@ -173,12 +173,12 @@ class MakeHERFD(ctr.Transform):
         ithr = np.argmax(inBand > thr*cmax[None, :], axis=0)
         y = ithr.astype(float)
         z = 1. / np.where(cmax > 0, cmax, 1e-20)
+        z *= 0.5 / z.max()
         p, _ = curve_fit(cls.linear_func, x, y, sigma=z, absolute_sigma=True)
-        skewx = x
-        skewy0 = map_coordinates(eraw, (y,))
+        y0 = map_coordinates(eraw, (y,))
         skewk, skewb = p[0], p[1]
-        skewy = map_coordinates(eraw, (skewk*x + skewb,))
-        return x0, skewk, skewx, skewy0, skewy
+        y = map_coordinates(eraw, (skewk*x + skewb,))
+        return x0, skewk, x, y0, y, z
 
     @classmethod
     def run_main(cls, data):
@@ -192,22 +192,21 @@ class MakeHERFD(ctr.Transform):
             xes2Dwork[xes2Dwork > cutoff] = 0
             dtparams['cutoffMaxBelow'] = xes2Dwork.max()
 
-        data.skewk, data.skewb = 0, data.eraw[0]+10
         roi = dtparams['roiHERFD']
         if roi['use']:
             if roi['kind'] == 'HorizontalRangeROI':
                 vmin = max(int(roi['vmin']), 0) + 1
                 vmax = int(roi['vmax'])
                 if dtparams['skewDetect']:
-                    x0, skewk, data.skewx, data.skewy0, data.skewy = \
-                        cls.find_skew(xes2Dwork, vmin, vmax,
+                    s = cls.find_skew(xes2Dwork, vmin, vmax,
                                       dtparams['skewThreshold'], data.eraw)
+                    x0, sk, data.skewx, data.skewy0, data.skewy, data.skewz = s
                     if dtparams['skewRectify']:
-                        data.xes2D = cls.shear_image(xes2Dwork, skewk, x0)
+                        data.xes2D = cls.shear_image(xes2Dwork, x0, sk)
                         xes2Dwork = data.xes2D
-                        _, _, data.skewx, data.skewy0, data.skewy = \
-                            cls.find_skew(xes2Dwork, vmin, vmax,
+                        s = cls.find_skew(xes2Dwork, vmin, vmax,
                                           dtparams['skewThreshold'], data.eraw)
+                        data.skewx, data.skewy0, data.skewy, data.skewz = s[2:]
 
                 posIXES = xes2Dwork[:, vmin:vmax+1].sum(axis=1)
             elif roi['kind'] == 'BandROI':

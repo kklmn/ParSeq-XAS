@@ -11,7 +11,7 @@ import subprocess
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
 
 autodoc_mock_imports = [
-    'numpy', 'scipy', 'qt',
+    'numpy', 'scipy', 'skimage', 'qt',
     'silx', 'silx.gui', 'silx.io',
     'parseq.gui.gcommons'
     ]
