@@ -212,7 +212,7 @@ class NodeIXES(cno.Node):
     arrays['i0'] = dict(  # not plotted, therefore role='1D'
         qLabel='I0', qUnit='A', role='1D')
     arrays['xes2D'] = dict(
-        qLabel='XES2D', qUnit='counts', role='2D',
+        qLabel='XES2D', qUnit='counts', role='2D', raw='xes2Draw',
         plotLabel=['tangential pixel', 'eraw'])
     arrays['eref'] = dict(role='optional', qLabel='Eref')
     checkShapes = ['eraw', 'i0', 'xes2D[0]']

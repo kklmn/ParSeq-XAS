@@ -44,8 +44,10 @@ from numpy.polynomial import Polynomial as P
 from functools import partial
 from scipy.optimize import curve_fit, root
 from scipy.signal import butter, sosfiltfilt
+from scipy.ndimage import map_coordinates
 from scipy.interpolate import (CubicSpline, LSQUnivariateSpline, interp1d,
                                make_lsq_spline)
+from skimage.transform import warp
 # from scipy.interpolate import BSpline
 try:
     from scipy.interpolate import make_smoothing_spline
@@ -144,30 +146,69 @@ class MakeHERFD(ctr.Transform):
     outArrays = ['muraw']
     defaultParams = dict(
         cutoffNeeded=True, cutoff=20000, cutoffMaxBelow=0,
-        )
+        skewDetect=False, skewThreshold=0.3, skewRectify=False)
 
-    # defaultParams['roi'] = dict(
-    #     kind='BandROI', name='band', use=True,
-    #     begin=(300, 0), end=(300, 100), width=10)
     defaultParams['roiHERFD'] = dict(
         kind='HorizontalRangeROI', name='roi', use=True, vmin=300, vmax=400)
+
+    @classmethod
+    def linear_func(cls, x, k, b):
+        return k*x + b
+
+    @classmethod
+    def shear_image(cls, image, k, x0):
+        def shear(xy):
+            # cols in xy[:, 0] and rows in xy[:, 1]
+            xy[:, 1] += k * (xy[:, 0] - x0)
+            return xy
+        return warp(image, shear, mode='edge', preserve_range=True)
+
+    @classmethod
+    def find_skew(cls, xes2D, vmin, vmax, thr, eraw):
+        x = np.arange(vmin, vmax+1)
+        inBand = xes2D[:, vmin:vmax+1]
+        x0 = vmin + np.argmax(inBand.sum(axis=0))
+        imax = np.argmax(inBand, axis=0)
+        cmax = inBand[imax, np.arange(len(imax))]
+        ithr = np.argmax(inBand > thr*cmax[None, :], axis=0)
+        y = ithr.astype(float)
+        z = 1. / np.where(cmax > 0, cmax, 1e-20)
+        p, _ = curve_fit(cls.linear_func, x, y, sigma=z, absolute_sigma=True)
+        skewx = x
+        skewy0 = map_coordinates(eraw, (y,))
+        skewk, skewb = p[0], p[1]
+        skewy = map_coordinates(eraw, (skewk*x + skewb,))
+        return x0, skewk, skewx, skewy0, skewy
 
     @classmethod
     def run_main(cls, data):
         posI0 = np.where(data.i0 > 0, data.i0, np.ones_like(data.i0))
         dtparams = data.transformParams
 
-        xes2Dwork = np.array(data.xes2D)
+        data.xes2D = np.array(data.xes2Draw)
+        xes2Dwork = data.xes2D
         if dtparams['cutoffNeeded']:
             cutoff = dtparams['cutoff']
             xes2Dwork[xes2Dwork > cutoff] = 0
             dtparams['cutoffMaxBelow'] = xes2Dwork.max()
 
+        data.skewk, data.skewb = 0, data.eraw[0]+10
         roi = dtparams['roiHERFD']
         if roi['use']:
             if roi['kind'] == 'HorizontalRangeROI':
-                vmin = max(int(roi['vmin']), 0)
+                vmin = max(int(roi['vmin']), 0) + 1
                 vmax = int(roi['vmax'])
+                if dtparams['skewDetect']:
+                    x0, skewk, data.skewx, data.skewy0, data.skewy = \
+                        cls.find_skew(xes2Dwork, vmin, vmax,
+                                      dtparams['skewThreshold'], data.eraw)
+                    if dtparams['skewRectify']:
+                        data.xes2D = cls.shear_image(xes2Dwork, skewk, x0)
+                        xes2Dwork = data.xes2D
+                        _, _, data.skewx, data.skewy0, data.skewy = \
+                            cls.find_skew(xes2Dwork, vmin, vmax,
+                                          dtparams['skewThreshold'], data.eraw)
+
                 posIXES = xes2Dwork[:, vmin:vmax+1].sum(axis=1)
             elif roi['kind'] == 'BandROI':
                 sh = xes2Dwork.shape
@@ -178,6 +219,7 @@ class MakeHERFD(ctr.Transform):
                 posIXES = masked.sum(axis=1)
             else:
                 raise ValueError('Unknown roi kind for {0}'.format(data.alias))
+
         else:
             posIXES = xes2Dwork.sum(axis=1)
         data.muraw = posIXES / posI0 * posI0.max()

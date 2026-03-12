@@ -323,7 +323,7 @@ class HERFDWidget(PropWidget):
         cutoffPanel.setTitle('pixel value cutoff')
         cutoffPanel.setCheckable(True)
         self.registerPropWidget(cutoffPanel, cutoffPanel.title(),
-                                'cutoffNeeded')
+                                'cutoffNeeded', transformNames='make HERFD')
         layoutC = qt.QVBoxLayout()
 
         layoutL = qt.QHBoxLayout()
@@ -335,7 +335,7 @@ class HERFDWidget(PropWidget):
         cutoff.setMaximum(int(1e8))
         cutoff.setSingleStep(100)
         self.registerPropWidget([cutoff, cutoffLabel], cutoffLabel.text(),
-                                'cutoff')
+                                'cutoff', transformNames='make HERFD')
         layoutL.addWidget(cutoff)
         layoutC.addLayout(layoutL)
 
@@ -369,6 +369,40 @@ class HERFDWidget(PropWidget):
         roiPanel.setSizePolicy(qt.QSizePolicy.Minimum, qt.QSizePolicy.Fixed)
         layout.addWidget(roiPanel)
 
+        skewPanel = qt.QGroupBox(self)
+        skewPanel.setFlat(False)
+        skewPanel.setTitle('detect skew')
+        skewPanel.setCheckable(True)
+        self.registerPropWidget(skewPanel, skewPanel.title(), 'skewDetect',
+                                transformNames='make HERFD')
+        layoutCS = qt.QVBoxLayout()
+
+        layoutLS = qt.QHBoxLayout()
+        thresholdLabel = qt.QLabel('threshold')
+        layoutLS.addWidget(thresholdLabel)
+        threshold = qt.QDoubleSpinBox()
+        threshold.setToolTip(u'0 < threshold < 1')
+        threshold.setMinimum(0.05)
+        threshold.setMaximum(0.95)
+        threshold.setSingleStep(0.05)
+        threshold.setDecimals(2)
+        threshold.setAccelerated(True)
+        self.registerPropWidget(
+            [threshold, thresholdLabel], thresholdLabel.text(),
+            'skewThreshold', transformNames='make HERFD')
+        layoutLS.addWidget(threshold)
+        layoutCS.addLayout(layoutLS)
+
+        rectifyCB = qt.QCheckBox("skewRectify skew")
+        self.registerPropWidget(rectifyCB, rectifyCB.text(), 'skewRectify',
+                                transformNames='make HERFD')
+        layoutCS.addWidget(rectifyCB)
+
+        skewPanel.setLayout(layoutCS)
+        self.registerPropGroup(
+            skewPanel, [threshold, skewPanel, rectifyCB], 'skew properties')
+        layout.addWidget(skewPanel)
+
         layout.addStretch()
         self.setLayout(layout)
 
@@ -390,6 +424,37 @@ class HERFDWidget(PropWidget):
             self.roiWidget.dataToCountY = data.eraw
             dtparams = data.transformParams
             self.roiWidget.setRois(dict(dtparams['roiHERFD']))
+
+    def extraPlot(self):
+        if len(csi.selectedItems) == 0:
+            return
+        data = csi.selectedItems[0]
+        dtparams = data.transformParams
+        plot = self.node.widget.plot
+
+        if dtparams['skewDetect']:
+            legend = 'skew_line'
+            curve = plot.getCurve(legend)
+            x = data.skewx
+            y = data.skewy
+            if curve is None:
+                plot.addCurve(x, y, linestyle='-', color='magenta', z=5,
+                              legend=legend, resetzoom=False)
+            else:
+                curve.setData(x, y)
+                curve.setZValue(1)
+            legend = 'skew_knots'
+            curve = plot.getCurve(legend)
+            x = data.skewx
+            y = data.skewy0
+            if curve is None:
+                plot.addCurve(x, y, linestyle=' ', symbol='o', color='red',
+                              z=1, legend=legend, resetzoom=False)
+                curve = plot.getCurve(legend)
+                curve.setSymbolSize(2)
+            else:
+                curve.setData(x, y)
+                curve.setZValue(1)
 
 
 class MuWidget(PropWidget):
