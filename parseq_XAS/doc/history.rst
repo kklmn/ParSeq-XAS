@@ -3,7 +3,10 @@
 Version history
 ---------------
 
-Current GitHub code (modified 4 Mar 2026):
+Current GitHub code (modified 5 Mar 2026):
+    -
+
+2026.3.0 (5 Mar 2026):
     - Add name change and color change of the splitter button 'corrections'
       that signals a used correction, including self-absorption correction,
       which is useful because this splitter is most frequently collapsed.
