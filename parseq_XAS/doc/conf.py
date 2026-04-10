@@ -275,3 +275,6 @@ html_static_path = ['_static']
 htmlhelp_basename = 'ParSeq-XAS'
 
 html_scaled_image_link = False
+
+# with mathjax@4, :math: is broken in QWebEnginePage, so we use @3:
+mathjax_path = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
