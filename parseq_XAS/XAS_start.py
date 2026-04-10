@@ -36,7 +36,7 @@ def main(projectFile=None, withTestData=True, withGUI=True):
         mainWindow.show()
         if projectFile or withTestData:
             csi.model.selectItems()
-        app.exec_()
+        sys.exit(app.exec_())
     else:
         import matplotlib.pyplot as plt
 
