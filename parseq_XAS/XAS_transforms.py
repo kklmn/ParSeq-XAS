@@ -921,6 +921,7 @@ class MakeChi(ctr.Transform):
             if elemContr[2] > jump:
                 jump = elemContr[2] * elemContr[3]  # (Δσ)*formula_coeff
                 jumpElement = elem
+                break
         if jump == 0:
             saDict['corrJumpStr'] = 'no edge found'
             raise ValueError("No absorption edge for {0}!".format(data.alias))
