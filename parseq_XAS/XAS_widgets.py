@@ -521,6 +521,20 @@ class MuWidget(PropWidget):
     a modified Victoreen polynomial :math:`aE^{-3}+b` are most typical. For
     fluorescence spectra, the background is either constant or linear.
 
+    Pinhole correction
+    ~~~~~~~~~~~~~~~~~~
+
+    .. tip::
+
+        Find the pinhole correction widget in the "data correction" splitter
+        widget that is initially hidden. Use a small vertical button on the
+        left from the transformation widget.
+
+    The effect of pinholes in transmission spectra is modelled in a binary way:
+    a fraction :math:`x` of x-rays goes through pinholes without absorption and
+    the rest of the beam is properly absorbed by the sample, which gives the
+    transmitted intensity as: :math:`I_{tr} = xI_0 + (1-x)I_0\exp(-µd)`.
+
     Self-absorption correction
     ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
