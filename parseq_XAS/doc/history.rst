@@ -3,14 +3,15 @@
 Version history
 ---------------
 
-Current GitHub code (modified 5 Mar 2026):
-    -
+Current GitHub code (modified 15 Apr 2026):
+    - Add pinhole correction to data.
+    - Add pinhole fraction as a fitting variable in LCF.
+    - Fix a bug in self-absorption correction (updates from GUI didn't work).
 
 2026.3.0 (5 Mar 2026):
     - Add name change and color change of the splitter button 'corrections'
       that signals a used correction, including self-absorption correction,
       which is useful because this splitter is most frequently collapsed.
-
     - Add optional vertical separation between curves in 1D plots.
 
 2026.1.0 (5 Jan 2026):
