@@ -1387,6 +1387,75 @@ class MuWidget(PropWidget):
             return y
 
 
+class MuPinholeCorrection(PropWidget):
+    r"""
+    Help page under construction
+
+    .. image:: _images/mickey-rtfm.gif
+        :width: 309
+
+    test link: `MAX IV Laboratory <https://www.maxiv.lu.se/>`_
+
+    """
+
+    name = 'pinhole correction'
+    LOCATION = 'correction'
+
+    updateSplitterButton = qt.Signal()
+
+    def __init__(self, parent=None, node=None):
+        super().__init__(parent, node)
+        layout = qt.QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+
+        phcPanel = qt.QGroupBox(self)
+        phcPanel.customSignals = [self.updateSplitterButton, ]
+        self.updateSplitterButton.connect(
+            partial(self.highlightSplitterButton, phcPanel))
+        phcPanel.setFlat(False)
+        phcPanel.setTitle('pinhole correction')
+        phcPanel.setCheckable(True)
+        phcPanel.setStyleSheet('QGroupBox[flat="false"] {font-weight: bold;}')
+        self.registerPropWidget(
+            phcPanel, phcPanel.title(), 'pinholeCorrectionNeeded')
+
+        layoutSA = qt.QVBoxLayout()
+        layoutSA.setContentsMargins(2, 2, 2, 2)
+        layoutC = qt.QHBoxLayout()
+        layoutC.setContentsMargins(0, 0, 0, 0)
+        fractionLabel = qt.QLabel('pinhole fraction')
+        layoutC.addWidget(fractionLabel)
+        fractionBox = qt.QDoubleSpinBox()
+        fractionBox.setToolTip('0 ≤ fraction < 1')
+        fractionBox.setMinimum(0.0)
+        fractionBox.setMaximum(0.99)
+        fractionBox.setSingleStep(0.1)
+        fractionBox.setDecimals(2)
+        self.registerPropWidget(fractionBox, 'pinhole fraction',
+                                'pinholeCorrectionDict.fraction')
+        layoutC.addWidget(fractionBox)
+        layoutSA.addLayout(layoutC)
+
+        phcPanel.setLayout(layoutSA)
+        layout.addWidget(phcPanel)
+
+        self.setLayout(layout)
+
+    def highlightSplitterButton(self, but):
+        correctionWidgets = self.node.widget.correctionWidgets
+        names = []
+        for cw in correctionWidgets:
+            if hasattr(cw, 'getCorrections'):
+                names += [corr['name'] for corr in cw.getCorrections()]
+        if but.isChecked():
+            colors = dict(color1='#751515', color2='#ffc6c7', color3='#ffaaab')
+            names += ['pinhole']
+        else:
+            return  # highlighted by other corrections
+        splitterBut = self.node.widget.splitterButtons['data corrections']
+        splitterBut.setHighlight(colors, names)
+
+
 class MuSelfAbsorptionCorrection(PropWidget):
     r"""
     Help page under construction
@@ -1398,7 +1467,7 @@ class MuSelfAbsorptionCorrection(PropWidget):
 
     """
 
-    name = u'self-absorption correction'
+    name = 'self-absorption correction'
     LOCATION = 'correction'
     tables = ("Henke", "Brennan&Cowan", "Chantler (NIST)",
               "Chantler total (NIST)")
@@ -1561,8 +1630,11 @@ class MuSelfAbsorptionCorrection(PropWidget):
         self.setLayout(layout)
 
     def highlightSplitterButton(self, but):
-        correctionWidget = self.node.widget.correctionWidget
-        names = [corr['name'] for corr in correctionWidget.getCorrections()]
+        correctionWidgets = self.node.widget.correctionWidgets
+        names = []
+        for cw in correctionWidgets:
+            if hasattr(cw, 'getCorrections'):
+                names += [corr['name'] for corr in cw.getCorrections()]
         if but.isChecked():
             colors = dict(color1='#751515', color2='#ffc6c7', color3='#ffaaab')
             names += ['self-absorption']

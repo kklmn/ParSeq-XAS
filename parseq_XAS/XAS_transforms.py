@@ -429,6 +429,8 @@ class MakeChi(ctr.Transform):
             corrCalibEnergy=7150.4, corrFluoEnergy=6404,
             corrPhiDeg=45., corrThetaDeg=45., corrTauDeg=0.,
             corrFormula='thick', corrThickness=1.),
+        pinholeCorrectionNeeded=False,
+        pinholeCorrectionDict=dict(fraction=0.5),
         rebinNeeded=False,
         rebinRegions=dict(
             deltas=(1., 0.2, 0.5, 0.025),  # pre, edge, post, dk
@@ -443,7 +445,8 @@ class MakeChi(ctr.Transform):
         )
     dontSaveParamsWhenUnused = {  # paramName: paramSwitch
         'rebinRegions': 'rebinNeeded',
-        'selfAbsorptionCorrectionDict': 'selfAbsorptionCorrectionNeeded'}
+        'selfAbsorptionCorrectionDict': 'selfAbsorptionCorrectionNeeded',
+        'pinholeCorrectionDict': 'pinholeCorrectionNeeded'}
     nThreads = cpus  # twice as fast than nProcesses
     # nProcesses = cpus
     inArrays = ['muraw', 'eraw', 'eref']
@@ -718,6 +721,12 @@ class MakeChi(ctr.Transform):
 
         data.pre_edge, pre_e0 = cls.get_pre(data)
 
+        res = cls.calc_pinhole(data)
+        if res is not None:
+            data.mu = res
+            data.e0 = cls.get_e0(data)
+            data.pre_edge, pre_e0 = cls.get_pre(data)
+
         res = cls.calc_self_abs(data)
         if res is not None:
             data.mu = res
@@ -873,6 +882,17 @@ class MakeChi(ctr.Transform):
         # data.bft = np.fft.irfft(ft)[0:len(data.k)] / (dk/2)
 
         return True
+
+    @classmethod
+    @logger(minLevel=20, attrs=[(0, 'name')])
+    def calc_pinhole(cls, data):
+        dtparams = data.transformParams
+        if not dtparams['pinholeCorrectionNeeded']:
+            return
+        phDict = dtparams['pinholeCorrectionDict']
+        x = phDict['fraction']
+        muTrue = np.log(np.abs((1-x) / (np.exp(-data.mu)-x)))
+        return muTrue
 
     @classmethod
     @logger(minLevel=20, attrs=[(0, 'name')])

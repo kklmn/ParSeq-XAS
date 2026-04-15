@@ -73,7 +73,8 @@ class LCF_mu(fits.lcf.LCF):
     ref = "nogui.html#linear-combination-fit-of-e"
     tooltip = "Linear Combination Fit. Use a 'flat' normalized mu view."
     xVary = True
-    dataAttrs = dict(x='e', y='flat', fit='fitLCF')
+    dataAttrs = dict(x='e', y='flat', fit='fitLCF',
+                     pre_edge='pre_edge', post_edge='post_edge')
     allDataAttrs = dict(x='e', y='flat')
     plotParams = dict(
         fit=dict(linewidth=1.4, linestyle=':', symbol='.', symbolsize=2),
