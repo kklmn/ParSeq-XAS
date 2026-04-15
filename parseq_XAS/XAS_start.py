@@ -36,6 +36,7 @@ def main(projectFile=None, withTestData=True, withGUI=True):
         mainWindow.show()
         if projectFile or withTestData:
             csi.model.selectItems()
+
         sys.exit(app.exec_())
     else:
         import matplotlib.pyplot as plt
@@ -79,5 +80,6 @@ if __name__ == '__main__':
     if args.plotBackend:
         csi.plotBackend = args.plotBackend
     csi.DEBUG_LEVEL = args.verbosity
+
     main(projectFile=args.projectFile, withTestData=args.test,
          withGUI=not args.noGUI)

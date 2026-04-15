@@ -533,7 +533,9 @@ class MuWidget(PropWidget):
     The effect of pinholes in transmission spectra is modelled in a binary way:
     a fraction :math:`x` of x-rays goes through pinholes without absorption and
     the rest of the beam is properly absorbed by the sample, which gives the
-    transmitted intensity as: :math:`I_{tr} = xI_0 + (1-x)I_0\exp(-µd)`.
+    transmitted intensity as:
+    :math:`I_1 = xI_0 + (1-x)I_0\exp(-(µd)_{true}) = I_0\exp(-(µd)_{dist})`,
+    from where :math:`(µd)_{true}` can be obtained for a given :math:`x`.
 
     Self-absorption correction
     ~~~~~~~~~~~~~~~~~~~~~~~~~~
