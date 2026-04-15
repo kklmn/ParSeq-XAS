@@ -64,6 +64,9 @@ class LCF_mu(fits.lcf.LCF):
     are allowed to vary their energy axis. This feature may be needed if the
     energy calibration of the involved spectra is not trustful.
 
+    One may add a pinhole fraction as a fitting variable, which makes sense
+    only for transmission spectra.
+
     The actual curve fitting is done by ``scipy.optimize.curve_fit()``. The
     attribute :param:`lcf_result` of the data container will get the fit info
     returned by ``curve_fit()``.
