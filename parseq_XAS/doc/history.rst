@@ -3,10 +3,14 @@
 Version history
 ---------------
 
-Current GitHub code (modified 15 Apr 2026):
-    - Add pinhole correction to data.
+Current GitHub code (modified 17 Apr 2026):
+    -
+
+2026.4.0 (17 Mar 2026):
+    - Add pinhole correction to transmission data.
     - Add pinhole fraction as a fitting variable in LCF.
     - Fix a bug in self-absorption correction (updates from GUI didn't work).
+    - Add skew correction for 2D HERFD data.
 
 2026.3.0 (5 Mar 2026):
     - Add name change and color change of the splitter button 'corrections'

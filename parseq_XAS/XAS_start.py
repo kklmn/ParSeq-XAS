@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 __author__ = "Konstantin Klementiev"
-__date__ = "25 Feb 2025"
-# !!! SEE CODERULES.TXT !!!
+__date__ = "17 Apr 2026"
 
 import argparse
 
@@ -10,6 +9,7 @@ import sys
 top = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if top not in sys.path:
     sys.path.append(top)
+
 import parseq.core.singletons as csi
 
 
@@ -60,7 +60,7 @@ def main(projectFile=None, withTestData=True, withGUI=True):
         plt.show()
 
 
-if __name__ == '__main__':
+def run():
     parser = argparse.ArgumentParser(description="starter of parseq_XAS")
     group = parser.add_mutually_exclusive_group()
     group.add_argument("-t", "--test", action="store_true",
@@ -83,3 +83,7 @@ if __name__ == '__main__':
 
     main(projectFile=args.projectFile, withTestData=args.test,
          withGUI=not args.noGUI)
+
+
+if __name__ == '__main__':
+    run()

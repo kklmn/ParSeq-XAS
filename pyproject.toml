@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "parseq_XAS"
+description = "A ParSeq pipeline for data processing of XAS spectra"
+dynamic = ["version"]
+readme = "README.md"
+authors = [
+    {name = "Konstantin Klementiev", email = "konstantin.klementiev@gmail.com"}
+]
+keywords = ["data-analysis", "pipeline", "framework", "gui", "spectroscopy"]
+license = "MIT"
+license-files = ["LICENSE"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: User Interfaces",
+]
+requires-python = ">=3.7"
+dependencies = [
+    "numpy>=1.8.0",
+    "scipy>=1.17.0",
+    "matplotlib>=2.0.0",
+    "h5py",
+    "silx>=2.2.0",
+    "hdf5plugin",
+]
+
+[project.urls]
+Homepage = "http://parseq-xas.readthedocs.io"
+Repository = "https://github.com/kklmn/ParSeq-XAS"
+Issues = "https://github.com/kklmn/ParSeq-XAS/issues"
+
+[project.scripts]
+parseq-XAS = "parseq_XAS.XAS_start:run"
+
+[tool.setuptools.dynamic]
+version = {attr = "parseq_XAS.version.__version__"}
+
+[tool.setuptools.packages.find]
+include = ["parseq_XAS"]
+
+[tool.setuptools.package-data]
+parseq_XAS = [
+    "data/foils/*", "data/foils/*/*", "data/foils/*/*/*", "data/HERFD/*.*",
+    "data/CeRu2/*", "data/CeRu2/*/*", "data/CeRu2/*/*/*", "data/*.fio",
+    "data/*.res", "doc/*.*", "doc/_images/*.*", "saved/*.*",
+]
