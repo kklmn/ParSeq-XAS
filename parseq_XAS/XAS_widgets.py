@@ -535,7 +535,8 @@ class MuWidget(PropWidget):
     the rest of the beam is properly absorbed by the sample, which gives the
     transmitted intensity as:
     :math:`I_1 = xI_0 + (1-x)I_0\exp(-(µd)_{true}) = I_0\exp(-(µd)_{dist})`,
-    from where :math:`(µd)_{true}` can be obtained for a given :math:`x`.
+    from where :math:`(µd)_{true}` can be obtained from the distorted
+    :math:`µd`: :math:`(µd)_{true} = \ln{\frac{1-x}{\exp(-(µd)_{dist}) - x}}`.
 
     Self-absorption correction
     ~~~~~~~~~~~~~~~~~~~~~~~~~~
