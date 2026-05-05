@@ -352,6 +352,17 @@ class HERFDWidget(PropWidget):
             cutoffPanel, [cutoff, cutoffPanel], 'cutoff properties')
         layout.addWidget(cutoffPanel)
 
+        layoutH = qt.QHBoxLayout()
+        healCB = qt.QCheckBox('heal missing frames')
+        layoutH.addWidget(healCB)
+        self.registerPropWidget(healCB, healCB.text(), 'healMissingFrames',
+                                transformNames='make HERFD')
+        healedLabel = qt.QLabel()
+        self.registerStatusLabel(
+            healedLabel, 'healedMissingFrames', hideEmpty=True)
+        layoutH.addWidget(healedLabel)
+        layout.addLayout(layoutH)
+
         roiPanel = qt.QGroupBox(self)
         roiPanel.setFlat(False)
         roiPanel.setTitle(u'HERFD ROI')
@@ -384,7 +395,7 @@ class HERFDWidget(PropWidget):
         threshold.setToolTip(u'0 < threshold < 1')
         threshold.setMinimum(0.05)
         threshold.setMaximum(0.95)
-        threshold.setSingleStep(0.05)
+        threshold.setSingleStep(0.01)
         threshold.setDecimals(2)
         threshold.setAccelerated(True)
         self.registerPropWidget(

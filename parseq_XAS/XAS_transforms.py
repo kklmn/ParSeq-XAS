@@ -146,6 +146,7 @@ class MakeHERFD(ctr.Transform):
     outArrays = ['muraw']
     defaultParams = dict(
         cutoffNeeded=True, cutoff=20000, cutoffMaxBelow=0,
+        healMissingFrames=True, healedMissingFrames='',
         skewDetect=False, skewThreshold=0.3, skewRectify=False)
 
     defaultParams['roiHERFD'] = dict(
@@ -191,6 +192,35 @@ class MakeHERFD(ctr.Transform):
             cutoff = dtparams['cutoff']
             xes2Dwork[xes2Dwork > cutoff] = 0
             dtparams['cutoffMaxBelow'] = xes2Dwork.max()
+        dtparams['healedMissingFrames'] = ''
+        if dtparams['healMissingFrames']:
+            posIXES = xes2Dwork.sum(axis=1)
+            badArgs = np.argwhere(posIXES == 0).ravel()
+            nbad = len(badArgs)
+            if nbad > 0:
+                sh = xes2Dwork.shape
+                # print(data, 'detected missing frames!', badArgs)
+                goodLine = np.zeros(sh[1])
+                goodLines = 0
+                for badArg in badArgs:
+                    for goodArg in range(badArg, sh[0]):
+                        if xes2Dwork[goodArg, :].sum() > 0:
+                            goodLine += xes2Dwork[goodArg, :]
+                            goodLines += 1
+                            break
+                    for goodArg in range(badArg, -1, -1):
+                        if xes2Dwork[goodArg, :].sum() > 0:
+                            goodLine += xes2Dwork[goodArg, :]
+                            goodLines += 1
+                            break
+                    if goodLines > 0:
+                        xes2Dwork[badArg, :] = goodLine / goodLines
+                posIXES = xes2Dwork.sum(axis=1)
+                # badArgs2 = np.argwhere(posIXES == 0)
+                # if len(badArgs2) == 0:
+                #     print(data, 'missing frames healed')
+                dtparams['healedMissingFrames'] = \
+                    f"healed {nbad} frame{'s' if nbad > 1 else ''}"
 
         roi = dtparams['roiHERFD']
         if roi['use']:
@@ -649,11 +679,12 @@ class MakeChi(ctr.Transform):
         defpr = cls.defaultParams['preedgeWhere']
         if not dtparams['preedgeWhere']:
             dtparams['preedgeWhere'] = defpr
-        emin, emax = [data.e[0] + i*(data.e0 - data.e[0]) for i in
-                      dtparams['preedgeWhere']]
-        if (data.e[-1] < emin) or (emax < data.e[0]):
-            emin, emax = [data.e[0] + i*(data.e0 - data.e[0]) for i in defpr]
-        cond = (emin <= data.e) & (data.e <= emax)
+        pre_emin, pre_emax = [data.e[0] + i*(data.e0 - data.e[0])
+                              for i in dtparams['preedgeWhere']]
+        if (data.e[-1] < pre_emin) or (pre_emax < data.e[0]):
+            pre_emin, pre_emax = [data.e[0] + i*(data.e0 - data.e[0])
+                                  for i in defpr]
+        cond = (pre_emin <= data.e) & (data.e <= pre_emax)
         e, mu = data.e[cond], data.mu[cond]
         return cls.polyfit(e, mu, dtparams['preedgeExps'], data)
 
@@ -664,10 +695,14 @@ class MakeChi(ctr.Transform):
         defpo = cls.defaultParams['postedgeWhere']
         if not dtparams['postedgeWhere']:
             dtparams['postedgeWhere'] = defpo
-        emin, emax = [data.e0 + i for i in dtparams['postedgeWhere']]
-        if (data.e[-1] < emin) or (emax < data.e[0]):
-            emin, emax = [data.e0 + i for i in defpo]
-        cond = (emin <= data.e) & (data.e <= emax)
+        post_emin, post_emax = [data.e0 + i for i in dtparams['postedgeWhere']]
+        if (data.e[-1] < post_emin) or (post_emax < data.e[0]):
+            post_emin, post_emax = [data.e0 + i for i in defpo]
+            dtparams['postedgeWhere'] = defpo
+        if (data.e[-1] < post_emin) or (post_emax < data.e[0]):
+            post_emin = data.e[-5]
+            dtparams['postedgeWhere'][0] = post_emin - data.e0
+        cond = (post_emin <= data.e) & (data.e <= post_emax)
         e, mu = data.e[cond], data.mu[cond]-data.pre_edge[cond]
         rese, rese0 = cls.polyfit(e, mu, dtparams['postedgeExps'], data)
         rese += data.pre_edge

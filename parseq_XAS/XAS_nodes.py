@@ -239,6 +239,7 @@ class NodeMu(cno.Node):
         qLabel=u'µd', role='yleft', plotLabel=r'$\mu d$', raw='muraw',
         plotParams=dict(linewidth=1.5, linestyle='-'))
     arrays['eref'] = dict(role='optional', qLabel='Eref')
+    pcaNames = 'e', 'mu', 'mu_der', 'norm', 'flat'  # 1st is x,aalst is default
 
 
 class NodeChi(cno.Node):
