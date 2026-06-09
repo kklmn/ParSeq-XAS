@@ -494,9 +494,9 @@ class MakeChi(ctr.Transform):
     def get_e0(cls, data):
         dtparams = data.transformParams
         ge = np.gradient(data.e)
-        good = ge > 0
         gmu = np.gradient(data.mu)
         data.mu_der = np.zeros_like(ge)
+        good = ge > 0
         data.mu_der[good] = gmu[good] / ge[good]
         if data.eref is not None:
             gref = np.gradient(data.erefrb)

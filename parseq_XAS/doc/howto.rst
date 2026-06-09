@@ -68,13 +68,9 @@ subtraction and edge normalization are switched off.
 Data combinations
 ~~~~~~~~~~~~~~~~~
 
-In addition to average, sum and rms deviation, ParSeq offers PCA analysis and
-Target Transformation. Unlike many other implementations of PCA analysis, in
-ParSeq it is *cumulative*, signifying that each PCA spectrum has a meaning of
-the parental spectra. For instance, PCA spectra of a collection of XANES
-spectra are also a kind of XANES spectra, not just ever decreasing weak
-oscillatory curves. More description with definitions and examples will be
-added later.
+The following data combinations are available: average, sum, RMS deviation, and
+only for 1D: classical PCA, cumulative PCA, target transformation and
+MCR-ALS. Please examine |combinations|.
 
 Project files and data saving
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

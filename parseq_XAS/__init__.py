@@ -35,4 +35,4 @@ csi.appRtdPath = r"https://parseq-xas.readthedocs.io/en/latest/"
 csi.appHelpTab = "How-tos", "howto.html"
 
 from .XAS_pipeline import make_pipeline
-from .XAS_tests import load_test_data
+from .XAS_tests import load_test_data, load_test_data_MCR

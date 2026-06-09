@@ -5,6 +5,7 @@ __date__ = "28 Jan 2022"
 import os.path as osp
 from os.path import dirname as up
 import sys; sys.path.append('..')  # analysis:ignore
+import gzip
 import numpy as np
 
 import parseq.core.singletons as csi
@@ -87,6 +88,65 @@ def load_test_data_2():
         dataFormat = dict(dataSource=[0, i], skiprows=1)
         rootItem.insert_data(fpath, dataFormat=dataFormat, alias=refName,
                              originNodeName=u'µd')
+    csi.allLoadedItems[:] = []
+    csi.allLoadedItems.extend(csi.dataRootItem.get_items())
+
+
+def load_test_data_MCR(what=1):
+    dataDir = osp.join('data', 'MCR-ALS')
+    refFName = None
+    refInds = None
+    if what == 1:
+        dataFName = 'Cu30_1_0.txt.gz'
+        dLabel = 'wide-Cu2O+CuO'
+    elif what == 2:
+        dataFName = 'Cu30_0.7_0.3.txt.gz'
+        refFName = 'cu-ref-mix.res.gz'
+        refInds = [0, 18]
+        dLabel = 'narrow-Cu2O+CuO'
+    elif what == 3:
+        dataFName = 'NiCo.txt.gz'
+        refFName = 'Ni-refs.txt.gz'
+        dLabel = 'NiCo'
+    elif what == 4:
+        dataFName = 'CoNi.txt.gz'
+        dLabel = 'CoNi'
+    elif what == 5:
+        dataFName = 'MES-Ni.txt.gz'
+        refFName = 'Ni-refs.txt.gz'
+        dLabel = 'Ni-mono'
+    elif what == 6:
+        dataFName = 'MES-Co.txt.gz'
+        dLabel = 'Co-mono'
+
+    dataPath = osp.join(dataDir, dataFName)
+    table = np.loadtxt(dataPath)
+    usecolsD = list(range(1, table.shape[1]))
+
+    rootItem = csi.dataRootItem
+    rootItem.kwargs['runDownstream'] = True
+    groupD = rootItem.insert_item('data', colorPolicy='loop1')
+    for col in usecolsD:
+        alias = f'{dLabel}_{col:02d}'
+        dataFormat = dict(dataSource=[0, col])
+        groupD.insert_data(dataPath, dataFormat=dataFormat, alias=alias,
+                           originNodeName=u'µd')
+
+    if refFName:
+        refPath = osp.join(dataDir, refFName)
+        with gzip.open(refPath, 'r') as f:
+            header = f.readline().decode().strip('#')
+        headers = header.split()
+        refs = np.loadtxt(refPath)
+        if refInds:
+            refs = refs[:, refInds[0]: refInds[1]]
+        usecolsR = list(range(1, refs.shape[1]))
+        groupR = rootItem.insert_item('refs', colorPolicy='loop2')
+        for col, alias in zip(usecolsR, headers[1:]):
+            dataFormat = dict(dataSource=[0, col])
+            groupR.insert_data(refPath, dataFormat=dataFormat, alias=alias,
+                               originNodeName=u'µd')
+
     csi.allLoadedItems[:] = []
     csi.allLoadedItems.extend(csi.dataRootItem.get_items())
 
