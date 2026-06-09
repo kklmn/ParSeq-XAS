@@ -3,8 +3,8 @@
 Version history
 ---------------
 
-Current GitHub code (modified 17 Apr 2026):
-    -
+Current GitHub code (modified 9 Jun 2026):
+    - Add MCR-ALS example on a series of XANES spectra.
 
 2026.4.0 (17 Mar 2026):
     - Add pinhole correction to transmission data.
