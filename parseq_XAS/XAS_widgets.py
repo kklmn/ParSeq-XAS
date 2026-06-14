@@ -6,9 +6,9 @@ GUI: transformations
 Experimental 1D signals
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-The first three transformation nodes have the same transformation widget with
-the only function of highlighting monochromator glitches in the present
-transformation node, the µd(E) node and the χ(k) node.
+The first three transformation nodes use the same transformation widget.
+Its sole purpose is to highlight monochromator glitches in the current
+transformation node, as well as in the µd(E) and χ(k) nodes.
 
 .. autoclass:: CurWidget
 
@@ -178,21 +178,21 @@ class RangeWidgetFTWidthAndMin(SplitRangeWidget):
 
 class CurWidget(PropWidget):
     r"""
-    This widget has a single tool -- a panel for highlighting monochromator
-    glitches in several transformation nodes. This tool is not a part of any
-    transformation and only serves for visual diagnostics.
+    This widget provides a single tool -- a panel for highlighting
+    monochromator glitches across several transformation nodes. It is not a
+    part of any transformation and serves purely for visual diagnostics.
 
-    The glitch detection utilizes ``scipy.signal.find_peaks()``.
-    :red:`Read the tooltips` of the two involved parameters.
-
-    .. note::
-       The glitch detection works only for one data object -- the first
-       one among possibly several selected.
+    Glitch detection is based on ``scipy.signal.find_peaks()``. Refer to the
+    tooltips of the two associated parameters for details.
 
     .. note::
-       The glitch detection is implemented as static, i.e. it does not change
-       upon changing the data selection. The change is always manual and is
-       requested by re-checking the checkbox "mark glitches".
+       Glitch detection operates on a single data item only -- the first one
+       among any selected items.
+
+    .. note::
+       Glitch detection is static and does not update automatically when the
+       data selection changes. Updates must be triggered manually by
+       re-enabling the "mark glitches" checkbox.
 
     .. tabs::
 
@@ -276,10 +276,10 @@ class CurWidget(PropWidget):
 
 class HERFDWidget(PropWidget):
     r"""
-    This widget controls the HERFD µ calculation from a 2D data array in
-    "scanning energy" vs "tangential detector axis" coordinates. The widget
-    sets the parameters of two actions: level cutoff and integration within
-    a ROI.
+    This widget controls the calculation of HERFD µ from a 2D data array in
+    "scanning energy" versus "tangential detector axis" coordinates. It
+    defines the parameters for two operations: level cutoff and integration
+    within a region of interest (ROI).
 
     +-----------+
     | |2DHERFD| |
@@ -291,24 +291,25 @@ class HERFDWidget(PropWidget):
     Level cutoff
     ~~~~~~~~~~~~
 
-    Doing a cutoff can be useful if a bad pixel appears within the ROI. The
-    side histograms can be useful in setting the level.
+    Applying a cutoff can be useful if a defective pixel appears within the
+    ROI. The side histograms can assist in selecting an appropriate cutoff
+    level.
 
     .. caution::
 
-        Examine the "max pixel" value that is calculated after applying the
-        cutoff. It should be much less than the cutoff value, otherwise the
-        cutoff removes a useful signal.
+       Check the "max pixel" value calculated after applying the cutoff. It
+       should be significantly lower than the cutoff value; otherwise, the
+       cutoff may remove valid signal.
 
     Integration ROI
     ~~~~~~~~~~~~~~~
 
-    There is a choice of two ROIs: a vertical band (horizontal range) and a
-    slanted band. The ROI can be set by the mouse in the 2D plot and/or from
-    the "geometry" cell in the table. The current ROI can be deleted by using
-    the popup menu in the plot.
+    Two types of ROIs are available: a vertical band (horizontal range) and a
+    slanted band. The ROI can be defined interactively using the mouse in the
+    2D plot or by editing the "geometry" field in the table. The current ROI
+    can be removed via the context menu in the plot.
 
-    The calculations are done by :class:`.XAS_transforms.MakeHERFD`.
+    The calculations are performed by :class:`.XAS_transforms.MakeHERFD`.
     """
 
     name = 'extract HERFD'
@@ -471,17 +472,17 @@ class HERFDWidget(PropWidget):
 
 class MuWidget(PropWidget):
     r"""
-    The calculations are done by :class:`.XAS_transforms.MakeChi`.
+    The calculations are performed by :class:`.XAS_transforms.MakeChi`.
 
     .. tip::
 
-        The range selection widgets have an auto option and a custom selection
-        option. The latter can be set by the mouse in the plot or by typing in
-        the edit widget. Hover the pointer over the edit widget to discover the
-        meaning of the *min* and *max* values: sometimes as fractions of a
-        given range, sometimes as absolute values of a given unit etc.
-        Similarly, a tooltip of the "auto" radio button displays the implied
-        automatic range.
+       The range-selection widgets provide both an automatic option and a
+       custom selection option. The latter can be defined interactively using
+       the mouse in the plot or by entering values in the corresponding edit
+       fields. Hovering the mouse over an edit field reveals the meaning of
+       the *min* and *max* values -- these may represent fractions of a given
+       range or absolute values in specific units. Likewise, the tooltip of
+       the "auto" radio button indicates the automatically selected range.
 
     Edge position E₀
     ~~~~~~~~~~~~~~~~
@@ -501,9 +502,10 @@ class MuWidget(PropWidget):
     .. |mu02| imagezoom:: _images/e0method2.png
        :loc: upper-right-corner
 
-    When the edge has several derivative maxima, the edge position should be
-    placed over the first one. In this case, the E₀ search range should exclude
-    the main derivative peak:
+    When the absorption edge exhibits multiple maxima in its derivative, the
+    edge position should be assigned to the first maximum. In such cases, the
+    :math:`E_0` search interval should be defined so as to exclude the main
+    derivative peak:
 
     .. imagezoom:: _images/e0range.png
        :align: center
@@ -511,112 +513,126 @@ class MuWidget(PropWidget):
     Energy calibration
     ~~~~~~~~~~~~~~~~~~
 
-    The found E₀ position can be assigned to a tabulated value that can either
-    be selected from the drop-down list or typed in manually. Alternatively, a
-    shift of E₀ can be specified. The former method should be used for a
-    reference material with a known edge position (most typically a foil),
-    which would calculate a shift of E₀. This shift can be applied to all other
-    spectra measured during the same beam time. The energy shift is most
-    typically applied as a constant Bragg angle offset.
+    The identified :math:`E_0` position can be aligned with a tabulated value,
+    either selected from the drop-down list or entered manually.
+    Alternatively, a fixed shift of :math:`E_0` can be specified.
+
+    The first approach is recommended for reference materials with a known
+    edge position (typically a metal foil), as it determines the appropriate
+    :math:`E_0` offset. This offset can then be propagated to other spectra
+    acquired during the same beamtime.
+
+    In most cases, the energy correction is applied as a constant offset in
+    the Bragg angle.
 
     Pre-edge background
     ~~~~~~~~~~~~~~~~~~~
 
     .. note::
 
-        When "show subtracted" is unchecked, not only the pre-edge background
-        becomes visible, also the edge normalization is switched off and
-        disabled.
+       When "show subtracted" is unchecked, not only does the pre-edge
+       background become visible, but edge normalization is also disabled.
 
-    For transmission spectra, a Victoreen polynomial :math:`aE^{-3}+bE^{-4}` or
-    a modified Victoreen polynomial :math:`aE^{-3}+b` are most typical. For
-    fluorescence spectra, the background is either constant or linear.
+    For transmission spectra, a Victoreen polynomial,
+    :math:`aE^{-3} + bE^{-4}`, or a modified form,
+    :math:`aE^{-3} + b`, is typically used. For fluorescence spectra, the
+    background is usually modeled as either constant or linear.
 
     Pinhole correction
     ~~~~~~~~~~~~~~~~~~
 
     .. tip::
 
-        Find the pinhole correction widget in the "data correction" splitter
-        widget that is initially hidden. Use a small vertical button on the
-        left from the transformation widget.
+       The pinhole correction widget can be found in the "data correction"
+       splitter, which is hidden by default. It can be revealed using the
+       small vertical button located to the left of the transformation widget.
 
-    The effect of pinholes in transmission spectra is modelled in a binary way:
-    a fraction :math:`x` of x-rays goes through pinholes without absorption and
-    the rest of the beam is properly absorbed by the sample, which gives the
-    transmitted intensity as:
-    :math:`I_1 = xI_0 + (1-x)I_0\exp(-(µd)_{true}) = I_0\exp(-(µd)_{dist})`,
-    from where :math:`(µd)_{true}` can be obtained from the distorted
-    :math:`µd`: :math:`(µd)_{true} = \ln{\frac{1-x}{\exp(-(µd)_{dist}) - x}}`.
+    The effect of pinholes in transmission spectra is modeled using a binary
+    approximation: a fraction :math:`x` of the incident x-rays passes through
+    pinholes without absorption, while the remaining fraction is absorbed by
+    the sample. The transmitted intensity is then given by:
+
+    :math:`I_1 = x I_0 + (1-x) I_0\exp(-(µd)_{true}) = I_0 \exp(-(µd)_{distorted})`.
+
+    From this expression, the true absorption term can be recovered from the
+    distorted one:
+
+    :math:`(µd)_{true} = \ln \left(\frac{1-x}{\exp(-(µd)_{distorted}) - x}\right)`.
 
     Self-absorption correction
     ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    See the description of self-absorption correction, including its history,
-    :ref:`here <sacorrection>`.
+    See the description of self-absorption correction, including its
+    background and history, :ref:`here <sacorrection>`.
 
     .. tip::
 
-        Find the self-absorption correction widget in the "data correction"
-        splitter widget that is initially hidden. Use a small vertical button
-        on the left from the transformation widget.
+       The self-absorption correction widget can be found in the "data
+       correction" splitter, which is hidden by default. Use the small
+       vertical button located to the left of the transformation widget to
+       make it visible.
 
-    Give a chemical formula (observe thetwo given examples). A table of
-    scattering factors is selected for the drop-down list; the one by Chantler
-    is recommended. The parameter "calibration energy" is where the calibration
-    constant :ref:`C is calculated <sacorrection>`. The status line below
-    calibration energy is green if an absorption edge within the spectrum range
-    has been found. "fluorescence energy" is at present a simple edit line, but
-    will be a drop-down list in the future. The three angles are defined in the
+    Provide a chemical formula (see the given examples). Select a table of
+    scattering factors from the drop-down list; the Chantler dataset is
+    recommended. The parameter "calibration energy" specifies the energy at
+    which the calibration constant :ref:`C is calculated <sacorrection>`.
+    The status indicator below this field turns green if an absorption edge
+    within the spectrum range is detected.
+
+    The "fluorescence energy" parameter is currently a free input field but
+    is planned to become a drop-down list in future versions. The three
+    angular parameters are defined in the
     :ref:`geometry figure <sacorrection>`.
 
     .. note::
 
-        The "thin" version of the correction is much heavier in calculations.
+       The "thin" variant of the correction is computationally more demanding.
+
 
     Post-edge background and edge normalization
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    The post-edge background is needed for defining the edge normalization. It
-    is constructed by a polynomial interpolation. The arguments for choosing
-    the polynomial are the same as for the pre-edge background.
+    The post-edge background is required for defining edge normalization. It
+    is constructed using polynomial interpolation. The considerations for
+    selecting the polynomial are the same as for the pre-edge background.
 
     .. note::
 
-        The checkbox "show edge height normalized" is not an individual
-        attribute of a data item but rather a global display property. It
-        affects *all* data items.
+       The "show edge height normalized" checkbox is not specific to an
+       individual data item but is a global display setting affecting all
+       data items.
 
     .. note::
 
-        The checkbox "show edge height normalized" is disabled if the pre-edge
-        background is shown unsubtracted.
+       The "show edge height normalized" option is disabled when the pre-edge
+       background is displayed without subtraction.
 
-    The post-edge background can also be shown "flat" (horizontal). This can be
-    useful for the linear combination fit and the function fit of µ(E).
+    The post-edge background can also be displayed in a "flat"
+    (horizontal) form. This representation can be useful for linear
+    combination fitting and function fitting of :math:`\mu(E)`.
 
     Atomic-like absorption coefficient µ₀
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    A "µ₀ prior" curve is a step-like function, with or without a "white line",
-    is constructed from the absorption spectrum itself. The sharp step can be
-    smoothened. The µ₀ prior can also be vertically displaced by applying a
+    A "µ₀ prior" curve is a step-like function derived from the absorption
+    spectrum itself, optionally including a "white line". The sharp step can
+    be smoothed, and the curve may also be vertically adjusted by applying a
     multiplicative factor.
 
-    Two methods are offered for the spline creation: 'through internal k-spaced
-    knots' and 'smoothing spline'. The method of a spline through knots is
-    generally better, as it contains only low-frequency oscillations, so that
-    χ(k) preserves all the true structural oscillations. This is not the case
-    for the smoothing spline, where the resulting χ(k) partially loses its
-    signal and transfers it toward µ₀, but this method is easier to use, it
-    always "just works".
+    Two methods are available for constructing the spline: "through internal
+    k-spaced knots" and "smoothing spline". The former method is generally
+    preferable, as it restricts the spline to low-frequency variations,
+    allowing :math:`\chi(k)` to retain its true structural oscillations. In
+    contrast, the smoothing spline may partially suppress the signal in
+    :math:`\chi(k)` by transferring it into :math:`\mu_0`, although this method
+    is simpler to use and typically robust.
 
     .. tip::
 
-        When working on µ₀ optimization, make the FT node visible by dragging
-        it to another screen or docking it next to the µd(E) node, as on the
-        picture below. The optimization target is to minimize the low-r portion
-        of the FT curve, typically within the range 0 to 1 Å.
+       When optimizing :math:`\mu_0`, make the FT node visible by dragging it
+       to another screen or docking it next to the µd(E) node, as shown in the
+       figure below. The goal of optimization is to minimize the low-r portion
+       of the FT curve, typically within the range 0 to 1 Å.
 
     +-----------+
     | |XAS-mu0| |
@@ -628,28 +644,30 @@ class MuWidget(PropWidget):
        :alt: &ensp;A demonstration of simultaneous observation of µd(E) and
              χ(r) during the optimization of µ₀.
 
-    In the first µ₀ method ('through internal k-spaced knots'), a given number
-    of knots are equidistantly placed in k-space and a spline is drawn through
-    them. The difference µ₀ -- µ₀ prior is optionally weighted with a
-    :math:`k^{\rm exp weight}` factor. Additionally, a given number of the
-    first knots can be variable in height to automatically minimize the low-r
-    portion of the FT EXAFS. The varied knots are plotted by bigger symbols.
-    The number of the varied knots is advised to be kept small (much smaller
-    than the total number of knots) to make the minimization stable.
+    In the first µ₀ method ("through internal k-spaced knots"), a given number
+    of knots are placed equidistantly in k-space, and a spline is constructed
+    through them. The difference µ₀ − µ₀ prior can optionally be weighted by
+    a :math:`k^{\rm exp\ weight}` factor. In addition, a selected number of
+    the initial knots can vary in height to automatically minimize the low-r
+    portion of the FT EXAFS. These variable knots are indicated by larger
+    markers in the plot.
+
+    The number of variable knots should be kept small (much smaller than the
+    total number of knots) to ensure stable minimization.
 
     .. note::
 
-        The minimization sometimes becomes unstable, so that the original knots
-        may give a better result. The reason for the failure is a very strong
-        correlation between the knots, which makes the optimization problem
-        poorly defined (ill-posed).
+       The minimization may occasionally become unstable, in which case the
+       original (fixed) knot configuration can yield better results. This
+       behavior is typically caused by strong correlations between the knots,
+       leading to an ill-posed optimization problem.
 
-    The second µ₀ method ('smoothing spline') depends on a smoothing parameter
-    that is set by examining the low-r FT. By switching between the µ₀ methods,
-    one can discover that the 1st FT peak height is always lower with the
-    second method. This signal loss can be tolerated if it is smaller than the
-    fitting error of the first shell coordination number.
-
+    The second µ₀ method ("smoothing spline") depends on a smoothing parameter
+    that is adjusted based on the low-r portion of the Fourier transform.
+    When comparing the two methods, the first FT peak is generally lower with
+    the smoothing spline. This reduction reflects partial signal loss, which
+    may be acceptable if it remains smaller than the uncertainty in the
+    first-shell coordination number.
     """
 
     name = u'subtract bknd and make µ\u2080'
@@ -1456,7 +1474,8 @@ class MuPinholeCorrection(PropWidget):
         fractionBox = qt.QDoubleSpinBox()
         fractionBox.setToolTip('0 ≤ fraction < 1')
         fractionBox.setMinimum(0.0)
-        fractionBox.setMaximum(0.99)
+        # fractionBox.setMinimum(-0.99)
+        # fractionBox.setMaximum(0.99)
         fractionBox.setSingleStep(0.1)
         fractionBox.setDecimals(2)
         self.registerPropWidget(fractionBox, 'pinhole fraction',
@@ -1701,20 +1720,23 @@ class ChiWidget(PropWidget):
        :loc: upper-right-corner
        :alt: &ensp;The rebin widget.
 
-    If the energy scan was done in a continuous way with a constant slew rate,
-    the resulted spectrum is typically strongly over sampled. This means that
-    several experimental points fall into one dk interval of χ(k). Even more,
-    dk intervals become larger in energy to the end of the spectrum, so more
-    and more experimental points fall into one dk interval. These experimental
-    points can be averaged, and this is the meaning of *rebinning*.
+    If the energy scan is performed continuously with a constant slew rate,
+    the resulting spectrum is typically strongly oversampled. This means that
+    several experimental points fall within a single :math:`dk` interval of
+    :math:`\chi(k)`. Moreover, the :math:`dk` intervals correspond to
+    increasingly larger energy ranges toward the end of the spectrum, so that
+    more experimental points are grouped within each interval.
 
-    The rebinning table defines four regions by setting their limits and steps
-    in E- or k-space.
+    These points can be averaged within each interval; this procedure is
+    referred to as *rebinning*.
+
+    The rebinning table defines four regions by specifying their boundaries
+    and step sizes in either energy or k-space.
 
     .. tip::
 
-        Hover the mouse pointer to any table cell to discover the meaning of
-        the cell value.
+       Hover the mouse pointer over any table cell to see a tooltip
+       describing the meaning of its value.
 
     k range
     ~~~~~~~
@@ -1725,14 +1747,14 @@ class ChiWidget(PropWidget):
        :loc: upper-right-corner
        :alt: &ensp;The k range panel.
 
-    The desired k range can be set either from the spin box widgets or from the
-    range widget in the plot.
+    The desired k-range can be set either using the spin box controls or
+    interactively via the range selection widget in the plot.
 
     .. note::
 
-        The default k max value is not set at the spectrum end. Please check
-        the "data k max" value and use the |icoLast| button to maximize the
-        range.
+       The default maximum k-value is not set to the end of the spectrum.
+       Check the "data k max" value and use the |icoLast| button to extend
+       the range to its maximum.
 
     .. |icoLast| image:: /_images/last.png
        :width: 12
@@ -1740,26 +1762,29 @@ class ChiWidget(PropWidget):
     Denoising
     ~~~~~~~~~
 
-    Denoising utilizes ``scipy.signal.butter()``. The two parameters, *order*
-    and *lowpass frequency* are the first two parameters of
-    ``scipy.signal.butter()``. The calculated noise level is a normalized
-    difference between the original and the denoised χ·kᵂ, see the tooltip.
+    Denoising utilizes ``scipy.signal.butter()``. The two parameters,
+    *order* and *low-pass frequency*, correspond to the first two arguments
+    of ``scipy.signal.butter()``. The calculated noise level is defined as
+    the normalized difference between the original and the denoised
+    :math:`\chi \cdot k^w` curve (see tooltip for details).
 
     FT window
     ~~~~~~~~~
 
-    The tapered FT window functions (the last three in the list) are defined by
-    the width of the tapered part and the minimum value reached at the ends.
-    These two parameters can be set from the spin box widgets or from the
-    pointer widget in the plot. The pointer can be dragged in the top left
+    The tapered FT window functions (the last three options in the list)
+    are defined by two parameters: the width of the tapered region and the
+    minimum value reached at the ends. These parameters can be adjusted
+    either via the spin box controls or interactively using the pointer
+    widget in the plot. The pointer can be dragged within the top-left
     quadrant of the plot.
 
     .. note::
 
-        The true maximum value of the FT window function equals 1. The
-        *displayed* vertical size of it is scaled to the data vertical extent,
-        which can hinder the auto-zooming action. In this case, first hide the
-        window, do auto-zoom and display the window again.
+       The true maximum value of the FT window function is 1. However, its
+       *displayed* height is scaled to match the vertical range of the
+       data. This scaling may interfere with auto-zooming. In such cases,
+       temporarily hide the window, perform auto-zooming, and then display
+       the window again.
 
     """
 
@@ -2129,25 +2154,26 @@ class ChiWidget(PropWidget):
 
 class FTWidget(PropWidget):
     r"""
-    The resulting FT is cut at a selected r max value, mainly for the plotting
-    purpose.
+    The resulting Fourier transform (FT) is truncated at a selected maximum
+    :math:`r` value, primarily for visualization purposes.
 
-    The zeroth FT frequency (here, the uncorrected distance r) can be removed
-    by nulling the first integral of χ(k); this choice is controlled by the
-    checkbox "force FT(0)=0".
+    The zero-frequency component of the FT can be removed by forcing the first
+    integral of :math:`\chi(k) \cdot k^w` to vanish. This behavior is
+    controlled by the checkbox "force FT(0)=0".
 
     BFT window
     ~~~~~~~~~~
 
-    The BFT window function can be defined by the spin box widgets or from the
-    range widget in the plot.
+    The Back Fourier Transform (BFT) window function can be defined either
+    using the spin box controls or interactively through the range selection
+    widget in the plot.
 
     .. note::
 
-        The true maximum value of the FT window function equals 1. The
-        *displayed* vertical size of it is scaled to the data vertical extent,
-        which can hinder the auto-zooming action. In this case, first hide the
-        window, do auto-zoom and display the window again.
+       The true maximum value of the FT window function equals 1. However,
+       its *displayed* height is scaled to the vertical range of the data.
+       This scaling may interfere with auto-zooming. In such cases, hide the
+       window, perform auto-zoom, and then display the window again.
 
     """
 

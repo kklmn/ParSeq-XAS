@@ -6,21 +6,20 @@ No GUI: data nodes
 Experimental signals
 ~~~~~~~~~~~~~~~~~~~~
 
-One design goal of ParSeq is the ability of data import into *any* data node,
-not only into the head node(s) of a pipeline. Nonetheless, a few nodes of the
-ParSeq-XAS pipeline are considered to be *input* nodes -- those listed in this
-section -- where experimental signals are loaded. The nodes :class:`NodeIF` and
-:class:`NodeIE` do the same job and can receive single or multiple fluorescence
-or electron yield signals. The idea of the splitting into two separate nodes is
-to reduce the need for data format re-definition when switching between
-multi-channel and single-channel signals. The node :class:`NodeIXES` receives
-a 2D intensity array of a HERFD scan.
+One of the design goals of ParSeq is to allow data to be imported into any data
+node, not only into the head node(s) of a pipeline. Nevertheless, some nodes in
+the ParSeq-XAS pipeline are designated as input nodes -- those listed in this
+section -- where experimental signals are initially loaded. The nodes
+:class:`NodeIF` and :class:`NodeIE` perform similar functions and can accept
+either single-channel or multi-channel fluorescence or electron yield signals.
+The separation into two distinct nodes reduces the need to redefine data
+formats when switching between multi-channel and single-channel data.
+The node :class:`NodeIXES` is designed to handle a 2D intensity array obtained
+from a HERFD scan.
 
 .. note::
-    Please see |formats|. Note that any data channel can be defined by a Python
-    expression. Therefore, if 'eref' does not exist as an array in an hdf5 file
-    or a column in a column file, it is possible to build it from other arrays
-    or columns as e.g. `np.log(Col5/Col4)`.
+    Please refer to |formats|. Note that any data channel can be defined using
+    a Python expression, e.g. `np.log(Col5/Col4)`.
 
 .. autoclass:: NodeIT
 

@@ -6,13 +6,15 @@ ParSeq-XAS How-tos
 Pipeline launch and command line options
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The ParSeq-XAS pipeline starts by ``python XAS_start.py``.
+The ParSeq-XAS pipeline is started by running::
+
+    python XAS_start.py
 
 .. hint::
 
-    Use the key ``-h`` to discover the start options. Two particularly useful
-    options are ``-p {filename}`` to load an existing project file and
-    ``-v 100`` to troubleshoot errors.
+   Use the ``-h`` option to display the available startup parameters. Two
+   particularly useful options are ``-p {filename}`` to load an existing
+   project file and ``-v 100`` to increase verbosity for troubleshooting.
 
 Data loading
 ~~~~~~~~~~~~
@@ -27,24 +29,26 @@ Data loading
 
 Please see |formats|.
 
-Use the button |icoLast| at the top of the file tree to go to the last used
-file location and to use the format definition of that data file.
+Use the |icoLast| button at the top of the file tree to return to the last
+accessed file location and to reuse the corresponding data format definition.
 
-The content of a column file can be displayed in the ParSeq application in the
-Metadata splitter. Use the right button popup menu for this command.
+The contents of a column file can be displayed within the ParSeq application
+using the Metadata splitter. This option is available from the context menu
+(right-click) in the file tree.
 
-If a beamline produces data files with a variable data format that depends on
-the used instruments, the data format definitions can be automated in ParSeq
-if the files have a header line with a description of the columns. ParSeq-XAS
-implements `auto_format()` methods of a few data nodes (see the module
-`XAS_nodes`) that can be tweaked for specific needs.
+For beamlines that generate data files with variable formats depending on the
+instruments used, ParSeq allows automation of format definitions, provided that
+the files include a header line describing the columns. The ParSeq-XAS pipeline
+implements ``auto_format()`` methods in several data nodes (see the
+``XAS_nodes`` module), which can be customized for specific requirements.
 
 Data range
 ~~~~~~~~~~
 
-The data format widget has a tab "conversion". Read its tooltip panel. In
-particular, one can use the function `lim(Emin, Emax)` in the top-most edit
-line to select a desirable energy range.
+The data format widget includes a "conversion" tab. Refer to its tooltip panel
+for detailed usage information. In particular, the function ``lim(Emin, Emax)``
+can be used in the topmost input field to restrict the energy range to the
+desired interval.
 
 Data deglitching
 ~~~~~~~~~~~~~~~~
@@ -55,11 +59,11 @@ Data deglitching
 
 Please see |corrections|.
 
-Although data corrections can be done in any transformation node, the removal
-of monochromator glitches is the easiest in the χ(k) node.
+Although data corrections can be applied in any transformation node, removal of
+monochromator glitches is most straightforward in the :math:`\chi(k)` node.
 
-**Note**: When deglitching in the µd(E) node, make sure the pre-edge
-subtraction and edge normalization are switched off.
+**Note**: When performing deglitching in the µd(E) node, ensure that pre-edge
+subtraction and edge normalization are disabled.
 
 .. raw:: html
 
@@ -75,9 +79,9 @@ MCR-ALS. Please examine |combinations|.
 Project files and data saving
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-ParSeq-XAS comes with a few example project files located in the `saved`
-folder. Use the slider in the preview panel to browse through the project node
-images:
+ParSeq-XAS includes several example project files located in the ``saved``
+folder. Use the slider in the preview panel to browse through images of the
+pipeline nodes:
 
 .. imagezoom:: _images/load-proj.gif
    :align: center
@@ -85,9 +89,9 @@ images:
 
 .. note::
 
-   Project files and the involved data files are usually movable to a new
-   location (they are not when on network locations) without losing the
-   reference from the project file to the data.
+   Project files and their associated data files can usually be moved to a new
+   location without losing the references stored in the project file. This may
+   not work when files are located on network storage.
 
 .. note::
 
@@ -101,14 +105,16 @@ Make publication plots
    :align: right
    :alt: &ensp;Saving a ParSeq project file.
 
-1. ParSeq plot windows (based on silx plots) have a Save button that can export
-   the plot view to a graphics format.
+1. ParSeq plot windows (based on silx plots) provide a Save button that can
+   export the current plot view to a graphics format.
 
-2. The save project dialog of ParSeq has an option of saving a plotting script
-   together with the involved data. The scripts have a few commented lines that
-   set energy range, custom colors etc. to help the user tweak the plots.
+2. The Save Project dialog in ParSeq includes an option to generate a plotting
+   script together with the exported data. These scripts contain commented
+   sections for adjusting energy ranges, colors, and other plot settings to
+   facilitate further customization.
 
-3. The launch script ``XAS_start.py`` can be started with the ``-p`` key to
-   load a project file *and* with the key ``-nG`` to run the pipeline with no
-   GUI. The launch script has a short section for this case (no GUI) that does
-   plotting with `matplotlib`. This section can be adjusted at will.
+3. The launch script ``XAS_start.py`` can be run with the ``-p`` option to load
+   a project file and with the ``-nG`` option to execute the pipeline without
+   a GUI. In this headless mode, the script includes a dedicated section that
+   performs plotting using ``matplotlib``. This section can be freely modified
+   as needed.
