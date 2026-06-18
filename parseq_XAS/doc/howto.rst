@@ -16,8 +16,8 @@ The ParSeq-XAS pipeline is started by running::
    particularly useful options are ``-p {filename}`` to load an existing
    project file and ``-v 100`` to increase verbosity for troubleshooting.
 
-Data loading
-~~~~~~~~~~~~
+Data loading from the file tree
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. imagezoom:: _images/filemenu.png
    :align: right
@@ -29,18 +29,34 @@ Data loading
 
 Please see |formats|.
 
-Use the |icoLast| button at the top of the file tree to return to the last
-accessed file location and to reuse the corresponding data format definition.
+Use the |icoLast| button at the top of the file tree to return to the most
+recently accessed file location and reuse the associated data format definition.
 
-The contents of a column file can be displayed within the ParSeq application
-using the Metadata splitter. This option is available from the context menu
-(right-click) in the file tree.
+The content of a column file can be displayed directly within the ParSeq
+application using the Metadata splitter. This option is available from the
+context menu (right-click) in the file tree.
 
-For beamlines that generate data files with variable formats depending on the
-instruments used, ParSeq allows automation of format definitions, provided that
-the files include a header line describing the columns. The ParSeq-XAS pipeline
-implements ``auto_format()`` methods in several data nodes (see the
+For beamlines that produce data files with variable formats depending on the
+instruments used, ParSeq supports automation of format definitions -- provided
+that the files include a header line describing the columns. The ParSeq-XAS
+pipeline implements ``auto_format()`` methods in several data nodes (see the
 ``XAS_nodes`` module), which can be customized for specific requirements.
+Auto-formatting can be triggered from the context menu.
+
+Once a format is defined for the selected column file or HDF5 entry, ParSeq
+attempts to import the data. If the import is successful, the selection is
+highlighted in green; otherwise, it appears in red.
+
+Data loading can then be initiated either from the context menu or by dragging
+and dropping items from the file tree onto the data tree.
+
+Data loading from an external file browser
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Data files can be dragged and dropped from an external file browser onto the
+data tree. If data sources are defined in the data format widget, they will be
+applied to the dropped files. Otherwise, the ``auto_format()`` procedure
+(see above) will be attempted.
 
 Data range
 ~~~~~~~~~~
