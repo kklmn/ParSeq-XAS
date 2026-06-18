@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: parseq_XAS
-Version: 2026.4.0
+Version: 2026.6.0
 Summary: A ParSeq pipeline for data processing of XAS spectra
 Author-email: Konstantin Klementiev <konstantin.klementiev@gmail.com>
 License-Expression: MIT
