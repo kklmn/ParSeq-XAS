@@ -713,7 +713,10 @@ class MakeChi(ctr.Transform):
                                   for i in defpr]
         cond = (pre_emin <= data.e) & (data.e <= pre_emax)
         e, mu = data.e[cond], data.mu[cond]
-        return cls.polyfit(e, mu, dtparams['preedgeExps'], data)
+        if len(e) == 1:
+            return mu[0]*np.ones_like(data.mu), data.e0
+        else:
+            return cls.polyfit(e, mu, dtparams['preedgeExps'], data)
 
     @classmethod
     @logger(minLevel=20, attrs=[(0, 'name')])
@@ -736,75 +739,9 @@ class MakeChi(ctr.Transform):
         return rese, rese0
 
     @classmethod
-    def run_main(cls, data):
+    @logger(minLevel=20, attrs=[(0, 'name')])
+    def get_mu0prior(cls, data):
         dtparams = data.transformParams
-
-        if hasattr(data, 'eraw'):  # may be absent in data combinations
-            data.e = np.array(data.eraw)
-        else:
-            if not hasattr(data, 'e'):  # if data combinations fails:
-                return
-        if hasattr(data, 'muraw'):  # may be absent in data combinations
-            data.mu = np.array(data.muraw)
-
-        if hasattr(data, 'eref'):  # may be absent in data combinations
-            if data.eref is not None:
-                data.erefrb = np.array(data.eref)
-        else:
-            data.eref = None
-
-        # in case the analysis fails:
-        data.edge_step = 1.
-        data.pre_edge = np.zeros_like(data.e)
-
-        data.e0 = cls.get_e0(data)
-        if dtparams['needECalibration']:
-            eRef = dtparams['eRef']
-            if dtparams['eCalibrationMethod'] == 0:  # assign Eref to E0
-                eShift = eRef - data.e0
-                dtparams['eShift'] = eShift
-            elif dtparams['eCalibrationMethod'] == 1:  # apply the shift
-                eShift = dtparams['eShift']
-
-            if dtparams['eShiftKind'] == 0:  # angular shift
-                data.e = 1 / (1./data.e + 1./eRef - 1./(eRef-eShift))
-            elif dtparams['eShiftKind'] == 1:  # lattice shift
-                data.e *= 1 + eShift/(eRef-eShift)
-            elif dtparams['eShiftKind'] == 2:  # energy shift
-                data.e += eShift
-            data.e0 = cls.get_e0(data)
-
-        dtparams['nbinOriginal'] = None
-        dtparams['nbinNew'] = None
-        dtparams['binDistrNew'] = None
-        if dtparams['rebinNeeded']:
-            cls.rebin(data, data.e0)
-            data.e0 = cls.get_e0(data)
-
-        data.pre_edge, pre_e0 = cls.get_pre(data)
-
-        res = cls.calc_pinhole(data)
-        if res is not None:
-            data.mu = res
-            data.e0 = cls.get_e0(data)
-            data.pre_edge, pre_e0 = cls.get_pre(data)
-
-        res = cls.calc_self_abs(data)
-        if res is not None:
-            data.mu = res
-            data.e0 = cls.get_e0(data)
-            data.pre_edge, pre_e0 = cls.get_pre(data)
-
-        dtparams['e0'] = data.e0
-
-        data.post_edge, post_e0 = cls.get_post(data)
-
-        data.edge_step = post_e0  # - pre_e0
-        dtparams['edgeJump'] = data.edge_step
-        data.norm = (data.mu-data.pre_edge) / data.edge_step
-        data.flat = (data.mu-data.pre_edge) / (data.post_edge-data.pre_edge)
-
-        # make mu0prior:
         data.mu0prior = np.array(data.mu)
         ie0 = np.argwhere(data.e > data.e0).flatten()[0]  # 1st point after E0
         if dtparams['mu0PriorIncludeWhiteLine']:
@@ -839,6 +776,10 @@ class MakeChi(ctr.Transform):
             # p = P.fit(cornere, cornermup, 2, domain=[])
             # data.mu0prior[icorner-ns: icorner+ns+1] = p(cornere)
 
+    @classmethod
+    @logger(minLevel=20, attrs=[(0, 'name')])
+    def get_mu0(cls, data):
+        dtparams = data.transformParams
         data.mu0 = np.array(data.mu0prior)
         kmin, kmax = dtparams['krange']
         kmaxE = abs((data.e[-1] - data.e0)*eV2revA)**0.5
@@ -933,6 +874,78 @@ class MakeChi(ctr.Transform):
         else:
             raise ValueError(
                 "unknown value mu0method={0}".format(dtparams['mu0method']))
+
+    @classmethod
+    def run_main(cls, data):
+        dtparams = data.transformParams
+
+        if hasattr(data, 'eraw'):  # may be absent in data combinations
+            data.e = np.array(data.eraw)
+        else:
+            if not hasattr(data, 'e'):  # if data combinations fails:
+                return
+        if hasattr(data, 'muraw'):  # may be absent in data combinations
+            data.mu = np.array(data.muraw)
+
+        if hasattr(data, 'eref'):  # may be absent in data combinations
+            if data.eref is not None:
+                data.erefrb = np.array(data.eref)
+        else:
+            data.eref = None
+
+        # in case the analysis fails:
+        data.edge_step = 1.
+        data.pre_edge = np.zeros_like(data.e)
+
+        data.e0 = cls.get_e0(data)
+        if dtparams['needECalibration']:
+            eRef = dtparams['eRef']
+            if dtparams['eCalibrationMethod'] == 0:  # assign Eref to E0
+                eShift = eRef - data.e0
+                dtparams['eShift'] = eShift
+            elif dtparams['eCalibrationMethod'] == 1:  # apply the shift
+                eShift = dtparams['eShift']
+
+            if dtparams['eShiftKind'] == 0:  # angular shift
+                data.e = 1 / (1./data.e + 1./eRef - 1./(eRef-eShift))
+            elif dtparams['eShiftKind'] == 1:  # lattice shift
+                data.e *= 1 + eShift/(eRef-eShift)
+            elif dtparams['eShiftKind'] == 2:  # energy shift
+                data.e += eShift
+            data.e0 = cls.get_e0(data)
+
+        dtparams['nbinOriginal'] = None
+        dtparams['nbinNew'] = None
+        dtparams['binDistrNew'] = None
+        if dtparams['rebinNeeded']:
+            cls.rebin(data, data.e0)
+            data.e0 = cls.get_e0(data)
+
+        data.pre_edge, pre_e0 = cls.get_pre(data)
+
+        res = cls.calc_pinhole(data)
+        if res is not None:
+            data.mu = res
+            data.e0 = cls.get_e0(data)
+            data.pre_edge, pre_e0 = cls.get_pre(data)
+
+        res = cls.calc_self_abs(data)
+        if res is not None:
+            data.mu = res
+            data.e0 = cls.get_e0(data)
+            data.pre_edge, pre_e0 = cls.get_pre(data)
+
+        dtparams['e0'] = data.e0
+
+        data.post_edge, post_e0 = cls.get_post(data)
+
+        data.edge_step = post_e0  # - pre_e0
+        dtparams['edgeJump'] = data.edge_step
+        data.norm = (data.mu-data.pre_edge) / data.edge_step
+        data.flat = (data.mu-data.pre_edge) / (data.post_edge-data.pre_edge)
+
+        cls.get_mu0prior(data)
+        cls.get_mu0(data)
 
         data.chi = cls.get_chi(
             data.e, data.e0, data.mu, data.mu0, data.pre_edge, data.k,

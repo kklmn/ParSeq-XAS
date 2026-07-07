@@ -118,10 +118,16 @@ def load_test_data_MCR(what=1):
     elif what == 6:
         dataFName = 'MES-Co.txt.gz'
         dLabel = 'Co-mono'
+    elif what == 7:
+        dataFName = 'ceria.dat.gz'
+        dLabel = 'ceria'
 
     dataPath = osp.join(dataDir, dataFName)
     table = np.loadtxt(dataPath)
-    usecolsD = list(range(1, table.shape[1]))
+    shape = table.shape
+    n = table.shape[1]
+    print(f'loaded table: {shape[0]}×{shape[1]}')
+    usecolsD = list(range(1, n))  # [:200]
 
     rootItem = csi.dataRootItem
     rootItem.kwargs['runDownstream'] = True
@@ -131,6 +137,7 @@ def load_test_data_MCR(what=1):
         dataFormat = dict(dataSource=[0, col])
         groupD.insert_data(dataPath, dataFormat=dataFormat, alias=alias,
                            originNodeName=u'µd')
+        print(f'loading {col} of {n-1}...')
 
     if refFName:
         refPath = osp.join(dataDir, refFName)
