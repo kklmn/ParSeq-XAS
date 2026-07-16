@@ -130,8 +130,8 @@ rst_prolog = """
 
 .. |combinations| raw:: html
 
-   <a class="reference external" href="{3}">an example of MCR-ALS analysis
-   applied to a series of operando XANES spectra of a catalyst</a>
+   <a class="reference external" href="{3}">examples of MCR-ALS analysis
+   applied to operando XANES spectra</a>
 
 """.format(helpParSeq, helpCorr, helpForm, helpComb)
 
