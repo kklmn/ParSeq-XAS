@@ -3,11 +3,12 @@
 Version history
 ---------------
 
-Current GitHub code (modified 18 Jun 2026):
-    -
+Current GitHub code (modified 21 Jul 2026):
+    - Enable extra pins for pre- and post-edge XANES background polynomials.
+    - Add MCR-ALS in-situ reduction example on a series of CeL3-XANES spectra.
 
 2026.6.0 (18 Jun 2026):
-    - Add MCR-ALS example on a series of XANES spectra.
+    - Add MCR-ALS in-situ oxidation example on a series of NiK-XANES spectra.
 
 2026.4.0 (17 Mar 2026):
     - Add pinhole correction to transmission data.
