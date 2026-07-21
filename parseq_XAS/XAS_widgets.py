@@ -45,7 +45,8 @@ import sys; sys.path.append('..')  # analysis:ignore
 from parseq.core import singletons as csi
 from parseq.core.logger import syslogger
 from parseq.gui.dataRebin import DataRebinWidget
-from parseq.gui.roi import AutoRangeWidget, SplitRangeWidget, RoiWidget
+from parseq.gui.roi import (AutoRangeWidget, SplitRangeWidget, RoiWidget,
+                            PointRoiWidget)
 import parseq.gui.gcommons as gco
 try:
     from parseq.gui.glitches import GlitchPanel, clearGlitches, \
@@ -381,39 +382,68 @@ class HERFDWidget(PropWidget):
         roiPanel.setSizePolicy(qt.QSizePolicy.Minimum, qt.QSizePolicy.Fixed)
         layout.addWidget(roiPanel)
 
-        skewPanel = qt.QGroupBox(self)
-        skewPanel.setFlat(False)
-        skewPanel.setTitle('detect skew')
-        skewPanel.setCheckable(True)
-        self.registerPropWidget(skewPanel, skewPanel.title(), 'skewDetect',
-                                transformNames='make HERFD')
-        layoutCS = qt.QVBoxLayout()
-
-        layoutLS = qt.QHBoxLayout()
-        thresholdLabel = qt.QLabel('threshold')
-        layoutLS.addWidget(thresholdLabel)
-        threshold = qt.QDoubleSpinBox()
-        threshold.setToolTip(u'0 < threshold < 1')
-        threshold.setMinimum(0.05)
-        threshold.setMaximum(0.95)
-        threshold.setSingleStep(0.01)
-        threshold.setDecimals(2)
-        threshold.setAccelerated(True)
+        dispersionPanel = qt.QGroupBox(self)
+        dispersionPanel.setFlat(False)
+        dispersionPanel.setTitle('dispersion correction')
+        dispersionPanel.setCheckable(True)
         self.registerPropWidget(
-            [threshold, thresholdLabel], thresholdLabel.text(),
-            'skewThreshold', transformNames='make HERFD')
-        layoutLS.addWidget(threshold)
-        layoutCS.addLayout(layoutLS)
+            dispersionPanel, dispersionPanel.title(), 'dispersionCorrection',
+            transformNames='make HERFD')
+        dispersionPanel.toggled.connect(self.showRoiSkewWidget)
+        layoutDC = qt.QVBoxLayout()
+        layoutTh = qt.QHBoxLayout()
+        self.dispersionKind0 = qt.QRadioButton(
+            'by edge detection', dispersionPanel)
+        layoutTh.addWidget(self.dispersionKind0)
+        self.threshold = qt.QDoubleSpinBox()
+        self.threshold.setToolTip(u'0 < threshold < 1')
+        self.threshold.setMinimum(0.05)
+        self.threshold.setMaximum(0.95)
+        self.threshold.setSingleStep(0.01)
+        self.threshold.setDecimals(2)
+        self.threshold.setAccelerated(True)
+        self.dispersionKind0.toggled.connect(partial(
+            self.enableSubControls, [self.threshold]))
+        self.registerPropWidget(
+            self.threshold, 'dispersion correction threshold',
+            'dispersionCorrectionThreshold', transformNames='make HERFD')
+        layoutTh.addWidget(self.threshold)
+        layoutDC.addLayout(layoutTh)
+        self.dispersionKind1 = qt.QRadioButton(
+            'by elastic band', dispersionPanel)
+        self.dispersionKind1.toggled.connect(self.showRoiSkewWidget)
+        layoutDC.addWidget(self.dispersionKind1)
+        self.roiSkewWidget = RoiWidget(
+            self, plot, ['BandROI'], fmt=[
+                'begin: {0[0]:.0f}, {0[1]:.1f}\nend: {1[0]:.0f}, {1[1]:.1f}\n'
+                'width: {2:.1f}'])
+        self.roiSkewWidget.acceptButton.clicked.connect(self.acceptSkewBand)
+        self.dispersionKind1.toggled.connect(partial(
+            self.enableSubControls, [self.roiSkewWidget]))
+        self.registerPropWidget(
+            [self.roiSkewWidget.table, self.roiSkewWidget.acceptButton],
+            'elastic dispersion roi', 'roiDispersionElastic',
+            transformNames='make HERFD')
+        layoutDC.addWidget(self.roiSkewWidget)
+        self.registerExclusivePropGroup(
+            dispersionPanel, (self.dispersionKind0, self.dispersionKind1),
+            dispersionPanel.title(), 'dispersionCorrectionKind',
+            transformNames='make HERFD')
 
-        rectifyCB = qt.QCheckBox("skewRectify skew")
-        self.registerPropWidget(rectifyCB, rectifyCB.text(), 'skewRectify',
-                                transformNames='make HERFD')
-        layoutCS.addWidget(rectifyCB)
-
-        skewPanel.setLayout(layoutCS)
+        dispersionApplyCB = qt.QCheckBox("apply dispersion correction")
+        self.registerPropWidget(
+            dispersionApplyCB, dispersionApplyCB.text(),
+            'dispersionCorrectionApply', transformNames='make HERFD')
+        layoutDC.addWidget(dispersionApplyCB)
+        dispersionPanel.setLayout(layoutDC)
         self.registerPropGroup(
-            skewPanel, [threshold, skewPanel, rectifyCB], 'skew properties')
-        layout.addWidget(skewPanel)
+            dispersionPanel,
+            [self.threshold, self.dispersionKind0, self.dispersionKind1,
+             dispersionApplyCB, self.roiSkewWidget],
+            'dispersion correction properties')
+        layout.addWidget(dispersionPanel)
+        dispersionPanel.setSizePolicy(
+            qt.QSizePolicy.Minimum, qt.QSizePolicy.Fixed)
 
         layout.addStretch()
         self.setLayout(layout)
@@ -427,6 +457,23 @@ class HERFDWidget(PropWidget):
         # nextWidget = csi.nodes[u'µd'].widget.transformWidgets[0]
         # nextWidget.setUIFromData()
 
+    def acceptSkewBand(self):
+        self.roiSkewWidget.syncRoi()
+        curRoi = self.roiSkewWidget.getCurrentRoi()
+        self.updateProp('roiDispersionElastic', curRoi)
+        for data in csi.selectedItems:
+            data.transformParams['roiDispersionElastic']['use'] = True
+
+    def showRoiSkewWidget(self, state):
+        rois = self.roiSkewWidget.roiManager.getRois()
+        if rois:
+            visible = self.dispersionKind1.isChecked()
+            rois[0].setVisible(state and visible)
+
+    def enableSubControls(self, subwidgets, state=True):
+        for w in subwidgets:
+            w.setEnabled(state)
+
     def extraSetUIFromData(self):
         if len(csi.selectedItems) == 0:
             return
@@ -434,8 +481,19 @@ class HERFDWidget(PropWidget):
         if hasattr(data, 'xes2D'):
             self.roiWidget.dataToCount = data.xes2D  # to display roi counts
             self.roiWidget.dataToCountY = data.eraw
+            self.roiSkewWidget.dataToCount = data.xes2D  # to display roi counts
+            self.roiSkewWidget.dataToCountY = data.eraw
             dtparams = data.transformParams
             self.roiWidget.setRois(dict(dtparams['roiHERFD']))
+            skewElastic = dtparams['roiDispersionElastic']
+            if not (data.eraw[0] <= skewElastic['begin'][1] <= data.eraw[-1]):
+                skewElastic['begin'] = 0, data.eraw.mean()
+            if not (data.eraw[0] <= skewElastic['end'][1] <= data.eraw[-1]):
+                skewElastic['end'] = data.xes2D.shape[1] // 2, data.eraw[0]
+            self.roiSkewWidget.setRois(skewElastic)
+            kind = dtparams['dispersionCorrectionKind']
+            self.enableSubControls([self.threshold], kind == 0)
+            self.enableSubControls([self.roiSkewWidget], kind == 1)
 
     def extraPlot(self):
         if len(csi.selectedItems) == 0:
@@ -444,30 +502,31 @@ class HERFDWidget(PropWidget):
         dtparams = data.transformParams
         plot = self.node.widget.plot
 
-        if dtparams['skewDetect']:
-            legend = 'skew_line'
-            curve = plot.getCurve(legend)
-            x = data.skewx
-            y = data.skewy
-            if curve is None:
-                plot.addCurve(x, y, linestyle='-', color='magenta', z=5,
-                              legend=legend, resetzoom=False)
-            else:
-                curve.setData(x, y)
-                curve.setZValue(1)
-            legend = 'skew_knots'
-            curve = plot.getCurve(legend)
-            x = data.skewx
-            y = data.skewy0
-            if curve is None:
-                plot.addCurve(x, y, linestyle=' ', symbol='o', color='red',
-                              yerror=data.skewz, z=1, legend=legend,
-                              resetzoom=False)
+        if dtparams['dispersionCorrection']:
+            if dtparams['dispersionCorrectionKind'] == 0:  # detection
+                legend = 'dispersion_line'
                 curve = plot.getCurve(legend)
-                curve.setSymbolSize(2)
-            else:
-                curve.setData(x, y)
-                curve.setZValue(1)
+                x = data.skewx
+                y = data.skewy
+                if curve is None:
+                    plot.addCurve(x, y, linestyle='-', color='magenta', z=5,
+                                  legend=legend, resetzoom=False)
+                else:
+                    curve.setData(x, y)
+                    curve.setZValue(1)
+                legend = 'dispersion_knots'
+                curve = plot.getCurve(legend)
+                x = data.skewx
+                y = data.skewy0
+                if curve is None:
+                    plot.addCurve(x, y, linestyle=' ', symbol='o', color='red',
+                                  yerror=data.skewz, z=1, legend=legend,
+                                  resetzoom=False)
+                    curve = plot.getCurve(legend)
+                    curve.setSymbolSize(2)
+                else:
+                    curve.setData(x, y)
+                    curve.setZValue(1)
 
 
 class MuWidget(PropWidget):
@@ -850,6 +909,7 @@ class MuWidget(PropWidget):
         preedgePanel.setTitle('pre-edge background')
         layoutP = gco.QVBoxLayoutAbove()
         layoutP.setContentsMargins(10, 2, 2, 2)
+        layoutP.setSpacing(2)
 
         checkBoxShowPreEdge = qt.QCheckBox('show subtracted', preedgePanel)
         checkBoxShowPreEdge.setToolTip(
@@ -867,11 +927,28 @@ class MuWidget(PropWidget):
                                 'preedgeWhere')
         layoutP.addWidget(self.preedgeRangeWidget)
 
+        layoutPH = qt.QHBoxLayout()
+        layoutPH.setContentsMargins(0, 0, 0, 0)
+        layoutPH.setSpacing(2)
         self.preedgeStateButtons = gco.StateButtons(
             self, 'exponents', (-4, -3, 0, 1), default=0)
         self.registerPropWidget(self.preedgeStateButtons, 'pre-edge exponents',
                                 'preedgeExps')
-        layoutP.addWidget(self.preedgeStateButtons)
+        layoutPH.addWidget(self.preedgeStateButtons)
+
+        ttPinPre = 'To add an extra pin to the polynomial fit:'\
+            '\n1) remove pre-edge subtraction and normalization,'\
+            '\n2) click this button and then the node plot.'\
+            '\nTo remove the pin, right-click in the plot.'\
+            '\nIf this button is gray, there is a pin in the plot; '\
+            'show it by removing pre-edge subtraction.'
+        self.preedgePin = PointRoiWidget(
+            self, plot, ttPinPre, 'pin-pre', "#008b8b")
+        layoutPH.addWidget(self.preedgePin)
+        layoutPH.addStretch()
+        layoutP.addLayout(layoutPH)
+        self.registerPropWidget(self.preedgePin, 'pre-edge pin point',
+                                'preedgePinPoint')
 
         preedgePanel.setLayout(layoutP)
         layout.addWidget(preedgePanel)
@@ -889,7 +966,6 @@ class MuWidget(PropWidget):
         checkBoxShowPost.setChecked(self.properties['show_post'])
         checkBoxShowPost.toggled.connect(partial(self.showSlot, 'show_post'))
         layoutPo.addExtraWidget(checkBoxShowPost)
-
         self.postedgeRangeWidget = RangeWidgetPost(
             self, plot, 'energy range', '[min, max] +E0 (eV)',
             'post-edge', "#8b8b00", "{0[0]:.1f}, {0[1]:.1f}",
@@ -898,11 +974,27 @@ class MuWidget(PropWidget):
                                 'postedgeWhere')
         layoutPo.addWidget(self.postedgeRangeWidget)
 
+        layoutPoH = qt.QHBoxLayout()
+        layoutPoH.setContentsMargins(0, 0, 0, 0)
+        layoutPoH.setSpacing(2)
         self.postedgeStateButtons = gco.StateButtons(
             self, 'exponents', (-4, -3, 0, 1, 2), default=0)
         self.registerPropWidget(
             self.postedgeStateButtons, 'post-edge exponents', 'postedgeExps')
-        layoutPo.addWidget(self.postedgeStateButtons)
+        layoutPoH.addWidget(self.postedgeStateButtons)
+        ttPinPost = 'To add an extra pin to the polynomial fit:'\
+            '\n1) activate pre-edge subtraction and remove normalization,'\
+            '\n2) click this button and then the node plot.'\
+            '\nTo remove the pin, right-click in the plot.'\
+            '\nIf this button is gray, there is a pin in the plot; '\
+            'show it by removing normalization.'
+        self.postedgePin = PointRoiWidget(
+            self, plot, ttPinPost, 'pin-post', "#8b8b00")
+        layoutPoH.addWidget(self.postedgePin)
+        layoutPoH.addStretch()
+        layoutPo.addLayout(layoutPoH)
+        self.registerPropWidget(self.postedgePin, 'post-edge pin point',
+                                'postedgePinPoint')
 
         layoutSt = qt.QHBoxLayout()
         layoutSt.setContentsMargins(2, 2, 2, 2)
@@ -1137,6 +1229,8 @@ class MuWidget(PropWidget):
                 100, 'Error in subtractPreedgeSlot() for spectrum {0}:\n{1}'
                 .format(data.alias, e))
         csi.model.needReplot.emit(False, True, 'subtractPreedgeSlot')
+        self.preedgePin.showRoi(bool(not value))
+        self.preedgePin.enableAction(bool(not value))
 
     def energy_selected(self, txt=None):
         if txt is None:
@@ -1169,6 +1263,10 @@ class MuWidget(PropWidget):
                 100, 'Error in normalizeSlot() for spectrum {0}:\n{1}'
                 .format(data.alias, e))
         csi.model.needReplot.emit(False, True, 'normalizeSlot')
+        self.preedgePin.showRoi(bool(not value))
+        self.postedgePin.showRoi(bool(not value))
+        self.preedgePin.enableAction(bool(not value))
+        self.postedgePin.enableAction(bool(not value))
 
     def showSlot(self, prop, value):
         self.properties[prop] = value

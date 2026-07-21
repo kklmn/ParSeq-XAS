@@ -147,10 +147,13 @@ class MakeHERFD(ctr.Transform):
     defaultParams = dict(
         cutoffNeeded=True, cutoff=20000, cutoffMaxBelow=0,
         healMissingFrames=True, healedMissingFrames='',
-        skewDetect=False, skewThreshold=0.3, skewRectify=False)
-
-    defaultParams['roiHERFD'] = dict(
-        kind='HorizontalRangeROI', name='roi', use=True, vmin=300, vmax=400)
+        roiHERFD=dict(kind='HorizontalRangeROI', name='roi', use=True,
+                      vmin=300, vmax=400),
+        dispersionCorrection=False,
+        dispersionCorrectionKind=1,  # 0: edge detection, 1: elastic band
+        dispersionCorrectionThreshold=0.3, dispersionCorrectionApply=False,
+        roiDispersionElastic=dict(kind='BandROI', name='ela', use=True,
+                                  begin=(370, 0), end=(560, 0), width=5.0))
 
     @classmethod
     def linear_func(cls, x, k, b):
@@ -159,14 +162,13 @@ class MakeHERFD(ctr.Transform):
     @classmethod
     def shear_image(cls, image, x0, k):
         def shear(xy):
-            # cols in xy[:, 0] and rows in xy[:, 1]
+            # cols are in xy[:, 0] and rows are in xy[:, 1]
             xy[:, 1] += k * (xy[:, 0] - x0)
             return xy
         return warp(image, shear, mode='edge', preserve_range=True)
 
     @classmethod
     def find_skew(cls, xes2D, vmin, vmax, thr, eraw):
-        x = np.arange(vmin, vmax+1)
         inBand = xes2D[:, vmin:vmax+1]
         x0 = vmin + np.argmax(inBand.sum(axis=0))
         imax = np.argmax(inBand, axis=0)
@@ -175,6 +177,7 @@ class MakeHERFD(ctr.Transform):
         y = ithr.astype(float)
         z = 1. / np.where(cmax > 0, cmax, 1e-20)
         z *= 0.5 / z.max()
+        x = np.arange(vmin, vmax+1)
         p, _ = curve_fit(cls.linear_func, x, y, sigma=z, absolute_sigma=True)
         y0 = map_coordinates(eraw, (y,))
         skewk, skewb = p[0], p[1]
@@ -227,16 +230,35 @@ class MakeHERFD(ctr.Transform):
             if roi['kind'] == 'HorizontalRangeROI':
                 vmin = max(int(roi['vmin']), 0) + 1
                 vmax = int(roi['vmax'])
-                if dtparams['skewDetect']:
-                    s = cls.find_skew(xes2Dwork, vmin, vmax,
-                                      dtparams['skewThreshold'], data.eraw)
-                    x0, sk, data.skewx, data.skewy0, data.skewy, data.skewz = s
-                    if dtparams['skewRectify']:
-                        data.xes2D = cls.shear_image(xes2Dwork, x0, sk)
-                        xes2Dwork = data.xes2D
-                        s = cls.find_skew(xes2Dwork, vmin, vmax,
-                                          dtparams['skewThreshold'], data.eraw)
-                        data.skewx, data.skewy0, data.skewy, data.skewz = s[2:]
+                if dtparams['dispersionCorrection']:
+                    if dtparams['dispersionCorrectionKind'] == 0:  # detection
+                        s = cls.find_skew(
+                            xes2Dwork, vmin, vmax,
+                            dtparams['dispersionCorrectionThreshold'],
+                            data.eraw)
+                        (x0, sk, data.skewx, data.skewy0, data.skewy,
+                         data.skewz) = s
+                        if dtparams['dispersionCorrectionApply']:
+                            data.xes2D = cls.shear_image(xes2Dwork, x0, sk)
+                            xes2Dwork = data.xes2D
+                            s = cls.find_skew(
+                                xes2Dwork, vmin, vmax,
+                                dtparams['dispersionCorrectionThreshold'],
+                                data.eraw)
+                            data.skewx, data.skewy0, data.skewy, data.skewz = \
+                                s[2:]
+                    elif dtparams['dispersionCorrectionKind'] == 1:  # elastic
+                        roiD = dtparams['roiDispersionElastic']
+                        if roiD['use']:
+                            x1, y1 = roiD['begin']
+                            x2, y2 = roiD['end']
+                            sk = (y2-y1) / (x2-x1) * len(data.eraw) /\
+                                (data.eraw[-1]-data.eraw[0])
+                            inBand = xes2Dwork[:, vmin:vmax+1]
+                            x0 = vmin + np.argmax(inBand.sum(axis=0))
+                            if dtparams['dispersionCorrectionApply']:
+                                data.xes2D = cls.shear_image(xes2Dwork, x0, sk)
+                                xes2Dwork = data.xes2D
 
                 posIXES = xes2Dwork[:, vmin:vmax+1].sum(axis=1)
             elif roi['kind'] == 'BandROI':
@@ -472,9 +494,10 @@ class MakeChi(ctr.Transform):
     name = 'make chi'
     ref = "nogui.html#make-exafs-function-k"
     defaultParams = dict(
-        e0Smooth=True, e0SmoothN=6, e0Where=[0.02, 0.7], e0Method=2,
-        e0=None, preedgeWhere=[0.03, 0.53], preedgeExps=[-3, 0],
-        postedgeWhere=[40, 400], postedgeExps=[-2, -1], edgeJump=0,
+        e0Smooth=True, e0SmoothN=6, e0Where=[0.02, 0.7], e0Method=2, e0=None,
+        preedgeWhere=[0.03, 0.53], preedgeExps=[-3, 0], preedgePinPoint=0,
+        postedgeWhere=[40, 400], postedgeExps=[-2, -1], postedgePinPoint=0,
+        edgeJump=0,
         mu0PriorIncludeWhiteLine=False, mu0PriorVScale=1., mu0PriorSmoothN=5,
         mu0method=1,  # see names in mu0methods
         mu0knots=7, mu0kpow=2,  # for mu0method=0
@@ -691,9 +714,12 @@ class MakeChi(ctr.Transform):
 
     @classmethod
     @logger(minLevel=20, attrs=[(0, 'name')])
-    def polyfit(cls, e, mu, exps, data):
+    def polyfit(cls, e, mu, exps, pinpoint, data):
         minPow = min(exps)
         deg = [d-minPow for d in exps]
+        if pinpoint is not None and (len(pinpoint) == 2):
+            e = np.append(e, pinpoint[0])
+            mu = np.append(mu, pinpoint[1])
         p = P.fit(e, mu*e**(-minPow), deg, domain=[])
         rese = p(data.e) * data.e**minPow
         rese0 = p(data.e0) * data.e0**minPow
@@ -716,7 +742,8 @@ class MakeChi(ctr.Transform):
         if len(e) == 1:
             return mu[0]*np.ones_like(data.mu), data.e0
         else:
-            return cls.polyfit(e, mu, dtparams['preedgeExps'], data)
+            return cls.polyfit(e, mu, dtparams['preedgeExps'],
+                               dtparams['preedgePinPoint'], data)
 
     @classmethod
     @logger(minLevel=20, attrs=[(0, 'name')])
@@ -734,7 +761,8 @@ class MakeChi(ctr.Transform):
             dtparams['postedgeWhere'][0] = post_emin - data.e0
         cond = (post_emin <= data.e) & (data.e <= post_emax)
         e, mu = data.e[cond], data.mu[cond]-data.pre_edge[cond]
-        rese, rese0 = cls.polyfit(e, mu, dtparams['postedgeExps'], data)
+        rese, rese0 = cls.polyfit(e, mu, dtparams['postedgeExps'],
+                                  dtparams['postedgePinPoint'], data)
         rese += data.pre_edge
         return rese, rese0
 
