@@ -717,7 +717,7 @@ class MakeChi(ctr.Transform):
     def polyfit(cls, e, mu, exps, pinpoint, data):
         minPow = min(exps)
         deg = [d-minPow for d in exps]
-        if pinpoint is not None and (len(pinpoint) == 2):
+        if isinstance(pinpoint, (list, tuple)) and (len(pinpoint) == 2):
             e = np.append(e, pinpoint[0])
             mu = np.append(mu, pinpoint[1])
         p = P.fit(e, mu*e**(-minPow), deg, domain=[])

@@ -978,7 +978,7 @@ class MuWidget(PropWidget):
         layoutPoH.setContentsMargins(0, 0, 0, 0)
         layoutPoH.setSpacing(2)
         self.postedgeStateButtons = gco.StateButtons(
-            self, 'exponents', (-4, -3, 0, 1, 2), default=0)
+            self, 'exponents', (-3, -2, -1, 0, 1, 2), default=0)
         self.registerPropWidget(
             self.postedgeStateButtons, 'post-edge exponents', 'postedgeExps')
         layoutPoH.addWidget(self.postedgeStateButtons)
@@ -1271,6 +1271,9 @@ class MuWidget(PropWidget):
     def showSlot(self, prop, value):
         self.properties[prop] = value
         csi.model.needReplot.emit(False, True, 'showSlot')
+        if prop == 'show_post':
+            self.postedgePin.showRoi(bool(value))
+            self.postedgePin.enableAction(bool(value))
 
     def extraSetUIFromData(self):
         if len(csi.selectedItems) == 0:
@@ -2151,14 +2154,10 @@ class ChiWidget(PropWidget):
         self.ftWidthAndMin.fromSpinBox(100)
         if hasattr(data, 'ftwindow'):
             legend = 'hline'
-            xlim = plot.getXAxis().getLimits()
-            curve = plot.getCurve(legend)
-            if curve is None:
+            marker = plot._getMarker(legend)
+            if marker is None:
                 if self.properties['show_zero_grid_line']:
-                    plot.addCurve(xlim, [0, 0], color='gray', legend=legend,
-                                  resetzoom=False)
-            else:
-                curve.setData(xlim, [0, 0])
+                    plot.addYMarker(y=0, color='gray', legend=legend)
 
             legend = 'FT window'
             if self.properties['show_ft_window']:
