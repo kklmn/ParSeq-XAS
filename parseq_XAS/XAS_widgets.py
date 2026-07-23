@@ -416,7 +416,8 @@ class HERFDWidget(PropWidget):
         self.roiSkewWidget = RoiWidget(
             self, plot, ['BandROI'], fmt=[
                 'begin: {0[0]:.0f}, {0[1]:.1f}\nend: {1[0]:.0f}, {1[1]:.1f}\n'
-                'width: {2:.1f}'])
+                'width: {2:.1f}'],
+            color='#ffa07a')
         self.roiSkewWidget.acceptButton.clicked.connect(self.acceptSkewBand)
         self.dispersionKind1.toggled.connect(partial(
             self.enableSubControls, [self.roiSkewWidget]))
@@ -485,12 +486,12 @@ class HERFDWidget(PropWidget):
             self.roiSkewWidget.dataToCountY = data.eraw
             dtparams = data.transformParams
             self.roiWidget.setRois(dict(dtparams['roiHERFD']))
-            skewElastic = dtparams['roiDispersionElastic']
-            if not (data.eraw[0] <= skewElastic['begin'][1] <= data.eraw[-1]):
-                skewElastic['begin'] = 0, data.eraw.mean()
-            if not (data.eraw[0] <= skewElastic['end'][1] <= data.eraw[-1]):
-                skewElastic['end'] = data.xes2D.shape[1] // 2, data.eraw[0]
-            self.roiSkewWidget.setRois(skewElastic)
+            skewEl = dtparams['roiDispersionElastic']
+            if not (data.eraw.min() <= skewEl['begin'][1] <= data.eraw.max()):
+                skewEl['begin'] = 0, data.eraw.mean()
+            if not (data.eraw.min() <= skewEl['end'][1] <= data.eraw.max()):
+                skewEl['end'] = data.xes2D.shape[1] // 2, data.eraw.min()
+            self.roiSkewWidget.setRois(skewEl)
             kind = dtparams['dispersionCorrectionKind']
             self.enableSubControls([self.threshold], kind == 0)
             self.enableSubControls([self.roiSkewWidget], kind == 1)
