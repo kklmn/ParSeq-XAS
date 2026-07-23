@@ -581,6 +581,8 @@ class MakeChi(ctr.Transform):
             mu_der = data.eref_der[cond]
         else:
             mu_der = data.mu_der[cond]
+        if len(mu_der) == 0:
+            return data.e[0]
 
         # e0Method=0:  simple derivative maximum
         # e0Method=1:  derivative maximum of cubic spline
@@ -771,6 +773,9 @@ class MakeChi(ctr.Transform):
     def get_mu0prior(cls, data):
         dtparams = data.transformParams
         data.mu0prior = np.array(data.mu)
+        ie0s = np.argwhere(data.e > data.e0).flatten()
+        if len(ie0s) == 0:
+            return
         ie0 = np.argwhere(data.e > data.e0).flatten()[0]  # 1st point after E0
         if dtparams['mu0PriorIncludeWhiteLine']:
             ibeforeWL = np.argwhere(
@@ -1206,8 +1211,10 @@ class MakeFT(ctr.Transform):
         data.ftwindow = uft.make_ft_window(kind, data.k, kmin, kmax, w, vmin)
         chi = np.array(data.chi) * data.ftwindow
         if dtparams['forceFT0']:
-            chi -= np.trapezoid(chi, x=data.k) / np.trapezoid(
-                np.ones_like(chi), x=data.k)
+            norm = np.trapezoid(np.ones_like(chi), x=data.k)
+            if norm == 0:
+                norm = 1
+            chi -= np.trapezoid(chi, x=data.k) / norm
 
         dk = dtparams['dk']
         # differs from VIPER by sqrt(2/pi) that is tranferred to BFT:
@@ -1268,8 +1275,10 @@ class MakeBFT(ctr.Transform):
             dk = dtparams['dk']
             data.k = np.arange(kmin, kmax + dk*0.5, dk)
         bftr = bft.real[:len(data.k)] * 2 / (dk * ftwindow)
-        bftr -= np.trapezoid(bftr, x=data.k) / np.trapezoid(
-            np.ones_like(bftr), x=data.k)
+        norm = np.trapezoid(np.ones_like(bftr), x=data.k)
+        if norm == 0:
+            norm = 1
+        bftr -= np.trapezoid(bftr, x=data.k) / norm
 
         kmin, kmax = dtparams['krange']
         if kmin is None:
