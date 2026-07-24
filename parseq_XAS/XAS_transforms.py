@@ -731,6 +731,8 @@ class MakeChi(ctr.Transform):
     @logger(minLevel=20, attrs=[(0, 'name')])
     def get_pre(cls, data):
         dtparams = data.transformParams
+        if len(dtparams['preedgeExps']) == 0:
+            return np.zeros_like(data.mu), data.e0
         defpr = cls.defaultParams['preedgeWhere']
         if not dtparams['preedgeWhere']:
             dtparams['preedgeWhere'] = defpr

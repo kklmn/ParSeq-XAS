@@ -932,7 +932,7 @@ class MuWidget(PropWidget):
         layoutPH.setContentsMargins(0, 0, 0, 0)
         layoutPH.setSpacing(2)
         self.preedgeStateButtons = gco.StateButtons(
-            self, 'exponents', (-4, -3, 0, 1), default=0)
+            self, 'exponents', (-4, -3, 0, 1))
         self.registerPropWidget(self.preedgeStateButtons, 'pre-edge exponents',
                                 'preedgeExps')
         layoutPH.addWidget(self.preedgeStateButtons)
