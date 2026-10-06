@@ -653,6 +653,10 @@ class MakeChi(ctr.Transform):
             raise ValueError('cannot interpret kmax')
         bins_k = np.arange(kmin, kmax, deltas[3])
         bins_ke = e0 + bins_k**2/eV2revA
+        if len(bins_ke) == 0:
+            dtparams['binDistrNew'] = None
+            good = None
+            return
 
         bins0 = np.array([emin, e1, e2, ekmin, bins_ke[-1]])
         bins = np.array([*bins_pre, *bins_edge, *bins_post, *bins_ke])
