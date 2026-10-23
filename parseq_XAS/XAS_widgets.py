@@ -32,7 +32,7 @@ Fourier-transformed EXAFS function χ(r)
 """
 
 __author__ = "Konstantin Klementiev"
-__date__ = "1 Mar 2026"
+__date__ = "22 Oct 2026"
 
 import numpy as np
 
@@ -59,7 +59,7 @@ import parseq.utils.glitch as ug
 # from parseq.core import commons as cco
 from parseq.gui.propWidget import PropWidget
 from parseq.utils import ft as uft
-from parseq.third_party import XAFSmass
+from parseq.third_party import XAFSmass, xrt
 
 from . import XAS_transforms as xtr
 
@@ -389,47 +389,114 @@ class HERFDWidget(PropWidget):
         self.registerPropWidget(
             dispersionPanel, dispersionPanel.title(), 'dispersionCorrection',
             transformNames='make HERFD')
-        dispersionPanel.toggled.connect(self.showRoiSkewWidget)
+        # dispersionPanel.toggled.connect(self.showRoiSkewWidget)
         layoutDC = qt.QVBoxLayout()
-        layoutTh = qt.QHBoxLayout()
-        self.dispersionKind0 = qt.QRadioButton(
-            'by edge detection', dispersionPanel)
-        layoutTh.addWidget(self.dispersionKind0)
-        self.threshold = qt.QDoubleSpinBox()
-        self.threshold.setToolTip(u'0 < threshold < 1')
-        self.threshold.setMinimum(0.05)
-        self.threshold.setMaximum(0.95)
-        self.threshold.setSingleStep(0.01)
-        self.threshold.setDecimals(2)
-        self.threshold.setAccelerated(True)
-        self.dispersionKind0.toggled.connect(partial(
-            self.enableSubControls, [self.threshold]))
-        self.registerPropWidget(
-            self.threshold, 'dispersion correction threshold',
-            'dispersionCorrectionThreshold', transformNames='make HERFD')
-        layoutTh.addWidget(self.threshold)
-        layoutDC.addLayout(layoutTh)
-        self.dispersionKind1 = qt.QRadioButton(
-            'by elastic band', dispersionPanel)
-        self.dispersionKind1.toggled.connect(self.showRoiSkewWidget)
-        layoutDC.addWidget(self.dispersionKind1)
+        # layoutTh = qt.QHBoxLayout()
+        # self.dispersionKind0 = qt.QRadioButton(
+        #     'by edge detection', dispersionPanel)
+        # layoutTh.addWidget(self.dispersionKind0)
+        # self.threshold = qt.QDoubleSpinBox()
+        # self.threshold.setToolTip(u'0 < threshold < 1')
+        # self.threshold.setMinimum(0.05)
+        # self.threshold.setMaximum(0.95)
+        # self.threshold.setSingleStep(0.01)
+        # self.threshold.setDecimals(2)
+        # self.threshold.setAccelerated(True)
+        # self.dispersionKind0.toggled.connect(partial(
+        #     self.enableSubControls, [self.threshold]))
+        # self.registerPropWidget(
+        #     self.threshold, 'dispersion correction threshold',
+        #     'dispersionCorrectionThreshold', transformNames='make HERFD')
+        # layoutTh.addWidget(self.threshold)
+        # layoutDC.addLayout(layoutTh)
+        # self.dispersionKind1 = qt.QRadioButton(
+        #     'by dispersion line', dispersionPanel)
+        # # self.dispersionKind1.toggled.connect(self.showRoiSkewWidget)
+        # layoutDC.addWidget(self.dispersionKind1)
+
+        self.theta2thetaPanel = qt.QGroupBox(self)
+        self.theta2thetaPanel.setTitle('set dispersion line by θ-2θ band')
+        layoutt2t = qt.QGridLayout()
+        layoutt2t.setContentsMargins(10, 2, 2, 2)
+        theta2thetaBeginLabel = qt.QLabel('begin')
+        layoutt2t.addWidget(
+            theta2thetaBeginLabel, 0, 0, alignment=qt.Qt.AlignRight)
+        self.theta2thetaBeginEdit = qt.QLineEdit()
+        self.theta2thetaBeginEdit.setMinimumWidth(40)
+        self.theta2thetaBeginEdit.setSizePolicy(
+            qt.QSizePolicy.Ignored, qt.QSizePolicy.Minimum)
+        self.theta2thetaBeginEdit.setToolTip('tangPixel1, theta1')
+        layoutt2t.addWidget(self.theta2thetaBeginEdit, 0, 1)
+        theta2thetaEndLabel = qt.QLabel('end')
+        layoutt2t.addWidget(
+            theta2thetaEndLabel, 1, 0, alignment=qt.Qt.AlignRight)
+        self.theta2thetaEndEdit = qt.QLineEdit()
+        self.theta2thetaEndEdit.setMinimumWidth(40)
+        self.theta2thetaEndEdit.setSizePolicy(
+            qt.QSizePolicy.Ignored, qt.QSizePolicy.Minimum)
+        self.theta2thetaEndEdit.setToolTip('tangPixel2, theta2')
+        layoutt2t.addWidget(self.theta2thetaEndEdit, 1, 1)
+        xtalLabel = qt.QLabel('analyzer')
+        layoutt2t.addWidget(xtalLabel, 0, 2, alignment=qt.Qt.AlignHCenter)
+        self.xtalEdit = qt.QLineEdit()
+        self.xtalEdit.setFixedWidth(64)
+        self.xtalEdit.setSizePolicy(
+            qt.QSizePolicy.Minimum, qt.QSizePolicy.Expanding)
+        self.xtalEdit.setToolTip('<i>e.g.</i> Si333 <i>or</i> Si10,10,0')
+        layoutt2t.addWidget(self.xtalEdit, 0, 3)
+        setBut = qt.QPushButton('Set')
+        setBut.clicked.connect(self.calculateDispersion)
+        setBut.setMinimumHeight(14)
+        setBut.setSizePolicy(qt.QSizePolicy.Expanding, qt.QSizePolicy.Ignored)
+        layoutt2t.addWidget(setBut, 1, 2, 1, 2)
+        layoutDC.addWidget(self.theta2thetaPanel)
+        # self.registerExclusivePropGroup(
+        #     dispersionPanel, (self.dispersionKind0, self.dispersionKind1),
+        #     dispersionPanel.title(), 'dispersionCorrectionKind',
+        #     transformNames='make HERFD')
+        layoutt2t.setColumnStretch(0, 0)
+        layoutt2t.setColumnStretch(1, 100)
+        self.theta2thetaPanel.setLayout(layoutt2t)
+        self.theta2thetaPanel.setSizePolicy(
+            qt.QSizePolicy.Minimum, qt.QSizePolicy.Fixed)
+
         self.roiSkewWidget = RoiWidget(
-            self, plot, ['BandROI'], fmt=[
-                'begin: {0[0]:.0f}, {0[1]:.1f}\nend: {1[0]:.0f}, {1[1]:.1f}\n'
-                'width: {2:.1f}'],
+            self, plot, ['LineROI', 'VerticalLineROI'],
+            ['dispersion line to plot', 'pivot line to plot'], roiMaxN=2,
+            fmt=['begin: {0[0]:.1f}, {0[1]:.1f}\nend: {1[0]:.1f}, {1[1]:.1f}',
+                 'pos: {0:.1f}'],
             color='#ffa07a')
+        self.roiSkewWidget.acceptButton.setText('Accept dispersion line')
         self.roiSkewWidget.acceptButton.clicked.connect(self.acceptSkewBand)
-        self.dispersionKind1.toggled.connect(partial(
-            self.enableSubControls, [self.roiSkewWidget]))
+        # self.dispersionKind1.toggled.connect(partial(
+        #     self.enableSubControls,
+        #     [self.roiSkewWidget, self.theta2thetaPanel]))
         self.registerPropWidget(
             [self.roiSkewWidget.table, self.roiSkewWidget.acceptButton],
-            'elastic dispersion roi', 'roiDispersionElastic',
+            'dispersion line roi', 'roiDispersionLine',
             transformNames='make HERFD')
         layoutDC.addWidget(self.roiSkewWidget)
+
+        pivotPanel = qt.QGroupBox(self)
+        pivotPanel.setTitle('set pivot at')
+        layoutp = qt.QVBoxLayout()
+        layoutp.setContentsMargins(10, 2, 2, 2)
+        self.pivotKind0 = qt.QRadioButton('highest count column', pivotPanel)
+        layoutp.addWidget(self.pivotKind0)
+        self.pivotKind1 = qt.QRadioButton('center of mass', pivotPanel)
+        layoutp.addWidget(self.pivotKind1)
+        self.pivotKind2 = qt.QRadioButton('center of HERFD ROI', pivotPanel)
+        layoutp.addWidget(self.pivotKind2)
+        self.pivotKind3 = qt.QRadioButton('manual vline', pivotPanel)
+        layoutp.addWidget(self.pivotKind3)
+        pivotPanel.setLayout(layoutp)
+        layoutDC.addWidget(pivotPanel)
         self.registerExclusivePropGroup(
-            dispersionPanel, (self.dispersionKind0, self.dispersionKind1),
-            dispersionPanel.title(), 'dispersionCorrectionKind',
+            pivotPanel, (self.pivotKind0, self.pivotKind1, self.pivotKind2,
+                         self.pivotKind3),
+            pivotPanel.title(), 'roiDispersionPivot',
             transformNames='make HERFD')
+        self.roiSkewWidget.roiManager.sigRoiChanged.connect(self.enablePivots)
 
         dispersionApplyCB = qt.QCheckBox("apply dispersion correction")
         self.registerPropWidget(
@@ -439,15 +506,24 @@ class HERFDWidget(PropWidget):
         dispersionPanel.setLayout(layoutDC)
         self.registerPropGroup(
             dispersionPanel,
-            [self.threshold, self.dispersionKind0, self.dispersionKind1,
-             dispersionApplyCB, self.roiSkewWidget],
+            # [self.threshold, self.dispersionKind0, self.dispersionKind1,
+            [dispersionApplyCB, self.roiSkewWidget],
             'dispersion correction properties')
+
         layout.addWidget(dispersionPanel)
         dispersionPanel.setSizePolicy(
             qt.QSizePolicy.Minimum, qt.QSizePolicy.Fixed)
 
         layout.addStretch()
         self.setLayout(layout)
+
+    def enablePivots(self):
+        rois = self.roiSkewWidget.roiManager.getRois()  # roi objects
+        roiClasses = [roi.__class__.__name__ for roi in rois]
+        foundVLine = 'VerticalLineROI' in roiClasses
+        self.pivotKind3.setEnabled(foundVLine)
+        if not foundVLine and self.pivotKind3.isChecked():
+            self.pivotKind0.setEnabled(True)
 
     def acceptBand(self):
         self.roiWidget.syncRoi()
@@ -458,18 +534,71 @@ class HERFDWidget(PropWidget):
         # nextWidget = csi.nodes[u'µd'].widget.transformWidgets[0]
         # nextWidget.setUIFromData()
 
+    def calculateDispersion(self):
+        if xrt.rm is None:
+            txt = "Install xrt by `pip install xrt\n`"\
+                "or put xrt near parseq (xrt and parseq in the same folder)."
+            msg = qt.QMessageBox()
+            msg.setIcon(qt.QMessageBox.Critical)
+            msg.critical(self, "This function needs xrt", txt)
+            return
+
+        reflexStr = self.xtalEdit.text()
+        if not xrt.validate_reflex(reflexStr):
+            txt = "Provide a proper crystal reflex, \n" \
+                "e.g. Si333 or Si10,10,0 or Ge753"
+            msg = qt.QMessageBox()
+            msg.setIcon(qt.QMessageBox.Critical)
+            msg.critical(self, "Unknown analyzer crystal", txt)
+            return
+
+        if len(csi.selectedItems) == 0:
+            return
+        data = csi.selectedItems[0]
+        dtparams = data.transformParams
+
+        try:
+            str1 = self.theta2thetaBeginEdit.text()
+            begin = tuple(map(float, str1.split(',')))
+            str2 = self.theta2thetaEndEdit.text()
+            end = tuple(map(float, str2.split(',')))
+
+            eb = xrt.get_reflex_energy(reflexStr, begin[1])
+            ee = xrt.get_reflex_energy(reflexStr, end[1])
+
+            k = (ee - eb) / (end[0] - begin[0])
+            rois = dtparams['roiDispersionLine']
+            for roi in rois:  # 'LineROI', optionally 'VerticalLineROI'
+                if roi['kind'] == 'LineROI':
+                    x1, y1 = roi['begin']
+                    x2, _ = roi['end']
+                    roi['end'] = x2, y1 + k*(x2 - x1)
+                    self.roiSkewWidget.setRois(rois)
+                    for it in csi.selectedItems:
+                        itparams = it.transformParams
+                        itparams['roiDispersionLine'] = [dict(r) for r in rois]
+
+            self.acceptSkewBand()
+        except Exception as err:
+            print('Exception in calculateDispersion():')
+            print(err)
+
     def acceptSkewBand(self):
         self.roiSkewWidget.syncRoi()
-        curRoi = self.roiSkewWidget.getCurrentRoi()
-        self.updateProp('roiDispersionElastic', curRoi)
-        for data in csi.selectedItems:
-            data.transformParams['roiDispersionElastic']['use'] = True
+        rois = self.roiSkewWidget.getRois()  # roi geometries
+        for roi in rois:
+            if 'begin' in roi:
+                roi['begin'] = tuple(float(x) for x in roi['begin'])
+            if 'end' in roi:
+                roi['end'] = tuple(float(x) for x in roi['end'])
+        self.updateProp('roiDispersionLine', rois)
 
-    def showRoiSkewWidget(self, state):
-        rois = self.roiSkewWidget.roiManager.getRois()
-        if rois:
-            visible = self.dispersionKind1.isChecked()
-            rois[0].setVisible(state and visible)
+    # def showRoiSkewWidget(self, state):
+    #     rois = self.roiSkewWidget.roiManager.getRois()  # roi objects
+    #     if rois:
+    #         visible = self.dispersionKind1.isChecked()
+    #         for roi in rois:
+    #             roi.setVisible(state and visible)
 
     def enableSubControls(self, subwidgets, state=True):
         for w in subwidgets:
@@ -486,48 +615,60 @@ class HERFDWidget(PropWidget):
             self.roiSkewWidget.dataToCountY = data.eraw
             dtparams = data.transformParams
             self.roiWidget.setRois(dict(dtparams['roiHERFD']))
-            skewEl = dtparams['roiDispersionElastic']
-            if not (data.eraw.min() <= skewEl['begin'][1] <= data.eraw.max()):
-                skewEl['begin'] = 0, data.eraw.mean()
-            if not (data.eraw.min() <= skewEl['end'][1] <= data.eraw.max()):
-                skewEl['end'] = data.xes2D.shape[1] // 2, data.eraw.min()
-            self.roiSkewWidget.setRois(skewEl)
-            kind = dtparams['dispersionCorrectionKind']
-            self.enableSubControls([self.threshold], kind == 0)
-            self.enableSubControls([self.roiSkewWidget], kind == 1)
+            rois = dtparams['roiDispersionLine']
+            for roi in rois:  # 'LineROI', optionally 'VerticalLineROI'
+                if roi['kind'] == 'LineROI':
+                    e = data.eraw
+                    if not (e.min() <= roi['begin'][1] <= e.max()):
+                        roi['begin'] = 0, e.mean()
+                    if not (e.min() <= roi['end'][1] <= e.max()):
+                        roi['end'] = data.xes2D.shape[1] // 2, e.min()
+            self.roiSkewWidget.setRois(rois)
 
-    def extraPlot(self):
-        if len(csi.selectedItems) == 0:
-            return
-        data = csi.selectedItems[0]
-        dtparams = data.transformParams
-        plot = self.node.widget.plot
+            if hasattr(data, 'theta2thetaBand'):  # comes from data file
+                band = data.theta2thetaBand
+                self.theta2thetaBeginEdit.setText(
+                    ', '.join(f'{lim:.3f}' for lim in band['begin']))
+                self.theta2thetaEndEdit.setText(
+                    ', '.join(f'{lim:.3f}' for lim in band['end']))
 
-        if dtparams['dispersionCorrection']:
-            if dtparams['dispersionCorrectionKind'] == 0:  # detection
-                legend = 'dispersion_line'
-                curve = plot.getCurve(legend)
-                x = data.skewx
-                y = data.skewy
-                if curve is None:
-                    plot.addCurve(x, y, linestyle='-', color='magenta', z=5,
-                                  legend=legend, resetzoom=False)
-                else:
-                    curve.setData(x, y)
-                    curve.setZValue(1)
-                legend = 'dispersion_knots'
-                curve = plot.getCurve(legend)
-                x = data.skewx
-                y = data.skewy0
-                if curve is None:
-                    plot.addCurve(x, y, linestyle=' ', symbol='o', color='red',
-                                  yerror=data.skewz, z=1, legend=legend,
-                                  resetzoom=False)
-                    curve = plot.getCurve(legend)
-                    curve.setSymbolSize(2)
-                else:
-                    curve.setData(x, y)
-                    curve.setZValue(1)
+            # kind = dtparams['dispersionCorrectionKind']
+            # self.enableSubControls([self.threshold], kind == 0)
+            # self.enableSubControls(
+            #     [self.roiSkewWidget, self.theta2thetaPanel], kind == 1)
+
+    # def extraPlot(self):
+    #     if len(csi.selectedItems) == 0:
+    #         return
+    #     data = csi.selectedItems[0]
+    #     dtparams = data.transformParams
+    #     plot = self.node.widget.plot
+
+    #     if dtparams['dispersionCorrection']:
+    #         if dtparams['dispersionCorrectionKind'] == 0:  # detection
+    #             legend = 'dispersion_line'
+    #             curve = plot.getCurve(legend)
+    #             x = data.skewx
+    #             y = data.skewy
+    #             if curve is None:
+    #                 plot.addCurve(x, y, linestyle='-', color='magenta', z=5,
+    #                               legend=legend, resetzoom=False)
+    #             else:
+    #                 curve.setData(x, y)
+    #                 curve.setZValue(1)
+    #             legend = 'dispersion_knots'
+    #             curve = plot.getCurve(legend)
+    #             x = data.skewx
+    #             y = data.skewy0
+    #             if curve is None:
+    #                 plot.addCurve(x, y, linestyle=' ', symbol='o', color='red',
+    #                               yerror=data.skewz, z=1, legend=legend,
+    #                               resetzoom=False)
+    #                 curve = plot.getCurve(legend)
+    #                 curve.setSymbolSize(2)
+    #             else:
+    #                 curve.setData(x, y)
+    #                 curve.setZValue(1)
 
 
 class MuWidget(PropWidget):

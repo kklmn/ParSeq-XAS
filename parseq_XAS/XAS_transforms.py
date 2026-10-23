@@ -32,7 +32,7 @@ Make back-Fourier-transformed EXAFS function χ\u0303(k)
 """
 
 __author__ = "Konstantin Klementiev"
-__date__ = "28 Nov 2023"
+__date__ = "22 Oct 2026"
 
 import sys; sys.path.append('..')  # analysis:ignore
 
@@ -149,11 +149,15 @@ class MakeHERFD(ctr.Transform):
         healMissingFrames=True, healedMissingFrames='',
         roiHERFD=dict(kind='HorizontalRangeROI', name='roi', use=True,
                       vmin=300, vmax=400),
-        dispersionCorrection=False,
-        dispersionCorrectionKind=1,  # 0: edge detection, 1: elastic band
-        dispersionCorrectionThreshold=0.3, dispersionCorrectionApply=False,
-        roiDispersionElastic=dict(kind='BandROI', name='ela', use=True,
-                                  begin=(370, 0), end=(560, 0), width=5.0))
+        dispersionCorrection=False, dispersionCorrectionApply=False,
+        # dispersionCorrectionKind=1,  # 0: edge detection, 1: θ-2θ band
+        # dispersionCorrectionThreshold=0.3,
+        roiDispersionLine=[dict(kind='LineROI', name='ela', use=True,
+                                begin=(370, 0), end=(560, 0))],
+        roiDispersionPivot=1,  # 0: max col, 1: c of mass, 2: c of roiHERFD
+        roiDispersionTheta2Theta=dict(begin=(370, 60), end=(560, 70)),
+        roiDispersionReflex='Si333',
+        )
 
     @classmethod
     def linear_func(cls, x, k, b):
@@ -167,22 +171,22 @@ class MakeHERFD(ctr.Transform):
             return xy
         return warp(image, shear, mode='edge', preserve_range=True)
 
-    @classmethod
-    def find_skew(cls, xes2D, vmin, vmax, thr, eraw):
-        inBand = xes2D[:, vmin:vmax+1]
-        x0 = vmin + np.argmax(inBand.sum(axis=0))
-        imax = np.argmax(inBand, axis=0)
-        cmax = inBand[imax, np.arange(len(imax))]
-        ithr = np.argmax(inBand > thr*cmax[None, :], axis=0)
-        y = ithr.astype(float)
-        z = 1. / np.where(cmax > 0, cmax, 1e-20)
-        z *= 0.5 / z.max()
-        x = np.arange(vmin, vmax+1)
-        p, _ = curve_fit(cls.linear_func, x, y, sigma=z, absolute_sigma=True)
-        y0 = map_coordinates(eraw, (y,))
-        skewk, skewb = p[0], p[1]
-        y = map_coordinates(eraw, (skewk*x + skewb,))
-        return x0, skewk, x, y0, y, z
+    # @classmethod
+    # def find_skew(cls, xes2D, vmin, vmax, thr, eraw):
+    #     inBand = xes2D[:, vmin:vmax+1]
+    #     x0 = vmin + np.argmax(inBand.sum(axis=0))
+    #     imax = np.argmax(inBand, axis=0)
+    #     cmax = inBand[imax, np.arange(len(imax))]
+    #     ithr = np.argmax(inBand > thr*cmax[None, :], axis=0)
+    #     y = ithr.astype(float)
+    #     z = 1. / np.where(cmax > 0, cmax, 1e-20)
+    #     z *= 0.5 / z.max()
+    #     x = np.arange(vmin, vmax+1)
+    #     p, _ = curve_fit(cls.linear_func, x, y, sigma=z, absolute_sigma=True)
+    #     y0 = map_coordinates(eraw, (y,))
+    #     skewk, skewb = p[0], p[1]
+    #     y = map_coordinates(eraw, (skewk*x + skewb,))
+    #     return x0, skewk, x, y0, y, z
 
     @classmethod
     def run_main(cls, data):
@@ -225,47 +229,67 @@ class MakeHERFD(ctr.Transform):
                 dtparams['healedMissingFrames'] = \
                     f"healed {nbad} frame{'s' if nbad > 1 else ''}"
 
-        roi = dtparams['roiHERFD']
-        if roi['use']:
-            if roi['kind'] == 'HorizontalRangeROI':
-                vmin = max(int(roi['vmin']), 0) + 1
-                vmax = int(roi['vmax'])
+        hroi = dtparams['roiHERFD']
+        if hroi['use']:
+            if hroi['kind'] == 'HorizontalRangeROI':
+                vmin = max(int(hroi['vmin']), 0) + 1
+                vmax = int(hroi['vmax'])
                 if dtparams['dispersionCorrection']:
-                    if dtparams['dispersionCorrectionKind'] == 0:  # detection
-                        s = cls.find_skew(
-                            xes2Dwork, vmin, vmax,
-                            dtparams['dispersionCorrectionThreshold'],
-                            data.eraw)
-                        (x0, sk, data.skewx, data.skewy0, data.skewy,
-                         data.skewz) = s
-                        if dtparams['dispersionCorrectionApply']:
-                            data.xes2D = cls.shear_image(xes2Dwork, x0, sk)
-                            xes2Dwork = data.xes2D
-                            s = cls.find_skew(
-                                xes2Dwork, vmin, vmax,
-                                dtparams['dispersionCorrectionThreshold'],
-                                data.eraw)
-                            data.skewx, data.skewy0, data.skewy, data.skewz = \
-                                s[2:]
-                    elif dtparams['dispersionCorrectionKind'] == 1:  # elastic
-                        roiD = dtparams['roiDispersionElastic']
-                        if roiD['use']:
-                            x1, y1 = roiD['begin']
-                            x2, y2 = roiD['end']
+                    dtparams['dispersionCorrectionKind'] = 1  # hard code it
+                    # if dtparams['dispersionCorrectionKind'] == 0:  # detection
+                    #     s = cls.find_skew(
+                    #         xes2Dwork, vmin, vmax,
+                    #         dtparams['dispersionCorrectionThreshold'],
+                    #         data.eraw)
+                    #     (x0, sk, data.skewx, data.skewy0, data.skewy,
+                    #      data.skewz) = s
+                    #     if dtparams['dispersionCorrectionApply']:
+                    #         data.xes2D = cls.shear_image(xes2Dwork, x0, sk)
+                    #         xes2Dwork = data.xes2D
+                    #         s = cls.find_skew(
+                    #             xes2Dwork, vmin, vmax,
+                    #             dtparams['dispersionCorrectionThreshold'],
+                    #             data.eraw)
+                    #         data.skewx, data.skewy0, data.skewy, data.skewz = \
+                    #             s[2:]
+                    if dtparams['dispersionCorrectionKind'] == 1:  # θ-2θ band
+                        rois = dtparams['roiDispersionLine']
+                        roiL, roiV = None, None
+                        for roi in rois:
+                            if roi['kind'] == 'VerticalLineROI' and roi['use']:
+                                roiV = roi
+                            elif roi['kind'] == 'LineROI' and roi['use']:
+                                roiL = roi
+                        if roiL:
+                            x1, y1 = roiL['begin']
+                            x2, y2 = roiL['end']
                             sk = (y2-y1) / (x2-x1) * len(data.eraw) /\
                                 (data.eraw[-1]-data.eraw[0])
                             inBand = xes2Dwork[:, vmin:vmax+1]
-                            x0 = vmin + np.argmax(inBand.sum(axis=0))
+
+                            pivotKind = dtparams['roiDispersionPivot']
+                            if pivotKind == 0:  # max col
+                                x0 = vmin + np.argmax(inBand.sum(axis=0))
+                            elif pivotKind == 3 and roiV:  # 'VerticalLineROI'
+                                x0 = roiV['pos']
+                            elif pivotKind == 2:  # center of roiHERFD
+                                x0 = int(
+                                    (max(hroi['vmin'], 0) + hroi['vmax'])*0.5)
+                            else:  # center of mass
+                                pix = np.arange(vmin, vmax+1)
+                                pCounts = xes2Dwork[:, vmin:vmax+1].sum(axis=0)
+                                x0 = int((pCounts*pix).sum() / pCounts.sum())
+
                             if dtparams['dispersionCorrectionApply']:
                                 data.xes2D = cls.shear_image(xes2Dwork, x0, sk)
                                 xes2Dwork = data.xes2D
 
                 posIXES = xes2Dwork[:, vmin:vmax+1].sum(axis=1)
-            elif roi['kind'] == 'BandROI':
+            elif hroi['kind'] == 'BandROI':
                 sh = xes2Dwork.shape
                 xs = np.arange(sh[1])[None, :]
                 ys = data.eraw[:, None]
-                m = uma.get_roi_mask(roi, xs, ys)
+                m = uma.get_roi_mask(hroi, xs, ys)
                 masked = np.where(m, xes2Dwork, 0)
                 posIXES = masked.sum(axis=1)
             else:

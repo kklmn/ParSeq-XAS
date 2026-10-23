@@ -52,13 +52,17 @@ Fourier-filtered EXAFS function χ\u0303(k)
 """
 
 __author__ = "Konstantin Klementiev"
-__date__ = "15 Feb 2025"
+__date__ = "22 Oct 2026"
 
 import sys; sys.path.append('..')  # analysis:ignore
 from collections import OrderedDict
 # import hdf5plugin  # needed to prevent h5py's "OSError: Can't read data"
 
+import json
+import silx.io as silx_io
+
 from parseq.core import nodes as cno
+from parseq.core import commons as cco
 
 
 class NodeIT(cno.Node):
@@ -215,6 +219,22 @@ class NodeIXES(cno.Node):
         plotLabel=['tangential pixel', 'eraw'])
     arrays['eref'] = dict(role='optional', qLabel='Eref')
     checkShapes = ['eraw', 'i0', 'xes2D[0]']
+
+    def extra_read(self, data):
+        if data.dataType == cco.DATA_DATASET:
+            path = data.madeOf+'/entry/instrument/eiger_xes_processed/band_roi'
+            try:
+                band = json.loads(silx_io.get_data(path))
+                if band["kind"] == "BandROI":
+                    data.theta2thetaBand = band
+            except Exception as err1:
+                path = data.madeOf+'/instrument/eiger_xes_processed/band_roi'
+                try:
+                    band = json.loads(silx_io.get_data(path))
+                    if band["kind"] == "BandROI":
+                        data.theta2thetaBand = band
+                except Exception as err2:
+                    pass
 
 
 class NodeMu(cno.Node):
