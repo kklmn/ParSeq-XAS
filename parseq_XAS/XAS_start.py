@@ -13,7 +13,7 @@ if top not in sys.path:
 import parseq.core.singletons as csi
 
 
-def main(projectFile=None, withTestData=True, withGUI=True):
+def main(projectFile=None, withTestData=True, withGUI=True, theme=None):
     import parseq_XAS as myapp
     import parseq.core.save_restore as csr  # after myapp import
 
@@ -29,9 +29,15 @@ def main(projectFile=None, withTestData=True, withGUI=True):
             # node.includeFilters = ['*.h5', '*.dat', '*.fio']
             node.includeFilters = ['*.dat', '*.txt', '*.fio']
         from silx.gui import qt
-        from parseq.gui.mainWindow import MainWindowParSeq
+        from parseq.gui.mainWindow import MainWindowParSeq, setPalette
         qtArgs = ["--disable-gpu"]  # has to be set for morph-browser users
+
         app = qt.QApplication(qtArgs)
+
+        if theme:
+            app.setStyle("Fusion")
+            setPalette(app, theme)
+
         mainWindow = MainWindowParSeq(tabPos=qt.QTabWidget.North)
         mainWindow.show()
         if projectFile or withTestData:
@@ -75,6 +81,8 @@ def run():
     parser.add_argument("-b", "--plotBackend", metavar='backend_name',
                         help="plot backend used by silx, either matplotlib"
                         " (set by default) or opengl")
+    parser.add_argument("-c", "--colorTheme", metavar='theme_name',
+                        help="GUI color theme: dark, light, none (default)")
     args = parser.parse_args()
 
     if args.plotBackend:
@@ -82,7 +90,7 @@ def run():
     csi.DEBUG_LEVEL = args.verbosity
 
     main(projectFile=args.projectFile, withTestData=args.test,
-         withGUI=not args.noGUI)
+         withGUI=not args.noGUI, theme=args.colorTheme)
 
 
 if __name__ == '__main__':
