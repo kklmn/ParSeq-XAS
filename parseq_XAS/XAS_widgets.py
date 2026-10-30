@@ -1170,12 +1170,7 @@ class MuWidget(PropWidget):
 
         mu0Panel = qt.QGroupBox(self)
         mu0Panel.setFlat(False)
-        # stylesheet also sets bold the inner QGroupBox, solve it with font
-        # mu0Panel.setStyleSheet(
-        #     'QGroupBox[flat="false"] {font-weight: bold;}')
-        font = mu0Panel.font()
-        font.setBold(True)
-        mu0Panel.setFont(font)
+        mu0Panel.setStyleSheet('QGroupBox[flat="false"] {font-weight: bold;}')
         mu0Panel.setTitle('atomic background µ\u2080')
         layoutM = gco.QVBoxLayoutAbove()
         layoutM.setContentsMargins(10, 2, 2, 2)
@@ -1187,11 +1182,6 @@ class MuWidget(PropWidget):
 
         mu0PriorPanel = qt.QGroupBox(self)
         mu0PriorPanel.setFlat(False)
-        # stylesheet doesn't work for this inner QGroupBox, solve it with font
-        font = mu0PriorPanel.font()
-        font.setBold(False)
-        mu0PriorPanel.setFont(font)
-        # mu0PriorPanel.setStyleSheet('QGroupBox {font-weight: light}')
         mu0PriorPanel.setTitle('µ\u2080 prior')
         layoutMP = gco.QVBoxLayoutAbove()
         layoutMP.setContentsMargins(10, 2, 2, 2)
@@ -1357,10 +1347,11 @@ class MuWidget(PropWidget):
                 'disabled because preedge is not subtracted')
 
         plot = self.node.widget.plot
-        elim = plot.getXAxis().getLimits()
+        # elim = plot.getXAxis().getLimits()
+        # eMiddle = sum(elim) * 0.5
         ylim = plot.getYAxis().getLimits()
-        eMiddle = sum(elim) * 0.5
         data = csi.selectedItems[0]
+        eMiddle = data.e0
         try:
             pe = interp1d(data.e, data.pre_edge, assume_sorted=True)
             peMiddle = pe(eMiddle)
@@ -2048,7 +2039,7 @@ class ChiWidget(PropWidget):
     defaultRegions = captions, deltas, splitters
     plotParams = {
         'ftwindow': {'linewidth': 0.75, 'linestyle': '-',
-                     'color': '#00000044'},
+                     'color': '#88888844'},
         'bft': {'linewidth': 1.25, 'linestyle': '--'},
     }
 
@@ -2267,6 +2258,7 @@ class ChiWidget(PropWidget):
             nextNode = csi.nodes[nextNodeName]
             w = nextNode.widget.transformWidgets[0]
             plot = nextNode.widget.plot
+            plot.removeCurve('BFT window')
             plot.resetZoom()
             w.showNegativeSlot(w.properties['show_negative'])
 
@@ -2424,7 +2416,7 @@ class FTWidget(PropWidget):
     extraLines = '-|ft|', 'ft.re', 'ft.im'
     plotParams = {
         'bftwindow': {'linewidth': 0.75, 'linestyle': '-',
-                      'color': '#00000044'},
+                      'color': '#88888844'},
     }
 
     def __init__(self, parent=None, node=None):
@@ -2569,9 +2561,14 @@ class FTWidget(PropWidget):
         if hasattr(data, 'bftwindow') and self.properties['show_bft_window']:
             ymax = plot.getYAxis().getLimits()[1] * \
                 RangeWidgetFTWidthAndMin.plotFactor
-            plot.addCurve(
-                data.r, data.bftwindow*ymax, yaxis='left',
-                **self.plotParams['bftwindow'], legend=legend, resetzoom=False)
+            curve = plot.getCurve(legend)
+            if curve is None:
+                plot.addCurve(
+                    data.r, data.bftwindow*ymax, yaxis='left',
+                    **self.plotParams['bftwindow'], legend=legend,
+                    resetzoom=False)
+            else:
+                curve.setData(data.r, data.bftwindow*ymax)
             if self.bftWindowRange.roi is not None:
                 self.bftWindowRange.roi.setVisible(True)
         else:
