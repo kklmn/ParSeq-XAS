@@ -32,7 +32,7 @@ Make back-Fourier-transformed EXAFS function χ\u0303(k)
 """
 
 __author__ = "Konstantin Klementiev"
-__date__ = "22 Oct 2026"
+__date__ = "7 Nov 2026"
 
 import sys; sys.path.append('..')  # analysis:ignore
 
@@ -518,6 +518,7 @@ class MakeChi(ctr.Transform):
     name = 'make chi'
     ref = "nogui.html#make-exafs-function-k"
     defaultParams = dict(
+        # deconvNeeded=False, deconvKernel=None, deconvReg=0,
         e0Smooth=True, e0SmoothN=6, e0Where=[0.02, 0.7], e0Method=2, e0=None,
         preedgeWhere=[0.03, 0.53], preedgeExps=[-3, 0], preedgePinPoint=0,
         postedgeWhere=[40, 400], postedgeExps=[-2, -1], postedgePinPoint=0,
@@ -534,7 +535,8 @@ class MakeChi(ctr.Transform):
             corrPhiDeg=45., corrThetaDeg=45., corrTauDeg=0.,
             corrFormula='thick', corrThickness=1.),
         pinholeCorrectionNeeded=False,
-        pinholeCorrectionDict=dict(fraction=0.5),
+        pinholeCorrectionDict=dict(holeFraction=0.1, matrixFraction=0.4,
+                                   matrixAbsorption=0.4),
         rebinNeeded=False,
         rebinRegions=dict(
             deltas=(1., 0.2, 0.5, 0.025),  # pre, edge, post, dk
@@ -548,6 +550,7 @@ class MakeChi(ctr.Transform):
         noiseLevel=None,
         )
     dontSaveParamsWhenUnused = {  # paramName: paramSwitch
+        # 'deconvKernel': 'deconvNeeded', 'deconvReg': 'deconvNeeded',
         'rebinRegions': 'rebinNeeded',
         'selfAbsorptionCorrectionDict': 'selfAbsorptionCorrectionNeeded',
         'pinholeCorrectionDict': 'pinholeCorrectionNeeded'}
@@ -1028,8 +1031,11 @@ class MakeChi(ctr.Transform):
         if not dtparams['pinholeCorrectionNeeded']:
             return
         phDict = dtparams['pinholeCorrectionDict']
-        x = phDict['fraction']
-        muTrue = np.log(np.abs((1-x) / (np.exp(-data.mu)-x)))
+        x = phDict['holeFraction']
+        y = phDict['matrixFraction']
+        z = phDict['matrixAbsorption']
+        muTrue = np.log(
+            np.abs((1-x-y) / (np.exp(-data.mu)-x-y*np.exp(-z*data.pre_edge))))
         return muTrue
 
     @classmethod

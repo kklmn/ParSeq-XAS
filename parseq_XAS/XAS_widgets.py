@@ -32,7 +32,7 @@ Fourier-transformed EXAFS function χ(r)
 """
 
 __author__ = "Konstantin Klementiev"
-__date__ = "22 Oct 2026"
+__date__ = "7 Nov 2026"
 
 import numpy as np
 
@@ -753,12 +753,40 @@ class MuWidget(PropWidget):
     pinholes without absorption, while the remaining fraction is absorbed by
     the sample. The transmitted intensity is then given by:
 
-    :math:`I_1 = x I_0 + (1-x) I_0\exp(-(µd)_{true}) = I_0 \exp(-(µd)_{distorted})`.
+    :math:`I_1 = x I_0 + (1-x) I_0\exp(-(µd)_{true}) =
+    I_0 \exp(-(µd)_{distorted})`.
 
     From this expression, the true absorption term can be recovered from the
     distorted one:
 
-    :math:`(µd)_{true} = \ln \left(\frac{1-x}{\exp(-(µd)_{distorted}) - x}\right)`.
+    :math:`(µd)_{true} =
+    \ln \left(\frac{1-x}{\exp(-(µd)_{distorted}) - x}\right)`.
+
+    When the sample is thick and its absorption is dominated by a filler
+    material, a "pinhole" is probably not a true void that transmits the beam
+    without any attenuation, but rather a region containing only the filler.
+    For example, in a transmission liquid cell, a pinhole may result in a
+    partial loss of the absorption edge while retaining substantial absorption
+    from the liquid. The transmitted intensity can be expressed as
+
+    :math:`I_1 = x I_0 + y I_0\exp(-z(µd)_{pre-edge}) +
+    (1-x-y) I_0\exp(-(µd)_{true}) = I_0 \exp(-(µd)_{distorted})`,
+
+    where a fraction :math:`x` of the incident x-rays passes through pinholes
+    without attenuation, a fraction :math:`y` passes through the filler
+    material (matrix) alone, and the corresponding absorption is modeled as a
+    fraction :math:`z` of the extrapolated pre-edge absorption.
+
+    The true absorption term can be recovered as:
+
+    :math:`(µd)_{true} = \ln \left(\frac{1-x-y}{\exp(-(µd)_{distorted}) - x
+    - y \exp(-z(µd)_{pre-edge})}\right)`.
+
+    Instead of attempting to correct the pinhole effect, the pinhole-induced
+    distortion can be incorporated directly into the Linear Combination Fit
+    (LCF). The unknown parameters :math:`x`, :math:`y`, and :math:`z` can then
+    be treated as fitting variables and determined simultaneously through the
+    fitting procedure.
 
     Self-absorption correction
     ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -912,6 +940,41 @@ class MuWidget(PropWidget):
         layoutDM.addWidget(self.checkBoxDerivativeRef)
         layoutDM.addStretch()
         layout.addLayout(layoutDM)
+
+        # postpone the implementation:
+        # decPanel = qt.QGroupBox(self)
+        # decPanel.setFlat(False)
+        # decPanel.setStyleSheet('QGroupBox[flat="false"] {font-weight: bold;}')
+        # decPanel.setTitle('deconvolution')
+        # decPanel.setCheckable(True)
+        # self.registerPropWidget(decPanel, decPanel.title(),
+        #                         'deconvNeeded', transformNames='make chi')
+        # layoutDec = qt.QHBoxLayout()
+        # labelKernel = qt.QLabel('kernel')
+        # self.editKernel = qt.QLineEdit()
+        # self.editKernel.setMinimumWidth(90)
+        # self.editKernel.setSizePolicy(
+        #     qt.QSizePolicy.Ignored, qt.QSizePolicy.Fixed)
+        # self.registerPropWidget(
+        #     (labelKernel, self.editKernel), 'deconvolution kernel',
+        #     'deconvKernel', transformNames='make chi')
+        # labelReg = qt.QLabel('regularizer')
+        # self.editReg = qt.QLineEdit()
+        # self.editReg.setMinimumWidth(30)
+        # self.editReg.setSizePolicy(
+        #     qt.QSizePolicy.Ignored, qt.QSizePolicy.Fixed)
+        # self.registerPropWidget(
+        #     (labelReg, self.editReg), 'deconvolution regularizer',
+        #     'deconvReg', transformNames='make chi')
+        # decPanel.setLayout(layoutDec)
+        # decStart = qt.QPushButton('Run')
+        # decStart.setFixedWidth(40)
+        # layoutDec.addWidget(labelKernel)
+        # layoutDec.addWidget(self.editKernel, 2)
+        # layoutDec.addWidget(labelReg)
+        # layoutDec.addWidget(self.editReg, 1)
+        # layoutDec.addWidget(decStart, 0)
+        # layout.addWidget(decPanel)
 
         e0Panel = qt.QGroupBox(self)
         e0Panel.setFlat(False)
@@ -1441,7 +1504,8 @@ class MuWidget(PropWidget):
                 dy = 0
 
             legend = '{0}.pre_edge'.format(data.alias)
-            if not self.properties['subtract_preedge']:
+            if (not self.properties['subtract_preedge']) and \
+                    len(dtparams['preedgeExps']) > 0:
                 curve = plot.getCurve(legend)
                 if curve is None:
                     plot.addCurve(
@@ -1703,19 +1767,51 @@ class MuPinholeCorrection(PropWidget):
         layoutSA.setContentsMargins(2, 2, 2, 2)
         layoutC = qt.QHBoxLayout()
         layoutC.setContentsMargins(0, 0, 0, 0)
-        fractionLabel = qt.QLabel('pinhole fraction')
-        layoutC.addWidget(fractionLabel)
-        fractionBox = qt.QDoubleSpinBox()
-        fractionBox.setToolTip('0 ≤ fraction < 1')
-        fractionBox.setMinimum(0.0)
+        hfractionLabel = qt.QLabel('empty pinhole fraction')
+        layoutC.addWidget(hfractionLabel)
+        hfractionBox = qt.QDoubleSpinBox()
+        hfractionBox.setToolTip('0 ≤ fraction < 1')
+        hfractionBox.setMinimum(0.0)
         # fractionBox.setMinimum(-0.99)
-        # fractionBox.setMaximum(0.99)
-        fractionBox.setSingleStep(0.1)
-        fractionBox.setDecimals(2)
-        self.registerPropWidget(fractionBox, 'pinhole fraction',
-                                'pinholeCorrectionDict.fraction')
-        layoutC.addWidget(fractionBox)
+        hfractionBox.setMaximum(0.999)
+        hfractionBox.setSingleStep(0.001)
+        hfractionBox.setDecimals(3)
+        self.registerPropWidget(hfractionBox, 'empty pinhole fraction',
+                                'pinholeCorrectionDict.holeFraction')
+        layoutC.addWidget(hfractionBox)
         layoutSA.addLayout(layoutC)
+
+        layoutS = qt.QHBoxLayout()
+        layoutS.setContentsMargins(0, 0, 0, 0)
+        sfractionLabel = qt.QLabel('matrix pinhole fraction')
+        layoutS.addWidget(sfractionLabel)
+        sfractionBox = qt.QDoubleSpinBox()
+        sfractionBox.setToolTip('0 ≤ fraction < 1')
+        sfractionBox.setMinimum(0.0)
+        # sfractionBox.setMinimum(-0.99)
+        sfractionBox.setMaximum(0.999)
+        sfractionBox.setSingleStep(0.01)
+        sfractionBox.setDecimals(3)
+        self.registerPropWidget(sfractionBox, 'matrix pinhole fraction',
+                                'pinholeCorrectionDict.matrixFraction')
+        layoutS.addWidget(sfractionBox)
+        layoutSA.addLayout(layoutS)
+
+        layoutM = qt.QHBoxLayout()
+        layoutM.setContentsMargins(0, 0, 0, 0)
+        mfractionLabel = qt.QLabel('matrix absorption fraction')
+        layoutM.addWidget(mfractionLabel)
+        mfractionBox = qt.QDoubleSpinBox()
+        mfractionBox.setToolTip('0 ≤ absorption < 1 relative to background')
+        mfractionBox.setMinimum(0.0)
+        # mfractionBox.setMinimum(-0.99)
+        mfractionBox.setMaximum(0.999)
+        mfractionBox.setSingleStep(0.01)
+        mfractionBox.setDecimals(3)
+        self.registerPropWidget(mfractionBox, 'matrix absorption fraction',
+                                'pinholeCorrectionDict.matrixAbsorption')
+        layoutM.addWidget(mfractionBox)
+        layoutSA.addLayout(layoutM)
 
         phcPanel.setLayout(layoutSA)
         layout.addWidget(phcPanel)
@@ -2168,7 +2264,8 @@ class ChiWidget(PropWidget):
             (labeldc, spinboxdc), 'lowpass frequency', 'denoiseFrequency')
         layoutnl = qt.QHBoxLayout()
         labelnl = qt.QLabel('noise level')
-        tt = 'defined as N/S = √Σₖ(χ·kᵂ-χ(denoised)·kᵂ)² / √Σₖ(χ(denoised)·kᵂ)²'
+        tt = \
+            'defined as N/S = √Σₖ(χ·kᵂ-χ(denoised)·kᵂ)² / √Σₖ(χ(denoised)·kᵂ)²'
         labelnl.setToolTip(tt)
         layoutnl.addWidget(labelnl)
         self.valueNoiseLevel = qt.QLabel()
