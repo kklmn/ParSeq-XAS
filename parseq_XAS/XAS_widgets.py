@@ -71,7 +71,10 @@ class RangeWidgetE0(AutoRangeWidget):
         if len(csi.selectedItems) == 0:
             return
         data = csi.selectedItems[0]
-        if not hasattr(data, 'e') or len(data.e) == 0:
+        try:
+            if len(data.e) == 0:
+                return
+        except (TypeError, AttributeError):
             return
         dE = data.e[-1] - data.e[0]
         if direction == 1:  # from vidget values to roi limits
@@ -2392,8 +2395,9 @@ class ChiWidget(PropWidget):
 
             legend = 'FT window'
             if self.properties['show_ft_window']:
-                ymax = plot.getYAxis().getLimits()[1] * \
-                    RangeWidgetFTWidthAndMin.plotFactor
+                ymax = plot.getYAxis().getLimits()[1] if plot.maxAllY is None \
+                    else plot.maxAllY
+                ymax *= RangeWidgetFTWidthAndMin.plotFactor
                 curve = plot.getCurve(legend)
                 if curve is None:
                     plot.addCurve(
@@ -2656,8 +2660,9 @@ class FTWidget(PropWidget):
         self.bftWindowRange.fromSpinBox(100)
         legend = 'BFT window'
         if hasattr(data, 'bftwindow') and self.properties['show_bft_window']:
-            ymax = plot.getYAxis().getLimits()[1] * \
-                RangeWidgetFTWidthAndMin.plotFactor
+            ymax = plot.getYAxis().getLimits()[1] if plot.maxAllY is None \
+                else plot.maxAllY
+            ymax *= RangeWidgetFTWidthAndMin.plotFactor
             curve = plot.getCurve(legend)
             if curve is None:
                 plot.addCurve(

@@ -570,6 +570,8 @@ class MakeChi(ctr.Transform):
     @logger(minLevel=20, attrs=[(0, 'name')])
     def get_e0(cls, data):
         dtparams = data.transformParams
+        if data.e.ndim == 0:
+            raise ValueError('Singular energy array')
         ge = np.gradient(data.e)
         gmu = np.gradient(data.mu)
         data.mu_der = np.zeros_like(ge)
