@@ -672,7 +672,7 @@ class MakeChi(ctr.Transform):
             ekmin = e2
             kmin = abs((ekmin - e0)*eV2revA)**0.5
 
-        emax = data.e[-1]
+        emax = data.e.max()  # can contain None, so not as data.e[-1]
         kmaxD = abs((emax - e0)*eV2revA)**0.5
         if splitters[3] in ('inf', float('inf')):
             kmax = kmaxD
@@ -952,6 +952,9 @@ class MakeChi(ctr.Transform):
         else:
             if not hasattr(data, 'e'):  # if data combinations fails:
                 return
+        if np.isnan(data.e).any():
+            dtparams['binDistrNew'] = None
+            return False
         if hasattr(data, 'muraw'):  # may be absent in data combinations
             data.mu = np.array(data.muraw)
 
@@ -1246,6 +1249,8 @@ class MakeFT(ctr.Transform):
         kmin, kmax = dtparams['krange']
         if kmax is None:
             kmax = dtparams['datakmax']
+        if not hasattr(data, 'k'):
+            return False
         data.ftwindow = uft.make_ft_window(kind, data.k, kmin, kmax, w, vmin)
         chi = np.array(data.chi) * data.ftwindow
         if dtparams['forceFT0']:
@@ -1290,6 +1295,8 @@ class MakeBFT(ctr.Transform):
 
     @classmethod
     def run_main(cls, data):
+        if not hasattr(data, 'r'):
+            return False
         dtparams = data.transformParams
         kind = dtparams['bftWindowKind']
         if dtparams['bftWindowRange'] is not None:
